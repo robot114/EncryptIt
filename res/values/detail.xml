@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="detailTimeTitleBackground">#F0F0F0</color>
+    <color name="detailTimeTitleText">#008080</color>
+    <color name="detailTimeBackground">#F0F0F0</color>
+    <color name="detailTimeText">#000</color>
+    <color name="detailTextBackground">#FFFFB0</color>
+    <color name="detailText">#0000FF</color>
+    <color name="detailTitleBackground">#FFFF80</color>
+    
+    <style name="styleDetailText">
+		<item name="android:autoLink">all</item>
+		<item name="android:background">@color/detailTextBackground</item>
+		<item name="android:drawableTop">@color/detailTimeBackground</item>
+		<item name="android:ems">10</item>
+		<item name="android:enabled">true</item>
+		<item name="android:gravity">top|left</item>
+		<item name="android:inputType">textMultiLine</item>
+		<item name="android:lines">20</item>
+		<item name="android:linksClickable">true</item>
+		<item name="android:longClickable">true</item>
+		<item name="android:padding">5dp</item>
+		<item name="android:textColor">@color/detailText</item>
+    </style>
+
+    <style name="styleDetailTitle">
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:background">@color/detailTitleBackground</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:ems">10</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">text</item>
+        <item name="android:lines">1</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:minLines">1</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
+        <item name="android:textColor">@color/detailText</item>
+    </style>
+    
+    <style name="styleDetailTimeTitle">
+        <item name="android:layout_width">89dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">9.76</item>
+        <item name="android:background">@color/detailTimeTitleBackground</item>
+        <item name="android:ems">10</item>
+        <item name="android:inputType">none</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:textColor">@color/detailTimeTitleText</item>
+    </style>
+
+    <style name="styleDetailTimeTime">
+         <item name="android:layout_width">wrap_content</item>
+         <item name="android:layout_height">wrap_content</item>
+         <item name="android:layout_weight">10</item>
+         <item name="android:background">@color/detailTimeBackground</item>
+         <item name="android:ems">10</item>
+         <item name="android:inputType">none</item>
+         <item name="android:padding">5dp</item>
+         <item name="android:text">@string/fullDateTimeFormat</item>
+         <item name="android:textColor">@color/detailTimeText</item>
+    </style>
+    <string name="detailNothingChanged">Nothing changed</string>
+    <string name="detailPromptCancel">Do you want to discard the modification?</string>
+    <string name="detailHint">Add detail here</string>
+    <string name="detail_title_hint">Enter something for this task</string>
+    <string name="detail_edit">Edit</string>
+    <string name="detail_delete">Are you sure to delete this?</string>
+    <string name="detailSaveAndBack">Save and Back</string>
+    <string name="detailSave">Save</string>
+    <string name="deatilSaved">Change saved!</string>
+</resources>

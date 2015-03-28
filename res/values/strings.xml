@@ -1,0 +1,17 @@
+<resources>
+
+    <string name="app_name">Encrypt !t</string>
+    <string name="todoItemHint">Enter what to do.</string>
+    <string name="todoItemContentDescription">Enter what to do here!!!!!</string>
+    <string name="editor_hint">Enter what to do</string>
+    <string name="createdTimeTitle">Created:</string>
+    <string name="modifyTimeTitle">Modify:</string>
+    <string name="fullDateTimeFormat">YY/MM/DD HH:MM:SS</string>
+    <string name="clearButtonText">Clear the text in the editor</string>
+    <string name="rowEdit">Edit and detail</string>
+    <string name="newItemDescription">New an item</string>
+    <string name="passwordLabel">"Password: "</string>
+    <string name="quit">Quit</string>
+    <string name="login">Login</string>
+    <string name="quitPrompt">Quit this application</string>
+</resources>

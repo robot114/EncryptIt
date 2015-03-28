@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/detailTextBackground"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/detailTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/detailCreatedTitle"
+                style="@style/styleDetailTimeTitle"
+                android:text="@string/createdTimeTitle" />
+
+            <TextView
+                android:id="@+id/detailCreateTime"
+                style="@style/styleDetailTimeTime" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/detailModifyTitle"
+                style="@style/styleDetailTimeTitle"
+				android:text="@string/modifyTimeTitle" />
+
+            <TextView
+                android:id="@+id/detailModifyTime"
+                style="@style/styleDetailTimeTime" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/titleText"
+        style="@style/styleDetailTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/detailTime"
+        android:hint="@string/detail_title_hint">
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/detailText"
+        style="@style/styleDetailText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+		android:hint="@string/detailHint"
+        android:layout_below="@+id/titleText" />
+
+</RelativeLayout>

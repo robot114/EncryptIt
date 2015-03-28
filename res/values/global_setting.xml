@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="contentProviderUri">com.zsm.encryptIt.provider</string>
+    <string name="contentProviderType">encryptItem</string>
+    
+</resources>
