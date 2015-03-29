@@ -4,9 +4,11 @@ import java.security.Key;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.app.EncryptItApplication;
@@ -26,29 +28,22 @@ public class LoginActivity extends SecurityActivity {
 		passwordAllowToTry
 			= ((EncryptItApplication)getApplication()).maxPasswordRetries();
 		
+		final TextView passwordTextView
+			= (TextView)findViewById( R.id.loginPasswordTextView );
+		passwordTextView.setOnEditorActionListener( new OnEditorActionListener(){
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				doLogin( passwordTextView );
+				return true;
+			}
+		} );
+		
 		findViewById( R.id.loginOkButton )
 			.setOnClickListener( new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				CharSequence passwordCS
-					= ((TextView)findViewById( R.id.loginPasswordTextView ))
-						.getText();
-				char[] password = passwordCS.toString().toCharArray();
-				Key key = checkPasswordAndGetKey( password );
-				if( key != null ) {
-					Intent intent = new Intent( Intent.ACTION_PICK );
-					intent.putExtra( PasswordHandler.KEY_KEY, key );
-					setResult(RESULT_OK, intent);
-					finish();
-					return;
-				} else if( passwordTriedTooMuch() ) {
-					setResult( LOGIN_FAILED );
-					finish();
-					return;
-				} else {
-					// Can try more times
-				}
+				doLogin(passwordTextView);
 			}
 		} );
 		findViewById( R.id.loginCancelButton )
@@ -60,5 +55,23 @@ public class LoginActivity extends SecurityActivity {
 				finish();
 			}
 		} );
+	}
+
+	private void doLogin(final TextView passwordTextView) {
+		char[] password = passwordTextView .getText().toString().toCharArray();
+		Key key = checkPasswordAndGetKey( password );
+		if( key != null ) {
+			Intent intent = new Intent( Intent.ACTION_PICK );
+			intent.putExtra( PasswordHandler.KEY_KEY, key );
+			setResult(RESULT_OK, intent);
+			finish();
+			return;
+		} else if( passwordTriedTooMuch() ) {
+			setResult( LOGIN_FAILED );
+			finish();
+			return;
+		} else {
+			// Can try more times
+		}
 	}
 }

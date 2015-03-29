@@ -9,6 +9,14 @@ package com.zsm.encryptIt;
 
 public final class R {
     public static final class attr {
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int clearButtonOnRight=0x7f010000;
     }
     public static final class color {
         public static final int clearableBackground=0x7f040000;
@@ -41,56 +49,61 @@ public final class R {
         public static final int unlock=0x7f020009;
     }
     public static final class id {
-        public static final int ToDoListFragment=0x7f080013;
-        public static final int button1=0x7f080015;
-        public static final int buttonLayout=0x7f080014;
-        public static final int clearButton=0x7f080000;
-        public static final int clearableEditor=0x7f080011;
-        public static final int detailCreateTime=0x7f080004;
-        public static final int detailCreatedTitle=0x7f080003;
-        public static final int detailModifyTime=0x7f080006;
-        public static final int detailModifyTitle=0x7f080005;
-        public static final int detailText=0x7f080008;
-        public static final int detailTime=0x7f080002;
-        public static final int editText=0x7f080001;
-        public static final int editorLayout=0x7f08000f;
-        public static final int loginCancelButton=0x7f08000a;
-        public static final int loginImageView=0x7f08000e;
-        public static final int loginOkButton=0x7f080009;
-        public static final int loginPasswordLayout=0x7f08000b;
-        public static final int loginPasswordTextView=0x7f08000d;
-        public static final int newItemButton=0x7f080010;
-        public static final int passwordLabel=0x7f08000c;
-        public static final int promptCancelButton=0x7f080017;
-        public static final int promptConfirmPasswordLabel=0x7f08001e;
-        public static final int promptConfirmPasswordTextView=0x7f080018;
-        public static final int promptImageView=0x7f08001f;
-        public static final int promptNewPasswordLabel=0x7f08001d;
-        public static final int promptNewPasswordTextView=0x7f08001c;
-        public static final int promptOkButton=0x7f080016;
-        public static final int promptOldPasswordLabel=0x7f08001a;
-        public static final int promptOldPasswordTextView=0x7f08001b;
-        public static final int promptPasswordHint=0x7f080020;
-        public static final int promptPasswordLayout=0x7f080019;
-        public static final int row=0x7f080024;
-        public static final int rowCheck=0x7f080023;
-        public static final int rowDate=0x7f080025;
-        public static final int rowDelete=0x7f080027;
-        public static final int rowEdit=0x7f080026;
-        public static final int titleText=0x7f080007;
-        public static final int todoList=0x7f080021;
-        public static final int todoListItem=0x7f080022;
-        public static final int todoListLayout=0x7f080012;
+        public static final int ToDoListFragment=0x7f090013;
+        public static final int button1=0x7f090015;
+        public static final int buttonLayout=0x7f090014;
+        public static final int clearButton=0x7f090000;
+        public static final int clearableEditor=0x7f090011;
+        public static final int detailCreateTime=0x7f090004;
+        public static final int detailCreatedTitle=0x7f090003;
+        public static final int detailModifyTime=0x7f090006;
+        public static final int detailModifyTitle=0x7f090005;
+        public static final int detailText=0x7f090008;
+        public static final int detailTime=0x7f090002;
+        public static final int editText=0x7f090001;
+        public static final int editorLayout=0x7f09000f;
+        public static final int loginCancelButton=0x7f09000a;
+        public static final int loginImageView=0x7f09000e;
+        public static final int loginOkButton=0x7f090009;
+        public static final int loginPasswordLayout=0x7f09000b;
+        public static final int loginPasswordTextView=0x7f09000d;
+        public static final int menuMainChangePassword=0x7f090028;
+        public static final int newItemButton=0x7f090010;
+        public static final int passwordLabel=0x7f09000c;
+        public static final int promptCancelButton=0x7f090017;
+        public static final int promptConfirmPasswordLabel=0x7f09001e;
+        public static final int promptConfirmPasswordTextView=0x7f090018;
+        public static final int promptImageView=0x7f09001f;
+        public static final int promptNewPasswordLabel=0x7f09001d;
+        public static final int promptNewPasswordTextView=0x7f09001c;
+        public static final int promptOkButton=0x7f090016;
+        public static final int promptOldPasswordLabel=0x7f09001a;
+        public static final int promptOldPasswordTextView=0x7f09001b;
+        public static final int promptPasswordHint=0x7f090020;
+        public static final int promptPasswordLayout=0x7f090019;
+        public static final int row=0x7f090024;
+        public static final int rowCheck=0x7f090023;
+        public static final int rowDate=0x7f090025;
+        public static final int rowDelete=0x7f090027;
+        public static final int rowEdit=0x7f090026;
+        public static final int titleText=0x7f090007;
+        public static final int todoList=0x7f090021;
+        public static final int todoListItem=0x7f090022;
+        public static final int todoListLayout=0x7f090012;
     }
     public static final class layout {
         public static final int clearable_editor=0x7f030000;
-        public static final int detail=0x7f030001;
-        public static final int login=0x7f030002;
-        public static final int main=0x7f030003;
-        public static final int prompt_password=0x7f030004;
-        public static final int todo_list_fragment=0x7f030005;
-        public static final int todo_list_item=0x7f030006;
-        public static final int todo_list_item_view=0x7f030007;
+        public static final int clearable_editor_left=0x7f030001;
+        public static final int detail=0x7f030002;
+        public static final int login=0x7f030003;
+        public static final int main=0x7f030004;
+        public static final int prompt_password=0x7f030005;
+        public static final int todo_list_fragment=0x7f030006;
+        public static final int todo_list_item=0x7f030007;
+        public static final int todo_list_item_view=0x7f030008;
+    }
+    public static final class menu {
+        public static final int main=0x7f080000;
     }
     public static final class string {
         public static final int app_name=0x7f060019;
@@ -115,6 +128,7 @@ public final class R {
         public static final int invalidPassword=0x7f06000d;
         public static final int login=0x7f060025;
         public static final int loginPrompt=0x7f06000c;
+        public static final int menuChangePassword=0x7f060027;
         public static final int modifyTimeTitle=0x7f06001e;
         public static final int newItemDescription=0x7f060022;
         public static final int oldPasswordPrompt=0x7f06000e;
@@ -165,4 +179,33 @@ public final class R {
         public static final int styleDetailTimeTitle=0x7f050002;
         public static final int styleDetailTitle=0x7f050001;
     }
+    public static final class styleable {
+        /** Attributes that can be used with a ClearableEditor.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #ClearableEditor_clearButtonOnRight com.zsm.encryptIt:clearButtonOnRight}</code></td><td></td></tr>
+           </table>
+           @see #ClearableEditor_clearButtonOnRight
+         */
+        public static final int[] ClearableEditor = {
+            0x7f010000
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.zsm.encryptIt.R.attr#clearButtonOnRight}
+          attribute's value can be found in the {@link #ClearableEditor} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.zsm.encryptIt:clearButtonOnRight
+        */
+        public static final int ClearableEditor_clearButtonOnRight = 0;
+    };
 }

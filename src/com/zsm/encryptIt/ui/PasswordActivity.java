@@ -8,10 +8,12 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.app.EncryptItApplication;
@@ -89,50 +91,7 @@ public class PasswordActivity extends SecurityActivity {
 
 			@Override
 			public void onClick(View v) {
-				int strId = isPasswordSafity();
-				if( strId > 0 ) {
-					promptResult( strId );
-					return;
-				}
-				char[] password = null;
-				if( type == TYPE_INIT ) {
-					password = newTextView.getText().toString().toCharArray();
-					Key key = checkPasswordAndGetKey( password );
-					if( key == null ) {
-						Log.e( "Initialize password failed!" );
-						setResult( INITIALIZE_PASSWORD_FAILED );
-						finish();
-						return;
-					} else {
-						Intent intent = new Intent( Intent.ACTION_PICK );
-						intent.putExtra( PasswordHandler.KEY_KEY, key );
-						setResult(RESULT_OK, intent);
-						finish();
-						return;
-					}
-				} else if( type == TYPE_CHANGE ) {
-					password = oldPasswordView.getText().toString().toCharArray();
-					if( checkPasswordAndGetKey( password ) != null ) {
-						Intent intent = new Intent( Intent.ACTION_PICK );
-						intent.putExtra( PasswordHandler.KEY_OLD_PASSWORD,
-										 password );
-						intent.putExtra( PasswordHandler.KEY_NEW_PASSWORD, 
-										 newTextView.getText().toString()
-										 	.toCharArray() );
-						setResult(RESULT_OK, intent);
-						finish();
-					} else if( passwordTriedTooMuch() ) {
-						setResult( TOO_MUCH_TIMES_TO_TRY );
-						finish();
-						return;
-					} else {
-						// Can try more times
-					}
-				} else {
-					IllegalArgumentException e = new IllegalArgumentException();
-					Log.e(e, "No valid type give me!" );
-					throw e;
-				}
+				doPassword(oldPasswordView, type);
 			}
 
 		} );
@@ -142,6 +101,14 @@ public class PasswordActivity extends SecurityActivity {
 			public void onClick(View v) {
 				setResult(Activity.RESULT_CANCELED);
 				finish();
+			}
+		} );
+		
+		confirmTextView.setOnEditorActionListener( new OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				doPassword(oldPasswordView, type);
+				return true;
 			}
 		} );
 	}
@@ -165,5 +132,52 @@ public class PasswordActivity extends SecurityActivity {
 		}
 		
 		return 0;
+	}
+
+	private void doPassword(final TextView oldPasswordView, final int type) {
+		int strId = isPasswordSafity();
+		if( strId > 0 ) {
+			promptResult( strId );
+			return;
+		}
+		char[] password = null;
+		if( type == TYPE_INIT ) {
+			password = newTextView.getText().toString().toCharArray();
+			Key key = checkPasswordAndGetKey( password );
+			if( key == null ) {
+				Log.e( "Initialize password failed!" );
+				setResult( INITIALIZE_PASSWORD_FAILED );
+				finish();
+				return;
+			} else {
+				Intent intent = new Intent( Intent.ACTION_PICK );
+				intent.putExtra( PasswordHandler.KEY_KEY, key );
+				setResult(RESULT_OK, intent);
+				finish();
+				return;
+			}
+		} else if( type == TYPE_CHANGE ) {
+			password = oldPasswordView.getText().toString().toCharArray();
+			if( checkPasswordAndGetKey( password ) != null ) {
+				Intent intent = new Intent( Intent.ACTION_PICK );
+				intent.putExtra( PasswordHandler.KEY_OLD_PASSWORD,
+								 password );
+				intent.putExtra( PasswordHandler.KEY_NEW_PASSWORD, 
+								 newTextView.getText().toString()
+								 	.toCharArray() );
+				setResult(RESULT_OK, intent);
+				finish();
+			} else if( passwordTriedTooMuch() ) {
+				setResult( TOO_MUCH_TIMES_TO_TRY );
+				finish();
+				return;
+			} else {
+				// Can try more times
+			}
+		} else {
+			IllegalArgumentException e = new IllegalArgumentException();
+			Log.e(e, "No valid type give me!" );
+			throw e;
+		}
 	}
 }

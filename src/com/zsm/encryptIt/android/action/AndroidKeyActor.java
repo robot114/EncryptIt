@@ -31,6 +31,7 @@ public class AndroidKeyActor extends KeyAction {
 		
 		if( ksPassword != null ) {
 			// Initialized
+			Log.d( "Key store's password has been initialized!" );
 			return;
 		}
 		TelephonyManager mngr

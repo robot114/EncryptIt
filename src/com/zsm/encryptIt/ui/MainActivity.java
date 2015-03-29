@@ -11,12 +11,16 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.TypedValue;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.action.KeyAction;
@@ -25,7 +29,6 @@ import com.zsm.encryptIt.android.action.PasswordPromptParameter;
 import com.zsm.encryptIt.app.EncryptItApplication;
 import com.zsm.log.Log;
 import com.zsm.security.PasswordHandler;
-import com.zsm.util.StringUtility;
 
 public class MainActivity extends ProtectedActivity {
 
@@ -73,7 +76,7 @@ public class MainActivity extends ProtectedActivity {
 			.setOnClickListener( new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					doAdd( clearableEditor.getText().toString() );
+					doAdd( );
 				}
 		} );
 		
@@ -84,9 +87,13 @@ public class MainActivity extends ProtectedActivity {
 			}
 		});
 		
-		clearableEditor.addTextChangedListener( new EditorListener() );
-		
-		clearableEditor.setOnKeyListener(null);
+		clearableEditor.setOnEditorActionListener( new OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				doAdd();
+				return true;
+			}
+		} );
 		
 		setHeightByWindow( );
 		
@@ -141,6 +148,15 @@ public class MainActivity extends ProtectedActivity {
 	}
 
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+
+		MenuInflater mi = getMenuInflater();
+		mi.inflate( R.menu.main, menu);
+		return true;
+	}
+	
+	@Override
 	protected void onResume() {
 		super.onResume();
 		if( wasInBackground ) {
@@ -170,11 +186,22 @@ public class MainActivity extends ProtectedActivity {
 			return false;
 		}
 	}
-
+	
 	@Override
-	protected void onNewIntent(Intent intent) {
-		super.onNewIntent(intent);
+	public boolean onOptionsItemSelected(MenuItem item) {
+		super.onOptionsItemSelected(item);
+		
+		switch( item.getItemId() ) {
+			case R.id.menuMainChangePassword:
+				changePassword();
+				return true;
+			default:
+				break;
+		}
+		
+		return false;
 	}
+
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
@@ -223,8 +250,8 @@ public class MainActivity extends ProtectedActivity {
 	      return result;
 	} 
 	
-	private void doAdd(String string) {
-		if( listFragment.doAdd(string) ) {
+	private void doAdd() {
+		if( listFragment.doAdd(clearableEditor.getText().toString()) ) {
 			clearableEditor.clearText();
 		}
 	}
@@ -295,7 +322,7 @@ public class MainActivity extends ProtectedActivity {
 		}
 	}
 
-	private void doChangePassword(int resultCode, Intent intent) {
+	public void doChangePassword(int resultCode, Intent intent) {
 		switch ( resultCode ) {
 			case Activity.RESULT_OK:
 				char[] oldPassword
@@ -331,35 +358,9 @@ public class MainActivity extends ProtectedActivity {
 	
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
 		if( hasFocus ) {
 			setHeightByWindow();
 		}
 	}
-	
-	private final class EditorListener implements TextWatcher {
-		@Override
-		public void beforeTextChanged(CharSequence s, int start, int count,
-				int after) {
-		}
-
-		@Override
-		public void onTextChanged(CharSequence s, int start, int before,
-				int count) {
-			
-			listFragment.filter( s );
-		}
-
-		@Override
-		public void afterTextChanged(Editable s) {
-			int length = s.length();
-			if( length > 0 && StringUtility.isEnter(s.charAt(length-1)) ) {
-				if( length > 1 ) {	// Just pressed enter
-					doAdd( s.subSequence(0, length-1).toString() );
-				} else {	// Empty string with enter
-					clearableEditor.clearText();
-				}
-			}
-		}
-	}
-	
 }

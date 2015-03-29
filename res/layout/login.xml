@@ -47,6 +47,7 @@
             android:layout_weight="1"
             android:contentDescription="@string/passwordLabel"
             android:ems="10"
+            android:imeOptions="actionGo"
             android:inputType="textPassword"
             android:nextFocusDown="@id/loginOkButton"
             android:nextFocusForward="@id/loginOkButton" />

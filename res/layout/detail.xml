@@ -52,7 +52,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/detailTime"
-        android:hint="@string/detail_title_hint">
+        android:hint="@string/detail_title_hint"
+        android:imeOptions="actionNext" >
 
         <requestFocus />
     </EditText>

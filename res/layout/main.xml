@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res/com.zsm.encryptIt"
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
@@ -25,7 +27,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@id/newItemButton" >
+            android:layout_toLeftOf="@id/newItemButton"
+            custom:clearButtonOnRight="false" >
 
         </com.zsm.encryptIt.ui.ClearableEditor>
 

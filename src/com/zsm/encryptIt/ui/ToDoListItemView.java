@@ -137,12 +137,12 @@ public class ToDoListItemView extends RelativeLayout {
 	}
 
 	public void setDisplayValue( WhatToDoItem item, int position ) {
-		Date createdTime = item.getCreatedTime();
-		String createdStr
-			= DateFormat.getDateInstance( DateFormat.MEDIUM ).format(createdTime);
+		String time
+			= DateFormat.getDateInstance( DateFormat.SHORT )
+				.format(item.getModifiedTime());
 		
 		textView.setText( item.getTask() );
-		dateView.setText( createdStr );
+		dateView.setText( time );
 		editView.setTag( new Object[]{ item, position } );
 		data = item;
 		this.position = position;
