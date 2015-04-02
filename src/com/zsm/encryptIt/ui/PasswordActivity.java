@@ -28,8 +28,9 @@ public class PasswordActivity extends SecurityActivity {
 	public static final int TYPE_INIT = 1;
 	public static final int TYPE_CHANGE = 2;
 
-	private TextView newTextView;
-	private TextView confirmTextView;
+	private VisiblePassword oldPasswordView;
+	private VisiblePassword newPasswordView;
+	private VisiblePassword confirmPasswordView;
 	private TextView hintTextView;
 
 	@Override
@@ -40,8 +41,8 @@ public class PasswordActivity extends SecurityActivity {
 		passwordAllowToTry
 			= ((EncryptItApplication)getApplication()).maxPasswordRetries();
 		
-		newTextView = (TextView)findViewById( R.id.promptNewPasswordTextView );
-		confirmTextView = (TextView)findViewById( R.id.promptConfirmPasswordTextView );
+		newPasswordView = (VisiblePassword)findViewById( R.id.promptNewPassword );
+		confirmPasswordView = (VisiblePassword)findViewById( R.id.promptConfirmPassword );
 		hintTextView = (TextView)findViewById( R.id.promptPasswordHint );
 		hintTextView.setText("");
 		
@@ -56,33 +57,27 @@ public class PasswordActivity extends SecurityActivity {
 				}
 			}
 		};
-		newTextView.addTextChangedListener( tw );
-		confirmTextView.addTextChangedListener(tw);
+		newPasswordView.addTextChangedListener( tw );
+		confirmPasswordView.addTextChangedListener(tw);
 		
-		final TextView oldPasswordView
-			= (TextView)findViewById( R.id.promptOldPasswordTextView );
+		oldPasswordView = (VisiblePassword)findViewById( R.id.promptOldPassword );
 		final Button cancelButton = (Button)findViewById( R.id.promptCancelButton );
 		
 		Intent intent = getIntent();
 		final int type = intent.getIntExtra(KEY_TYPE, -1);
 		if( type == TYPE_INIT ) {
-			findViewById( R.id.promptOldPasswordLabel ).setVisibility( View.INVISIBLE );
 			oldPasswordView.setVisibility( View.INVISIBLE );
-			((TextView)(findViewById( R.id.promptNewPasswordLabel )))
-				.setText( getResources().getString( R.string.promptPassword ) );
-			newTextView.requestFocus();
+			newPasswordView.setLabel( R.string.promptPassword );
+			newPasswordView.requestFocus();
 			cancelButton.setText( R.string.quit );
-			
 		} else if( type == TYPE_CHANGE ) {
-			findViewById( R.id.promptOldPasswordLabel ).setVisibility( View.VISIBLE );
 			oldPasswordView.setVisibility( View.VISIBLE );
-			((TextView)(findViewById( R.id.promptNewPasswordLabel )))
-				.setText( getResources().getString( R.string.promptNewPasswordLabel ) );
+			newPasswordView.setLabel( R.string.promptNewPasswordLabel );
 			oldPasswordView.requestFocus();
 			cancelButton.setText( android.R.string.cancel );
 		} else {
 			IllegalArgumentException e = new IllegalArgumentException();
-			Log.e(e, "No valid type give me!" );
+			Log.e(e, "No valid type for me!" );
 			throw e;
 		}
 		
@@ -104,7 +99,7 @@ public class PasswordActivity extends SecurityActivity {
 			}
 		} );
 		
-		confirmTextView.setOnEditorActionListener( new OnEditorActionListener() {
+		confirmPasswordView.setOnEditorActionListener( new OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				doPassword(oldPasswordView, type);
@@ -112,10 +107,28 @@ public class PasswordActivity extends SecurityActivity {
 			}
 		} );
 	}
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		if( hasFocus ) {
+			alignLabel();
+		}
+	}
+
+	private void alignLabel() {
+		int labelWidth
+			= Math.max( newPasswordView.getLabelWidth(),
+						confirmPasswordView.getLabelWidth() );
+		labelWidth = Math.max( labelWidth, oldPasswordView.getLabelWidth() );
+		newPasswordView.setLabelWidth(labelWidth);
+		confirmPasswordView.setLabelWidth(labelWidth);
+		oldPasswordView.setLabelWidth(labelWidth);
+	}
 	
 	private int isPasswordSafity() {
-		String passwordNew = newTextView.getText().toString();
-		String passwordConfirm = confirmTextView.getText().toString();
+		String passwordNew = newPasswordView.getPassword();
+		String passwordConfirm = confirmPasswordView.getPassword();
 		char[] password = passwordNew.toCharArray();
 		PasswordPolicy.Result res
 			= EncryptItApplication.getPasswordPolicy().check( password );
@@ -134,7 +147,7 @@ public class PasswordActivity extends SecurityActivity {
 		return 0;
 	}
 
-	private void doPassword(final TextView oldPasswordView, final int type) {
+	private void doPassword(final VisiblePassword oldPasswordView, final int type) {
 		int strId = isPasswordSafity();
 		if( strId > 0 ) {
 			promptResult( strId );
@@ -142,7 +155,7 @@ public class PasswordActivity extends SecurityActivity {
 		}
 		char[] password = null;
 		if( type == TYPE_INIT ) {
-			password = newTextView.getText().toString().toCharArray();
+			password = newPasswordView.getPassword().toCharArray();
 			Key key = checkPasswordAndGetKey( password );
 			if( key == null ) {
 				Log.e( "Initialize password failed!" );
@@ -157,14 +170,13 @@ public class PasswordActivity extends SecurityActivity {
 				return;
 			}
 		} else if( type == TYPE_CHANGE ) {
-			password = oldPasswordView.getText().toString().toCharArray();
+			password = oldPasswordView.getPassword().toCharArray();
 			if( checkPasswordAndGetKey( password ) != null ) {
 				Intent intent = new Intent( Intent.ACTION_PICK );
 				intent.putExtra( PasswordHandler.KEY_OLD_PASSWORD,
 								 password );
 				intent.putExtra( PasswordHandler.KEY_NEW_PASSWORD, 
-								 newTextView.getText().toString()
-								 	.toCharArray() );
+								 newPasswordView.getPassword().toCharArray() );
 				setResult(RESULT_OK, intent);
 				finish();
 			} else if( passwordTriedTooMuch() ) {

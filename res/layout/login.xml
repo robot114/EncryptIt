@@ -1,67 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res/com.zsm.encryptIt"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/loginOkButton"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/loginButtonLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:contentDescription="@string/loginPrompt"
-        android:drawableLeft="@drawable/lock"
-        android:nextFocusForward="@+id/loginCancelButton"
-        android:nextFocusRight="@+id/loginCancelButton"
-        android:text="@string/login" />
-
-    <Button
-        android:id="@+id/loginCancelButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:contentDescription="@string/quitPrompt"
-        android:drawableLeft="@drawable/quit"
-        android:text="@string/quit" />
+        android:paddingTop="10dp" >
 
-    <LinearLayout
-        android:id="@+id/loginPasswordLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/loginOkButton"
-        android:layout_alignParentLeft="true" >
-
-        <TextView
-            android:id="@+id/passwordLabel"
+        <Button
+            android:id="@+id/loginOkButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/passwordLabel"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:labelFor="@+id/loginPasswordTextView" />
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:contentDescription="@string/loginPrompt"
+            android:drawableLeft="@drawable/lock"
+            android:nextFocusForward="@+id/loginCancelButton"
+            android:nextFocusRight="@+id/loginCancelButton"
+            android:text="@string/login" />
 
-        <EditText
-            android:id="@+id/loginPasswordTextView"
-            android:layout_width="0dp"
+        <Button
+            android:id="@+id/loginCancelButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:contentDescription="@string/passwordLabel"
-            android:ems="10"
-            android:imeOptions="actionGo"
-            android:inputType="textPassword"
-            android:nextFocusDown="@id/loginOkButton"
-            android:nextFocusForward="@id/loginOkButton" />
-
-    </LinearLayout>
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:contentDescription="@string/quitPrompt"
+            android:drawableLeft="@drawable/quit"
+            android:text="@string/quit" />
+    </RelativeLayout>
 
     <ImageView
         android:id="@+id/loginImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/loginPasswordLayout"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:clickable="false"
         android:contentDescription="@string/login"
         android:src="@drawable/key" />
+
+    <RelativeLayout
+        android:id="@+id/loginPasswordLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/loginButtonLayout" >
+
+        <com.zsm.encryptIt.ui.VisiblePassword
+            android:id="@+id/loginPassword"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:contentDescription="@string/login"
+            android:imeOptions="actionGo"
+            custom:labelText="@string/passwordLabel" >
+
+        </com.zsm.encryptIt.ui.VisiblePassword>
+    </RelativeLayout>
 
 </RelativeLayout>

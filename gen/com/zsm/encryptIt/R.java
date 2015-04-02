@@ -17,6 +17,14 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int clearButtonOnRight=0x7f010000;
+        /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int labelText=0x7f010001;
     }
     public static final class color {
         public static final int clearableBackground=0x7f040000;
@@ -42,11 +50,12 @@ containing a value of this type.
         public static final int delete=0x7f020002;
         public static final int edit=0x7f020003;
         public static final int encrypted=0x7f020004;
-        public static final int ic_launcher=0x7f020005;
-        public static final int key=0x7f020006;
-        public static final int lock=0x7f020007;
-        public static final int quit=0x7f020008;
-        public static final int unlock=0x7f020009;
+        public static final int eye=0x7f020005;
+        public static final int ic_launcher=0x7f020006;
+        public static final int key=0x7f020007;
+        public static final int lock=0x7f020008;
+        public static final int quit=0x7f020009;
+        public static final int unlock=0x7f02000a;
     }
     public static final class id {
         public static final int ToDoListFragment=0x7f090013;
@@ -62,34 +71,35 @@ containing a value of this type.
         public static final int detailTime=0x7f090002;
         public static final int editText=0x7f090001;
         public static final int editorLayout=0x7f09000f;
-        public static final int loginCancelButton=0x7f09000a;
-        public static final int loginImageView=0x7f09000e;
-        public static final int loginOkButton=0x7f090009;
-        public static final int loginPasswordLayout=0x7f09000b;
-        public static final int loginPasswordTextView=0x7f09000d;
-        public static final int menuMainChangePassword=0x7f090028;
+        public static final int loginButtonLayout=0x7f090009;
+        public static final int loginCancelButton=0x7f09000b;
+        public static final int loginImageView=0x7f09000c;
+        public static final int loginOkButton=0x7f09000a;
+        public static final int loginPassword=0x7f09000e;
+        public static final int loginPasswordLayout=0x7f09000d;
+        public static final int menuMainChangePassword=0x7f090029;
         public static final int newItemButton=0x7f090010;
-        public static final int passwordLabel=0x7f09000c;
         public static final int promptCancelButton=0x7f090017;
-        public static final int promptConfirmPasswordLabel=0x7f09001e;
+        public static final int promptConfirmPassword=0x7f09001c;
         public static final int promptConfirmPasswordTextView=0x7f090018;
-        public static final int promptImageView=0x7f09001f;
-        public static final int promptNewPasswordLabel=0x7f09001d;
-        public static final int promptNewPasswordTextView=0x7f09001c;
+        public static final int promptImageView=0x7f09001d;
+        public static final int promptNewPassword=0x7f09001b;
         public static final int promptOkButton=0x7f090016;
-        public static final int promptOldPasswordLabel=0x7f09001a;
-        public static final int promptOldPasswordTextView=0x7f09001b;
-        public static final int promptPasswordHint=0x7f090020;
+        public static final int promptOldPassword=0x7f09001a;
+        public static final int promptPasswordHint=0x7f09001e;
         public static final int promptPasswordLayout=0x7f090019;
-        public static final int row=0x7f090024;
-        public static final int rowCheck=0x7f090023;
-        public static final int rowDate=0x7f090025;
-        public static final int rowDelete=0x7f090027;
-        public static final int rowEdit=0x7f090026;
+        public static final int row=0x7f090022;
+        public static final int rowCheck=0x7f090021;
+        public static final int rowDate=0x7f090023;
+        public static final int rowDelete=0x7f090025;
+        public static final int rowEdit=0x7f090024;
         public static final int titleText=0x7f090007;
-        public static final int todoList=0x7f090021;
-        public static final int todoListItem=0x7f090022;
+        public static final int todoList=0x7f09001f;
+        public static final int todoListItem=0x7f090020;
         public static final int todoListLayout=0x7f090012;
+        public static final int visiblePasswordButton=0x7f090028;
+        public static final int visiblePasswordLabel=0x7f090026;
+        public static final int visiblePasswordText=0x7f090027;
     }
     public static final class layout {
         public static final int clearable_editor=0x7f030000;
@@ -101,6 +111,7 @@ containing a value of this type.
         public static final int todo_list_fragment=0x7f030006;
         public static final int todo_list_item=0x7f030007;
         public static final int todo_list_item_view=0x7f030008;
+        public static final int visible_password=0x7f030009;
     }
     public static final class menu {
         public static final int main=0x7f080000;
@@ -136,7 +147,7 @@ containing a value of this type.
         public static final int passwordTooShort=0x7f060016;
         public static final int passwordTriedTooMuch=0x7f060013;
         public static final int passwordUnknownResult=0x7f060015;
-        public static final int promptConfirmPassword=0x7f060011;
+        public static final int promptConfirmPasswordLbel=0x7f060011;
         public static final int promptNewPasswordLabel=0x7f060010;
         public static final int promptOldPasswordLabel=0x7f06000f;
         public static final int promptPassword=0x7f060014;
@@ -207,5 +218,40 @@ containing a value of this type.
           @attr name com.zsm.encryptIt:clearButtonOnRight
         */
         public static final int ClearableEditor_clearButtonOnRight = 0;
+        /** Attributes that can be used with a VisiblePassword.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #VisiblePassword_android_imeOptions android:imeOptions}</code></td><td></td></tr>
+           <tr><td><code>{@link #VisiblePassword_labelText com.zsm.encryptIt:labelText}</code></td><td></td></tr>
+           </table>
+           @see #VisiblePassword_android_imeOptions
+           @see #VisiblePassword_labelText
+         */
+        public static final int[] VisiblePassword = {
+            0x01010264, 0x7f010001
+        };
+        /**
+          <p>This symbol is the offset where the {@link android.R.attr#imeOptions}
+          attribute's value can be found in the {@link #VisiblePassword} array.
+          @attr name android:imeOptions
+        */
+        public static final int VisiblePassword_android_imeOptions = 0;
+        /**
+          <p>This symbol is the offset where the {@link com.zsm.encryptIt.R.attr#labelText}
+          attribute's value can be found in the {@link #VisiblePassword} array.
+
+
+          <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.zsm.encryptIt:labelText
+        */
+        public static final int VisiblePassword_labelText = 1;
     };
 }

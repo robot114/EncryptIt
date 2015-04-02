@@ -238,18 +238,6 @@ public class MainActivity extends ProtectedActivity {
 		} );
 	}
 	
-	private int getStatusBarHeight() { 
-	      int result = 0;
-	      int resourceId
-	      	= getResources().getIdentifier(
-	      			"status_bar_height", "dimen", "android");
-	      
-	      if (resourceId > 0) {
-	          result = getResources().getDimensionPixelSize(resourceId);
-	      } 
-	      return result;
-	} 
-	
 	private void doAdd() {
 		if( listFragment.doAdd(clearableEditor.getText().toString()) ) {
 			clearableEditor.clearText();

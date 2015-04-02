@@ -1,7 +1,6 @@
 package com.zsm.encryptIt.ui;
 
 import java.text.DateFormat;
-import java.util.Date;
 
 import android.app.Activity;
 import android.content.Context;

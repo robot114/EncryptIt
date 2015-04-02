@@ -3,10 +3,13 @@ package com.zsm.encryptIt.ui;
 import java.security.Key;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -17,8 +20,9 @@ import com.zsm.security.PasswordHandler;
 public class LoginActivity extends SecurityActivity {
 
 	final public static String KEY_LOGIN_TYPE = "KEY_LOGIN_TYPE";
-	final public static int LOGIN_LOGIN = 1;
-	final public static int LOGIN_UNLOCK = 2;
+	private RelativeLayout buttonLayout;
+	private View okButton;
+	private VisiblePassword passwordView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -28,22 +32,21 @@ public class LoginActivity extends SecurityActivity {
 		passwordAllowToTry
 			= ((EncryptItApplication)getApplication()).maxPasswordRetries();
 		
-		final TextView passwordTextView
-			= (TextView)findViewById( R.id.loginPasswordTextView );
-		passwordTextView.setOnEditorActionListener( new OnEditorActionListener(){
+		passwordView = (VisiblePassword)findViewById( R.id.loginPassword );
+		passwordView.setOnEditorActionListener( new OnEditorActionListener(){
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				doLogin( passwordTextView );
+				doLogin( passwordView.getPassword().toCharArray() );
 				return true;
 			}
 		} );
 		
-		findViewById( R.id.loginOkButton )
-			.setOnClickListener( new OnClickListener() {
+		okButton = findViewById( R.id.loginOkButton );
+		okButton.setOnClickListener( new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				doLogin(passwordTextView);
+				doLogin(passwordView.getPassword().toCharArray());
 			}
 		} );
 		findViewById( R.id.loginCancelButton )
@@ -55,10 +58,11 @@ public class LoginActivity extends SecurityActivity {
 				finish();
 			}
 		} );
+		
+		buttonLayout = (RelativeLayout)findViewById( R.id.loginButtonLayout );
 	}
 
-	private void doLogin(final TextView passwordTextView) {
-		char[] password = passwordTextView .getText().toString().toCharArray();
+	private void doLogin(final char[] password) {
 		Key key = checkPasswordAndGetKey( password );
 		if( key != null ) {
 			Intent intent = new Intent( Intent.ACTION_PICK );
@@ -74,4 +78,25 @@ public class LoginActivity extends SecurityActivity {
 			// Can try more times
 		}
 	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		setButtonLayoutHeight();
+	}
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		if( hasFocus ) {
+			setButtonLayoutHeight();
+		}
+	}
+	
+	private void setButtonLayoutHeight() {
+		LayoutParams params = (LayoutParams) buttonLayout.getLayoutParams();
+		params.height = okButton.getHeight() + passwordView.getHeight() + params.topMargin;
+		buttonLayout.setLayoutParams(params);
+	}
+
 }
