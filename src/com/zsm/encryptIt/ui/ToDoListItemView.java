@@ -1,6 +1,7 @@
 package com.zsm.encryptIt.ui;
 
 import java.text.DateFormat;
+import java.util.GregorianCalendar;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,15 +12,16 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.WhatToDoItem;
 import com.zsm.log.Log;
 
-public class ToDoListItemView extends RelativeLayout {
+public class ToDoListItemView extends LinearLayout {
 
 	private final class DetailClickListener implements OnClickListener {
 		
@@ -58,11 +60,16 @@ public class ToDoListItemView extends RelativeLayout {
 	private float margin;
 	private TextView textView;
 	private TextView dateView;
-	private ImageView editView;
 	private ImageView deleteView;
 	
 	private WhatToDoItem data;
 	private int position;
+	
+	private static int dateViewWidth = 0;
+	private static int textViewWidth = 0;
+	
+	final static private DateFormat DATE_FORMAT
+		= DateFormat.getDateInstance( DateFormat.MEDIUM );
 	
 	public ToDoListItemView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
@@ -89,13 +96,14 @@ public class ToDoListItemView extends RelativeLayout {
 		
 		textView = (TextView)findViewById(R.id.row);
 		dateView = (TextView)findViewById(R.id.rowDate);
-		editView = (ImageView)findViewById( R.id.rowEdit );
 		deleteView = (ImageView)findViewById( R.id.rowDelete );
 		
-		editView.setOnClickListener(
-			new DetailClickListener( R.string.detail_edit, true,
-									 MainActivity.SHOW_FOR_EDIT,
-									 R.string.detailSaveAndBack ) );
+		DetailClickListener editListener
+			= new DetailClickListener( R.string.detail_edit, true,
+									   MainActivity.SHOW_FOR_EDIT,
+									   R.string.detailSaveAndBack );
+		textView.setOnClickListener( editListener );
+		dateView.setOnClickListener( editListener );
 		
 		deleteView.setOnClickListener(
 			new DetailClickListener( R.string.detail_delete, false,
@@ -119,6 +127,49 @@ public class ToDoListItemView extends RelativeLayout {
 	}
 
 	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		initViewWidth();
+	}
+
+	private void initViewWidth() {
+		if( dateViewWidth == 0 ) {
+			String t
+				= DATE_FORMAT.format( 
+						new GregorianCalendar( 1988, 12, 28, 23, 58, 58 ).getTime() )
+				  + "  ";
+			
+			dateViewWidth
+				= (int) dateView.getPaint().measureText(t)
+					+dateView.getPaddingLeft()+dateView.getPaddingRight();
+			
+			textViewWidth
+				= getMeasuredWidth() - dateViewWidth - textView.getPaddingRight()
+					- getChildrenWidthOtherThanText() - (int)margin;
+		}
+	}
+	
+	private int getChildrenWidthOtherThanText() {
+		int width = 0;
+		
+		ViewGroup thisView = (ViewGroup) getChildAt( 0 );
+		
+		int count = thisView.getChildCount();
+		for( int i = 0; i < count; i++ ) {
+			View child = thisView.getChildAt( i );
+            if (child.getVisibility() != GONE 
+            	&& ( child.getId() != R.id.row && child.getId() != R.id.rowDate ) ) {
+            	
+                LayoutParams params = (LayoutParams) child.getLayoutParams();
+                width
+                	+= child.getMeasuredWidth() + child.getPaddingLeft()
+                		+ params.leftMargin;
+            }
+		}
+		return width;
+	}
+
+	@Override
 	protected void onDraw(Canvas canvas) {
 		canvas.drawColor(paperColor);
 		canvas.drawLine(0, 0, 0, getMeasuredHeight(), linePaint );
@@ -136,15 +187,13 @@ public class ToDoListItemView extends RelativeLayout {
 	}
 
 	public void setDisplayValue( WhatToDoItem item, int position ) {
-		String time
-			= DateFormat.getDateInstance( DateFormat.SHORT )
-				.format(item.getModifiedTime());
+		String time = DATE_FORMAT.format(item.getModifiedTime());
 		
 		textView.setText( item.getTask() );
 		dateView.setText( time );
-		editView.setTag( new Object[]{ item, position } );
+		textView.setWidth(textViewWidth);
+		dateView.setWidth(dateViewWidth);
 		data = item;
 		this.position = position;
 	}
-
 }
