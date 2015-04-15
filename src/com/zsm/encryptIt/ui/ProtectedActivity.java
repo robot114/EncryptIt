@@ -19,6 +19,19 @@ abstract public class ProtectedActivity extends Activity {
 	
 	protected boolean wasInBackground = false;
 	
+	private boolean shouldResume;
+	
+	/**
+	 * Method must be implemented by subclass to indicate whether the login
+	 * activity needed, when the application comes back from the background.
+	 * For now, for all the activities, this method should return true, 
+	 * except the LoginActivity and the PasswordActivity in init mode.
+	 * 
+	 * @return true, the login activity needed, when the application comes back
+	 * 			 from the background.
+	 */
+	abstract protected boolean needPromptPassword();
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -31,6 +44,15 @@ abstract public class ProtectedActivity extends Activity {
 		EncryptItApplication app = (EncryptItApplication)getApplication();
 		wasInBackground = app.wasInBackground;
 		app.stopActivityTransitionTimer();
+		
+		shouldResume = true;
+		if( wasInBackground && needPromptPassword() ) {
+			shouldResume = promptPassword( );
+		}
+	}
+
+	protected boolean shouldResume() {
+		return shouldResume;
 	}
 
 	@Override
@@ -56,6 +78,9 @@ abstract public class ProtectedActivity extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		if( doLoginFailed( resultCode ) ) {
+			return;
+		}
 	}
 
 	/**
@@ -68,14 +93,18 @@ abstract public class ProtectedActivity extends Activity {
 	 * 			MUST be returned from; false, the subclass MUST continue to 
 	 * 			handle the result
 	 */
-	final protected boolean loginFailed(int resultCode) {
-		if( resultCode == LoginActivity.LOGIN_FAILED ) {
+	final protected boolean doLoginFailed(int resultCode) {
+		if( checkLoginFailed(resultCode) ) {
 			setResult( LoginActivity.LOGIN_FAILED );
 			finish();
 			return true;
 		}
 		
 		return false;
+	}
+
+	protected boolean checkLoginFailed(int resultCode) {
+		return resultCode == LoginActivity.LOGIN_FAILED;
 	}
 
 	protected boolean promptPassword() {

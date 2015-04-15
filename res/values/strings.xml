@@ -15,4 +15,12 @@
     <string name="login">Login</string>
     <string name="quitPrompt">Quit this application</string>
     <string name="menuChangePassword">Change Password</string>
+    <string name="menuDeleteSelected">Delete Selected</string>
+    <string name="menuEnterEditMode">Start Editing</string>
+    <string name="menuEditDone">Editing Done</string>
+    <string name="menuSelectAll">Select All</string>
+    <string name="menuUnselectAll">Unselect All</string>
+    <string name="menuSelectedCount">%d Selected</string>
+    <string name="menuSelectReverse">Select Reverse</string>
+    
 </resources>

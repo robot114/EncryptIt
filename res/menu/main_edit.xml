@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <group android:id="@+id/menuGroupSelect">
+        <item android:id="@+id/menuSelectAll"
+			  android:title="@string/menuSelectAll"
+			  android:titleCondensed="@string/menuSelectAll"
+			  android:icon="@drawable/select"
+			  android:showAsAction="always">
+        </item>
+        <item android:id="@+id/menuSelectedCount"
+              android:title="@string/menuSelectedCount"
+              android:showAsAction="always"
+              android:enabled="true">
+        </item>
+    </group>
+    <item android:id="@+id/menuDeleteSelected"
+          android:titleCondensed="@string/menuDeleteSelected"
+          android:title="@string/menuDeleteSelected"
+          android:icon="@drawable/delete" android:showAsAction="always">
+    </item>
+
+    <item android:id="@+id/menuMainEditDone"
+          android:titleCondensed="@string/menuEditDone"
+          android:title="@string/menuEditDone"
+          android:showAsAction="always" android:icon="@drawable/ok">
+    </item>
+    <item android:id="@+id/menuSelectReverse"
+		  android:title="@string/menuSelectReverse"
+		  android:titleCondensed="@string/menuSelectReverse"
+		  android:showAsAction="never">
+    </item>
+</menu>

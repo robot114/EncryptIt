@@ -9,8 +9,11 @@ import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -18,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -30,7 +34,7 @@ import com.zsm.encryptIt.app.EncryptItApplication;
 import com.zsm.log.Log;
 import com.zsm.security.PasswordHandler;
 
-public class MainActivity extends ProtectedActivity {
+public class MainActivity extends ProtectedActivity implements ModeKeeper {
 
 	protected static final int SHOW_FOR_EDIT = 3;
 	protected static final int SHOW_FOR_DELETE = 4;
@@ -41,12 +45,17 @@ public class MainActivity extends ProtectedActivity {
 	static private boolean enviromentInitialized = false;
 	
 	private ClearableEditor clearableEditor;
+	private View newItemButton;
 	
 	private View editorLayout;
 	private View listLayout;
 	private View buttonLayout;
 
 	private ToDoListFragment listFragment;
+	private MODE mode;
+	
+	private MenuItem menuItemSelectedCount;
+	private MenuItem menuItemSelectAll;
 
 	public MainActivity() {
 	}
@@ -61,31 +70,30 @@ public class MainActivity extends ProtectedActivity {
 			return;
 		}
 		
+		mode = MODE.BROWSE;
 		setContentView( R.layout.main );
 		
 		FragmentManager fm = getFragmentManager();
 		listFragment
 			= (ToDoListFragment) fm.findFragmentById(R.id.ToDoListFragment);
+		listFragment.setModeKeeper( this );
+		listFragment.registerListDataSetObserver( new ListDataSetObserver() );
+		
 		clearableEditor
 			= (ClearableEditor) findViewById( R.id.clearableEditor );
 		
 		listLayout = findViewById( R.id.todoListLayout );
 		editorLayout = findViewById( R.id.editorLayout );
 		buttonLayout = findViewById( R.id.buttonLayout );
-		findViewById( R.id.newItemButton )
-			.setOnClickListener( new OnClickListener() {
+		newItemButton = findViewById( R.id.newItemButton );
+		newItemButton.setOnClickListener( new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					doAdd( );
 				}
 		} );
 		
-		findViewById( R.id.button1 ).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				changePassword();
-			}
-		});
+		clearableEditor.addTextChangedListener( new EditorListener() );
 		
 		clearableEditor.setOnEditorActionListener( new OnEditorActionListener() {
 			@Override
@@ -152,22 +160,38 @@ public class MainActivity extends ProtectedActivity {
 		super.onCreateOptionsMenu(menu);
 
 		MenuInflater mi = getMenuInflater();
-		mi.inflate( R.menu.main, menu);
+		if( mode == MODE.BROWSE ) {
+			mi.inflate( R.menu.main_browse, menu);
+		} else {
+			mi.inflate( R.menu.main_edit, menu);
+		}
+		menuItemSelectAll = menu.findItem( R.id.menuSelectAll );
+		menuItemSelectedCount = menu.findItem( R.id.menuSelectedCount );
+		updateSelectedCount();
 		return true;
+	}
+
+	private void updateSelectedCount() {
+		String fmt = getResources().getString( R.string.menuSelectedCount );
+		String str = String.format( fmt, listFragment.getSelectedCount() );
+		menuItemSelectedCount.setTitle( str );
+		boolean allSelected
+			= listFragment.getSelectedCount() == listFragment.getShownCount();
+		menuItemSelectAll.setTitle( allSelected 
+									? R.string.menuUnselectAll
+									: R.string.menuSelectAll);
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if( wasInBackground ) {
-			if( promptPassword( ) ) {
-				getLoaderManager().restartLoader(ENCRYPT_IT_ID, null, listFragment);
-			} else {
-				// Password not needed, because the state just comes from onCreate.
-				// And in this case, the loader has just loaded, so no restarting.
-				return;
-			}
-		}
+//		if( shouldResume() ) {
+//			getLoaderManager().restartLoader(ENCRYPT_IT_ID, null, listFragment);
+//		} else {
+//			// Password not needed, because the state just comes from onCreate.
+//			// And in this case, the loader has just loaded, so no restarting.
+//			return;
+//		}
 	}
 
 	private boolean changePassword() {
@@ -194,6 +218,22 @@ public class MainActivity extends ProtectedActivity {
 		switch( item.getItemId() ) {
 			case R.id.menuMainChangePassword:
 				changePassword();
+				return true;
+			case R.id.menuMainEditMode:
+				switchTo( MODE.EDIT );
+				return true;
+			case R.id.menuMainEditDone:
+				switchTo( MODE.BROWSE );
+				return true;
+			case R.id.menuSelectAll:
+				boolean toSelectAll
+					= listFragment.getSelectedCount() < listFragment.getShownCount();
+				listFragment.selectAll( toSelectAll );
+				updateSelectedCount();
+				return true;
+			case R.id.menuSelectReverse:
+				listFragment.selectReverse();
+				updateSelectedCount();
 				return true;
 			default:
 				break;
@@ -244,10 +284,14 @@ public class MainActivity extends ProtectedActivity {
 		}
 	}
 
+	protected boolean needPromptPassword() {
+		return true;
+	}
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if( loginFailed( resultCode ) ) {
+		if( checkLoginFailed( resultCode ) ) {
 			return;
 		}
 		switch( requestCode ) {
@@ -271,6 +315,7 @@ public class MainActivity extends ProtectedActivity {
 		// Here the filter needed to be done event it is cancelled
 		// in the detail activity, because it is cancelled, the task
 		// may be changed and saved.
+		getLoaderManager().restartLoader(ENCRYPT_IT_ID, null, listFragment);
 		listFragment.filter(clearableEditor.getText());
 	}
 
@@ -279,6 +324,7 @@ public class MainActivity extends ProtectedActivity {
 			case RESULT_OK:
 				listFragment.doDelete(
 						data.getIntExtra( DetailActivity.KEY_ROW_POSITION, -1 ) );
+				getLoaderManager().restartLoader(ENCRYPT_IT_ID, null, listFragment);
 				listFragment.filter(clearableEditor.getText());
 				break;
 			default:
@@ -349,6 +395,52 @@ public class MainActivity extends ProtectedActivity {
 		super.onWindowFocusChanged(hasFocus);
 		if( hasFocus ) {
 			setHeightByWindow();
+		}
+	}
+	
+	@Override
+	public MODE getMode() {
+		return this.mode;
+	}
+
+	@Override
+	public void switchTo(MODE mode) {
+		this.mode = mode;
+		// Clear all selection to avoid delete by mistake
+		listFragment.selectAll( false );
+		// In selectAll listFragment.notifyDataSetChanged() will be called,
+		// so no need to call it again
+
+		boolean isBrowseMode = ( mode == MODE.BROWSE );
+		newItemButton.setVisibility( isBrowseMode ? View.VISIBLE : View.INVISIBLE );
+		clearableEditor.setIMEOption( isBrowseMode
+										? EditorInfo.IME_ACTION_NONE 
+										: EditorInfo.IME_ACTION_GO );
+		invalidateOptionsMenu();
+	}
+	
+	private final class EditorListener implements TextWatcher {
+		@Override
+		public void beforeTextChanged(CharSequence s, int start, int count,
+				int after) {
+		}
+
+		@Override
+		public void onTextChanged(CharSequence s, int start, int before,
+				int count) {
+			
+			listFragment.filter( s );
+		}
+
+		@Override
+		public void afterTextChanged(Editable s) {
+		}
+	}
+	
+	private final class ListDataSetObserver extends DataSetObserver {
+		@Override
+		public void onChanged() {
+			updateSelectedCount();
 		}
 	}
 }

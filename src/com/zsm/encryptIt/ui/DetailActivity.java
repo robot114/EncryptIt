@@ -245,20 +245,8 @@ public class DetailActivity extends ProtectedActivity implements TextWatcher {
 	public void afterTextChanged(Editable s) {
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		if( wasInBackground ) {
-			promptPassword( );
-		}
+	protected boolean needPromptPassword() {
+		return true;
 	}
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		if( loginFailed( resultCode ) ) {
-			return;
-		}
-		// Just from the login activity in detail activity
-	}
 }

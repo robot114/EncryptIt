@@ -54,12 +54,13 @@ containing a value of this type.
         public static final int ic_launcher=0x7f020006;
         public static final int key=0x7f020007;
         public static final int lock=0x7f020008;
-        public static final int quit=0x7f020009;
-        public static final int unlock=0x7f02000a;
+        public static final int ok=0x7f020009;
+        public static final int quit=0x7f02000a;
+        public static final int select=0x7f02000b;
+        public static final int unlock=0x7f02000c;
     }
     public static final class id {
         public static final int ToDoListFragment=0x7f090013;
-        public static final int button1=0x7f090015;
         public static final int buttonLayout=0x7f090014;
         public static final int clearButton=0x7f090000;
         public static final int clearableEditor=0x7f090011;
@@ -77,29 +78,35 @@ containing a value of this type.
         public static final int loginOkButton=0x7f09000a;
         public static final int loginPassword=0x7f09000e;
         public static final int loginPasswordLayout=0x7f09000d;
-        public static final int menuMainChangePassword=0x7f090029;
+        public static final int menuDeleteSelected=0x7f09002d;
+        public static final int menuGroupSelect=0x7f090027;
+        public static final int menuMainChangePassword=0x7f09002b;
+        public static final int menuMainEditDone=0x7f09002e;
+        public static final int menuMainEditMode=0x7f09002a;
+        public static final int menuSelectAll=0x7f090028;
+        public static final int menuSelectReverse=0x7f09002c;
+        public static final int menuSelectedCount=0x7f090029;
         public static final int newItemButton=0x7f090010;
-        public static final int promptCancelButton=0x7f090017;
-        public static final int promptConfirmPassword=0x7f09001c;
-        public static final int promptConfirmPasswordTextView=0x7f090018;
-        public static final int promptImageView=0x7f09001d;
-        public static final int promptNewPassword=0x7f09001b;
-        public static final int promptOkButton=0x7f090016;
-        public static final int promptOldPassword=0x7f09001a;
-        public static final int promptPasswordHint=0x7f09001e;
-        public static final int promptPasswordLayout=0x7f090019;
-        public static final int row=0x7f090022;
-        public static final int rowCheck=0x7f090021;
-        public static final int rowDate=0x7f090023;
-        public static final int rowDelete=0x7f090025;
-        public static final int rowEdit=0x7f090024;
+        public static final int promptCancelButton=0x7f090016;
+        public static final int promptConfirmPassword=0x7f09001b;
+        public static final int promptConfirmPasswordTextView=0x7f090017;
+        public static final int promptImageView=0x7f09001c;
+        public static final int promptNewPassword=0x7f09001a;
+        public static final int promptOkButton=0x7f090015;
+        public static final int promptOldPassword=0x7f090019;
+        public static final int promptPasswordHint=0x7f09001d;
+        public static final int promptPasswordLayout=0x7f090018;
+        public static final int row=0x7f090021;
+        public static final int rowCheck=0x7f090020;
+        public static final int rowDate=0x7f090022;
+        public static final int rowDelete=0x7f090023;
         public static final int titleText=0x7f090007;
-        public static final int todoList=0x7f09001f;
-        public static final int todoListItem=0x7f090020;
+        public static final int todoList=0x7f09001e;
+        public static final int todoListItem=0x7f09001f;
         public static final int todoListLayout=0x7f090012;
-        public static final int visiblePasswordButton=0x7f090028;
-        public static final int visiblePasswordLabel=0x7f090026;
-        public static final int visiblePasswordText=0x7f090027;
+        public static final int visiblePasswordButton=0x7f090026;
+        public static final int visiblePasswordLabel=0x7f090024;
+        public static final int visiblePasswordText=0x7f090025;
     }
     public static final class layout {
         public static final int clearable_editor=0x7f030000;
@@ -114,7 +121,8 @@ containing a value of this type.
         public static final int visible_password=0x7f030009;
     }
     public static final class menu {
-        public static final int main=0x7f080000;
+        public static final int main_browse=0x7f080000;
+        public static final int main_edit=0x7f080001;
     }
     public static final class string {
         public static final int app_name=0x7f060019;
@@ -140,6 +148,13 @@ containing a value of this type.
         public static final int login=0x7f060025;
         public static final int loginPrompt=0x7f06000c;
         public static final int menuChangePassword=0x7f060027;
+        public static final int menuDeleteSelected=0x7f060028;
+        public static final int menuEditDone=0x7f06002a;
+        public static final int menuEnterEditMode=0x7f060029;
+        public static final int menuSelectAll=0x7f06002b;
+        public static final int menuSelectReverse=0x7f06002e;
+        public static final int menuSelectedCount=0x7f06002d;
+        public static final int menuUnselectAll=0x7f06002c;
         public static final int modifyTimeTitle=0x7f06001e;
         public static final int newItemDescription=0x7f060022;
         public static final int oldPasswordPrompt=0x7f06000e;

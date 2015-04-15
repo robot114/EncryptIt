@@ -2,26 +2,30 @@ package com.zsm.encryptIt.ui;
 
 import java.util.List;
 
-import com.zsm.encryptIt.WhatToDoItem;
-
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
-public class WhatToDoItemAdapter extends ArrayAdapter<WhatToDoItem> {
+public class WhatToDoItemAdapter extends ArrayAdapter<WhatToDoListViewItem> {
+
+	private ModeKeeper modeKeeper;
 
 	public WhatToDoItemAdapter(Context context, int resource,
-							   List<WhatToDoItem> objects) {
+							   List<WhatToDoListViewItem> objects ) {
 		
 		super(context, resource, objects);
+	}
+
+	public void setModeKeeper(ModeKeeper mk) {
+		modeKeeper = mk;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ToDoListItemView view;
 		if( convertView == null ) {
-			view = new ToDoListItemView( getContext() );
+			view = new ToDoListItemView( getContext(), modeKeeper );
 		} else {
 			view = (ToDoListItemView)convertView;
 		}

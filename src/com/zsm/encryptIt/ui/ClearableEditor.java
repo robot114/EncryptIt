@@ -88,4 +88,8 @@ public class ClearableEditor extends RelativeLayout {
 			}
 		} );
 	}
+
+	public void setIMEOption(int options) {
+		editor.setImeOptions( options );
+	}
 }

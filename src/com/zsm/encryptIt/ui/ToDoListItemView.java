@@ -6,13 +6,14 @@ import java.util.GregorianCalendar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,47 +24,19 @@ import com.zsm.log.Log;
 
 public class ToDoListItemView extends LinearLayout {
 
-	private final class DetailClickListener implements OnClickListener {
-		
-		private int titleId;
-		private boolean editable;
-		private int requestCode;
-		private int positiveTextId;
-
-		private DetailClickListener( int titleId, boolean editable,
-									 int requestCode, int positiveTextId ) {
-			
-			this.titleId = titleId;
-			this.editable = editable;
-			this.requestCode = requestCode;
-			this.positiveTextId = positiveTextId;
-		}
-		
-		public void onClick(View v) {
-			Context context = ToDoListItemView.this.getContext();
-			
-			Intent intent = new Intent( context, DetailActivity.class );
-			intent.putExtra( DetailActivity.KEY_ROW_ITEM, data.toByteArray() );
-			intent.putExtra( DetailActivity.KEY_ROW_POSITION, position );
-			intent.putExtra( DetailActivity.KEY_DETAIL_EDITABLE, editable );
-			intent.putExtra( DetailActivity.KEY_DETAIL_TITLE, titleId );
-			intent.putExtra( DetailActivity.KEY_DETAIL_OK, positiveTextId );
-			((Activity)context).startActivityForResult( intent, requestCode );
-			Log.d( "Start detail activity.", "requestCode", requestCode,
-				   "intent", intent, "position", position );
-		}
-	}
-
 	private Paint marginPaint;
 	private Paint linePaint;
 	private int paperColor;
 	private float margin;
+	
+	private CheckBox selectedView;
 	private TextView textView;
 	private TextView dateView;
 	private ImageView deleteView;
 	
-	private WhatToDoItem data;
+	private WhatToDoListViewItem item;
 	private int position;
+	private ModeKeeper modeKeeper;
 	
 	private static int dateViewWidth = 0;
 	private static int textViewWidth = 0;
@@ -71,18 +44,11 @@ public class ToDoListItemView extends LinearLayout {
 	final static private DateFormat DATE_FORMAT
 		= DateFormat.getDateInstance( DateFormat.MEDIUM );
 	
-	public ToDoListItemView(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-		init();
-	}
-
-	public ToDoListItemView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		init();
-	}
-
-	public ToDoListItemView(Context context) {
+	public ToDoListItemView(Context context, ModeKeeper mk ) {
+		
 		super(context);
+		modeKeeper = mk;
+		
 		init();
 	}
 
@@ -94,9 +60,17 @@ public class ToDoListItemView extends LinearLayout {
 			= (LayoutInflater)getContext().getSystemService( infService );
 		li.inflate( R.layout.todo_list_item, this, true );
 		
+		selectedView = (CheckBox)findViewById( R.id.rowCheck );
 		textView = (TextView)findViewById(R.id.row);
 		dateView = (TextView)findViewById(R.id.rowDate);
 		deleteView = (ImageView)findViewById( R.id.rowDelete );
+		
+		selectedView.setOnClickListener( new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				item.setSelected( ((CheckBox)v).isChecked() );
+			}
+		} );
 		
 		DetailClickListener editListener
 			= new DetailClickListener( R.string.detail_edit, true,
@@ -110,6 +84,8 @@ public class ToDoListItemView extends LinearLayout {
 									 MainActivity.SHOW_FOR_DELETE,
 									 R.string.detail_delete ) );
 
+		setOnLongClickListener( new LongClickListener() );
+		
 		initPaints();
 	}
 
@@ -133,7 +109,7 @@ public class ToDoListItemView extends LinearLayout {
 	}
 
 	private void initViewWidth() {
-		if( dateViewWidth == 0 ) {
+		if( dateViewWidth <= 0 || textViewWidth <= 0 ) {
 			String t
 				= DATE_FORMAT.format( 
 						new GregorianCalendar( 1988, 12, 28, 23, 58, 58 ).getTime() )
@@ -186,14 +162,85 @@ public class ToDoListItemView extends LinearLayout {
 		canvas.restore();
 	}
 
-	public void setDisplayValue( WhatToDoItem item, int position ) {
-		String time = DATE_FORMAT.format(item.getModifiedTime());
+	@Override
+	protected void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		dateViewWidth = 0;
+		textViewWidth = 0;
+	}
+
+	public void setDisplayValue( WhatToDoListViewItem item, int position ) {
+		initViewWidth();
+		WhatToDoItem data = item.getData();
 		
-		textView.setText( item.getTask() );
+		String time = DATE_FORMAT.format(data.getModifiedTime());
+		
+		selectedView.setChecked( item.isSelected() );
+
+		textView.setText( data.getTask() );
 		dateView.setText( time );
 		textView.setWidth(textViewWidth);
 		dateView.setWidth(dateViewWidth);
-		data = item;
+		this.item = item;
 		this.position = position;
+		
+		makeComponentVisibleByMode();
 	}
+	
+	@Override
+	public void setOnLongClickListener( OnLongClickListener lcl ) {
+		// No super's setOnLongClickListener called to break the calling list.
+		textView.setOnLongClickListener(lcl);
+		dateView.setOnLongClickListener(lcl);
+	}
+	
+	private void makeComponentVisibleByMode() {
+		boolean isBrowseMode = modeKeeper.getMode() == ModeKeeper.MODE.BROWSE;
+//		selectedView.setVisibility( isBrowseMode ? View.GONE : View.VISIBLE );
+		deleteView.setVisibility( isBrowseMode ? View.VISIBLE : View.GONE );
+		textView.setLongClickable(isBrowseMode);
+		dateView.setLongClickable(isBrowseMode);
+	}
+
+	private final class DetailClickListener implements OnClickListener {
+		
+		private int titleId;
+		private boolean editable;
+		private int requestCode;
+		private int positiveTextId;
+
+		private DetailClickListener( int titleId, boolean editable,
+									 int requestCode, int positiveTextId ) {
+			
+			this.titleId = titleId;
+			this.editable = editable;
+			this.requestCode = requestCode;
+			this.positiveTextId = positiveTextId;
+		}
+		
+		public void onClick(View v) {
+			Context context = ToDoListItemView.this.getContext();
+			
+			Intent intent = new Intent( context, DetailActivity.class );
+			intent.putExtra( DetailActivity.KEY_ROW_ITEM, 
+							 item.getData().toByteArray() );
+			intent.putExtra( DetailActivity.KEY_ROW_POSITION, position );
+			intent.putExtra( DetailActivity.KEY_DETAIL_EDITABLE, editable );
+			intent.putExtra( DetailActivity.KEY_DETAIL_TITLE, titleId );
+			intent.putExtra( DetailActivity.KEY_DETAIL_OK, positiveTextId );
+			((Activity)context).startActivityForResult( intent, requestCode );
+			Log.d( "Start detail activity.", "requestCode", requestCode,
+				   "intent", intent, "position", position );
+		}
+	}
+	
+	private final class LongClickListener implements OnLongClickListener {
+
+		@Override
+		public boolean onLongClick(View v) {
+			modeKeeper.switchTo( ModeKeeper.MODE.EDIT );
+			return true;
+		}
+	}
+
 }

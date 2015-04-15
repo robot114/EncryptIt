@@ -95,8 +95,13 @@ public class LoginActivity extends SecurityActivity {
 	
 	private void setButtonLayoutHeight() {
 		LayoutParams params = (LayoutParams) buttonLayout.getLayoutParams();
-		params.height = okButton.getHeight() + passwordView.getHeight() + params.topMargin;
+		params.height
+			= okButton.getHeight() + passwordView.getHeight() + params.topMargin;
 		buttonLayout.setLayoutParams(params);
+	}
+
+	protected boolean needPromptPassword() {
+		return false;
 	}
 
 }

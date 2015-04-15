@@ -6,6 +6,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.crypto.NoSuchPaddingException;
 
@@ -15,13 +17,13 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.CursorWrapper;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.WhatToDoItem;
@@ -44,49 +46,62 @@ public class ToDoListFragment extends ListFragment
 				implements ItemList, LoaderCallbacks<Cursor> {
 
 	private ItemStorageAdapter storageAdapter;
-	private ArrayList<WhatToDoItem> todoList;
-	
-	private ArrayList<WhatToDoItem> showList;
-	private ArrayAdapter<WhatToDoItem> adapter;
+	private ArrayList<WhatToDoListViewItem> todoList;
+	private ArrayList<WhatToDoListViewItem> showList;
+
+	private WhatToDoItemAdapter adapter;
 	private String filtString = "";
 	
 	private View view = null;
+	private int selectedCount;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 							 Bundle savedInstanceState) {
-		Log.d( "onCreateView", getActivity(), view );
-		
 		if( view == null ) {
 			view = inflater.inflate( R.layout.todo_list_fragment, container, false );
 			
-			todoList = new ArrayList<WhatToDoItem>();
-			showList = new ArrayList<WhatToDoItem>();
+			todoList = new ArrayList<WhatToDoListViewItem>();
+			showList = new ArrayList<WhatToDoListViewItem>();
 			
 			setListAdapter( showList );
 		}
 		return view;
 	}
 	
-	private void setListAdapter( ArrayList<WhatToDoItem> list) {
+	private void setListAdapter( ArrayList<WhatToDoListViewItem> list) {
 		adapter
-			= new WhatToDoItemAdapter(
-						getActivity(),
-						R.layout.todo_list_item,
-						list );
+			= new WhatToDoItemAdapter( getActivity(), R.layout.todo_list_item,
+									   list );
 
 		setListAdapter( adapter );
 	}
 
+	public void setModeKeeper( ModeKeeper mk ) {
+		adapter.setModeKeeper( mk );
+	}
+	
 	public void addItem(final WhatToDoItem newItem) {
-		todoList.add( newItem );
-		if( shouldInShowList(newItem) ) {
-			showList.add( newItem );
+		WhatToDoListViewItem newListViewItem
+			= new WhatToDoListViewItem( newItem, new Observer() {
+				public void update( Observable obs, Object obj ) {
+					if( (Boolean)obj ) {
+						selectedCount++;
+					} else {
+						selectedCount--;
+					}
+					notifyDataSetChanged();
+				}
+			} );
+		
+		todoList.add( newListViewItem );
+		if( shouldInShowList(newListViewItem, filtString) ) {
+			showList.add( newListViewItem );
 		}
 	}
 
 	public WhatToDoItem getItem(int position) {
-		return adapter.getItem(position);
+		return adapter.getItem(position).getData();
 	}
 
 	public void clear() {
@@ -133,8 +148,8 @@ public class ToDoListFragment extends ListFragment
 
 	public boolean initList( Key key, Handler handler ) {
 		getApp().setItemListActor( new ItemListActor() );
-//		return forContentProvider( key, handler );
-		return forAndroidPersistence(key, handler);
+		return forContentProvider( key, handler );
+//		return forAndroidPersistence(key, handler);
 	}
 	
 	private boolean forContentProvider( Key key, Handler handler ) {
@@ -258,26 +273,55 @@ public class ToDoListFragment extends ListFragment
 			filtString = "";
 		} else {
 	        filtString = s.toString().toLowerCase( Locale.getDefault() );
-	        int count = todoList.size();
 	        
-			for (int i = 0; i < count ; i++) {
-	            final WhatToDoItem item = todoList.get(i);
-	            if (shouldInShowList(item)) {
+			for (WhatToDoListViewItem item : todoList ) {
+	            if (shouldInShowList(item, filtString)) {
 	                showList.add(item);
+	            } else {
+	            	item.setSelected( false );
 	            }
 			}
 		}
 		notifyDataSetChanged();
 	}
 	
-	private void notifyDataSetChanged() {
+	public void notifyDataSetChanged() {
 		adapter.notifyDataSetChanged();
 	}
 
-	private boolean shouldInShowList( WhatToDoItem item ) {
+	private boolean shouldInShowList( WhatToDoListViewItem item, String filter ) {
         final String text
-	    	= item.getTask().toString().toLowerCase(Locale.getDefault());
+	    	= item.getData().getTask().toString()
+	    		.toLowerCase(Locale.getDefault());
 	
-	    return text.contains(filtString);
+	    return text.contains(filter);
 	}
+
+	public void selectAll( boolean select ) {
+		for( WhatToDoListViewItem item : showList ) {
+			item.setSelected( select );
+		}
+		selectedCount = select ? showList.size() : 0;
+		notifyDataSetChanged();
+	}
+
+	public int getSelectedCount() {
+		return selectedCount;
+	}
+
+	public int getShownCount() {
+		return showList.size();
+	}
+	
+	public void selectReverse() {
+		for( WhatToDoListViewItem item : showList ) {
+			item.setSelected( !item.isSelected() );
+		}
+		notifyDataSetChanged();
+	}
+
+	public void registerListDataSetObserver( DataSetObserver observer) {
+		adapter.registerDataSetObserver(observer);
+	}
+
 }

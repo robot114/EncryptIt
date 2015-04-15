@@ -192,4 +192,9 @@ public class PasswordActivity extends SecurityActivity {
 			throw e;
 		}
 	}
+	
+	protected boolean needPromptPassword() {
+		return getIntent().getIntExtra(KEY_TYPE, -1) == TYPE_CHANGE;
+	}
+
 }
