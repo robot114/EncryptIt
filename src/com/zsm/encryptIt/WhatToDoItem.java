@@ -179,4 +179,31 @@ public class WhatToDoItem implements ByteArray, Serializable {
 		return 0;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if( o == null || !( o instanceof WhatToDoItem ) ) {
+			return false;
+		}
+		if( this == o ) {
+			return true;
+		}
+		WhatToDoItem item = (WhatToDoItem)o;
+		
+		if( !task.equals(item.task) ) {
+			return false;
+		}
+		
+		if( !( detail == null ? item.detail == null : detail.equals(item.detail) ) ) {
+			return false;
+		}
+		
+		// Do not care modify time, because it will change
+		return createdTime.equals( item.createdTime );
+	}
+
+	@Override
+	public int hashCode() {
+		return task.hashCode() * 37 * 37 + detail.hashCode() * 37 + createdTime.hashCode();
+	}
+
 }

@@ -26,6 +26,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.zsm.encryptIt.AndroidItemListOperator;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.action.KeyAction;
 import com.zsm.encryptIt.android.action.AndroidKeyActor;
@@ -39,7 +40,7 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 	protected static final int SHOW_FOR_EDIT = 3;
 	protected static final int SHOW_FOR_DELETE = 4;
 	
-	static final int ENCRYPT_IT_ID = 0;
+	public static final int ENCRYPT_IT_ID = 0;
 	
 	// The key manager and actor is global static, so this flag must be global static
 	static private boolean enviromentInitialized = false;
@@ -51,7 +52,9 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 	private View listLayout;
 	private View buttonLayout;
 
-	private ToDoListFragment listFragment;
+	private FragmentAdapter listFragment;
+	private AndroidItemListOperator operator;
+	
 	private MODE mode;
 	
 	private MenuItem menuItemSelectedCount;
@@ -103,6 +106,13 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 			}
 		} );
 		
+		operator
+			= new AndroidItemListOperator( getApplicationContext(),
+										   getLoaderManager(),
+										   listFragment );
+		
+		listFragment.setListOperator( operator );
+		
 		setHeightByWindow( );
 		
 		waitForKeyThenInitList();
@@ -122,7 +132,7 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 					Log.d( "Waiting for key is interrupted!" );
 					return;
 				}
-				if( key == null || !listFragment.initList(key, handler) ) {
+				if( key == null || !operator.initList(key, handler) ) {
 					finish();
 				}
 				app.threadForKeyStopped();
@@ -173,27 +183,15 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 
 	private void updateSelectedCount() {
 		String fmt = getResources().getString( R.string.menuSelectedCount );
-		String str = String.format( fmt, listFragment.getSelectedCount() );
+		String str = String.format( fmt, operator.getSelectedCount() );
 		menuItemSelectedCount.setTitle( str );
 		boolean allSelected
-			= listFragment.getSelectedCount() == listFragment.getShownCount();
+			= operator.getSelectedCount() == operator.getShownCount();
 		menuItemSelectAll.setTitle( allSelected 
 									? R.string.menuUnselectAll
 									: R.string.menuSelectAll);
 	}
 	
-	@Override
-	protected void onResume() {
-		super.onResume();
-//		if( shouldResume() ) {
-//			getLoaderManager().restartLoader(ENCRYPT_IT_ID, null, listFragment);
-//		} else {
-//			// Password not needed, because the state just comes from onCreate.
-//			// And in this case, the loader has just loaded, so no restarting.
-//			return;
-//		}
-	}
-
 	private boolean changePassword() {
 		try {
 			PasswordPromptParameter passwordPromptParam
@@ -227,12 +225,12 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 				return true;
 			case R.id.menuSelectAll:
 				boolean toSelectAll
-					= listFragment.getSelectedCount() < listFragment.getShownCount();
-				listFragment.selectAll( toSelectAll );
+					= operator.getSelectedCount() < operator.getShownCount();
+				operator.selectAll( toSelectAll );
 				updateSelectedCount();
 				return true;
 			case R.id.menuSelectReverse:
-				listFragment.selectReverse();
+				operator.selectReverse();
 				updateSelectedCount();
 				return true;
 			default:
@@ -279,7 +277,7 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 	}
 	
 	private void doAdd() {
-		if( listFragment.doAdd(clearableEditor.getText().toString()) ) {
+		if( operator.doAdd(clearableEditor.getText().toString()) ) {
 			clearableEditor.clearText();
 		}
 	}
@@ -315,17 +313,15 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		// Here the filter needed to be done event it is cancelled
 		// in the detail activity, because it is cancelled, the task
 		// may be changed and saved.
-		getLoaderManager().restartLoader(ENCRYPT_IT_ID, null, listFragment);
-		listFragment.filter(clearableEditor.getText());
+		operator.filter(clearableEditor.getText());
 	}
 
 	private void doDelete(int resultCode, Intent data) {
 		switch( resultCode ) {
 			case RESULT_OK:
-				listFragment.doDelete(
+				operator.doDelete(
 						data.getIntExtra( DetailActivity.KEY_ROW_POSITION, -1 ) );
-				getLoaderManager().restartLoader(ENCRYPT_IT_ID, null, listFragment);
-				listFragment.filter(clearableEditor.getText());
+				operator.filter(clearableEditor.getText());
 				break;
 			default:
 				break;
@@ -407,7 +403,7 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 	public void switchTo(MODE mode) {
 		this.mode = mode;
 		// Clear all selection to avoid delete by mistake
-		listFragment.selectAll( false );
+		operator.selectAll( false );
 		// In selectAll listFragment.notifyDataSetChanged() will be called,
 		// so no need to call it again
 
@@ -429,7 +425,7 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		public void onTextChanged(CharSequence s, int start, int before,
 				int count) {
 			
-			listFragment.filter( s );
+			operator.filter( s );
 		}
 
 		@Override

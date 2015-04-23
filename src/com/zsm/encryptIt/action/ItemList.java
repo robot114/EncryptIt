@@ -19,4 +19,8 @@ public interface ItemList {
 	void removeItem(WhatToDoItem item);
 
 	void addItem(WhatToDoItem item);
+
+	void refilter();
+
+	void notifyDataSetChanged();
 }

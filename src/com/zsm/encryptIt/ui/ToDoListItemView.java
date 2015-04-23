@@ -37,6 +37,7 @@ public class ToDoListItemView extends LinearLayout {
 	private WhatToDoListViewItem item;
 	private int position;
 	private ModeKeeper modeKeeper;
+	private boolean showDate;
 	
 	private static int dateViewWidth = 0;
 	private static int textViewWidth = 0;
@@ -46,8 +47,13 @@ public class ToDoListItemView extends LinearLayout {
 	
 	public ToDoListItemView(Context context, ModeKeeper mk ) {
 		
+		this( context, mk, true );
+	}
+
+	public ToDoListItemView(Context context, ModeKeeper mk, boolean showDate ) {
 		super(context);
 		modeKeeper = mk;
+		this.showDate = showDate;
 		
 		init();
 	}
@@ -63,6 +69,8 @@ public class ToDoListItemView extends LinearLayout {
 		selectedView = (CheckBox)findViewById( R.id.rowCheck );
 		textView = (TextView)findViewById(R.id.row);
 		dateView = (TextView)findViewById(R.id.rowDate);
+		dateView.setVisibility( showDate ? View.VISIBLE : View.GONE );
+		
 		deleteView = (ImageView)findViewById( R.id.rowDelete );
 		
 		selectedView.setOnClickListener( new OnClickListener() {
@@ -109,15 +117,17 @@ public class ToDoListItemView extends LinearLayout {
 	}
 
 	private void initViewWidth() {
-		if( dateViewWidth <= 0 || textViewWidth <= 0 ) {
+		if( textViewWidth <= 0 ) {
 			String t
 				= DATE_FORMAT.format( 
 						new GregorianCalendar( 1988, 12, 28, 23, 58, 58 ).getTime() )
 				  + "  ";
 			
 			dateViewWidth
-				= (int) dateView.getPaint().measureText(t)
-					+dateView.getPaddingLeft()+dateView.getPaddingRight();
+				= showDate 
+				  ? ( (int) dateView.getPaint().measureText(t)
+						+ dateView.getPaddingLeft()+dateView.getPaddingRight() )
+				  : 0;
 			
 			textViewWidth
 				= getMeasuredWidth() - dateViewWidth - textView.getPaddingRight()

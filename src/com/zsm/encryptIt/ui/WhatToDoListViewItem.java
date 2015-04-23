@@ -1,18 +1,16 @@
 package com.zsm.encryptIt.ui;
 
 import java.util.Observable;
-import java.util.Observer;
 
 import com.zsm.encryptIt.WhatToDoItem;
 
-class WhatToDoListViewItem extends Observable {
+public class WhatToDoListViewItem extends Observable {
 	
 	private WhatToDoItem data;
 	private boolean selected;
 	
-	public WhatToDoListViewItem( WhatToDoItem data, Observer selectionObserver ) {
+	public WhatToDoListViewItem( WhatToDoItem data ) {
 		this.data = data;
-		addObserver(selectionObserver);
 	}
 	
 	public WhatToDoItem getData() {
@@ -29,6 +27,22 @@ class WhatToDoListViewItem extends Observable {
 			this.selected = selected;
 			notifyObservers( selected );
 		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if( o == null || !( o instanceof WhatToDoListViewItem ) ) {
+			return false;
+		}
+		if( this == o ) {
+			return true;
+		}
+		return data.equals(((WhatToDoListViewItem)o).data );
+	}
+
+	@Override
+	public int hashCode() {
+		return data.hashCode();
 	}
 	
 }
