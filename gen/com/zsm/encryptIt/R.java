@@ -17,6 +17,34 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int clearButtonOnRight=0x7f010000;
+        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+         */
+        public static final int detailCreateTitle=0x7f010004;
+        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+         */
+        public static final int detailModifyTitle=0x7f010005;
+        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+         */
+        public static final int detailTimeLabelStyle=0x7f010001;
+        /** <p>Must be one of the following constant values.</p>
+<table>
+<colgroup align="left" />
+<colgroup align="left" />
+<colgroup align="left" />
+<tr><th>Constant</th><th>Value</th><th>Description</th></tr>
+<tr><td><code>auto</code></td><td>0</td><td></td></tr>
+<tr><td><code>vertical</code></td><td>1</td><td></td></tr>
+<tr><td><code>horizontal</code></td><td>2</td><td></td></tr>
+</table>
+         */
+        public static final int detailTimeOrientation=0x7f010003;
+        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+         */
+        public static final int detailTimeStyle=0x7f010002;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -24,7 +52,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int labelText=0x7f010001;
+        public static final int labelText=0x7f010006;
     }
     public static final class color {
         public static final int clearableBackground=0x7f040000;
@@ -42,86 +70,100 @@ containing a value of this type.
         public static final int promptPasswordHint=0x7f04000c;
     }
     public static final class dimen {
-        public static final int notepad_margin=0x7f070000;
+        public static final int detailTimeMarginLeft=0x7f070000;
+        public static final int notepad_margin=0x7f070001;
     }
     public static final class drawable {
         public static final int add=0x7f020000;
         public static final int clear=0x7f020001;
-        public static final int delete=0x7f020002;
-        public static final int edit=0x7f020003;
-        public static final int encrypted=0x7f020004;
-        public static final int eye=0x7f020005;
-        public static final int ic_launcher=0x7f020006;
-        public static final int key=0x7f020007;
-        public static final int lock=0x7f020008;
-        public static final int ok=0x7f020009;
-        public static final int quit=0x7f02000a;
-        public static final int select=0x7f02000b;
-        public static final int unlock=0x7f02000c;
+        public static final int collapse=0x7f020002;
+        public static final int delete=0x7f020003;
+        public static final int edit=0x7f020004;
+        public static final int encrypted=0x7f020005;
+        public static final int expand=0x7f020006;
+        public static final int eye=0x7f020007;
+        public static final int ic_launcher=0x7f020008;
+        public static final int key=0x7f020009;
+        public static final int lock=0x7f02000a;
+        public static final int ok=0x7f02000b;
+        public static final int quit=0x7f02000c;
+        public static final int select=0x7f02000d;
+        public static final int unlock=0x7f02000e;
     }
     public static final class id {
-        public static final int ToDoListFragment=0x7f090013;
-        public static final int buttonLayout=0x7f090014;
-        public static final int clearButton=0x7f090000;
-        public static final int clearableEditor=0x7f090011;
-        public static final int detailCreateTime=0x7f090004;
-        public static final int detailCreatedTitle=0x7f090003;
-        public static final int detailModifyTime=0x7f090006;
-        public static final int detailModifyTitle=0x7f090005;
-        public static final int detailText=0x7f090008;
-        public static final int detailTime=0x7f090002;
-        public static final int editText=0x7f090001;
-        public static final int editorLayout=0x7f09000f;
-        public static final int expanableSubItemDetail=0x7f09001e;
-        public static final int loginButtonLayout=0x7f090009;
-        public static final int loginCancelButton=0x7f09000b;
-        public static final int loginImageView=0x7f09000c;
-        public static final int loginOkButton=0x7f09000a;
-        public static final int loginPassword=0x7f09000e;
-        public static final int loginPasswordLayout=0x7f09000d;
-        public static final int menuDeleteSelected=0x7f09002e;
-        public static final int menuGroupSelect=0x7f090028;
-        public static final int menuMainChangePassword=0x7f09002c;
-        public static final int menuMainEditDone=0x7f09002f;
-        public static final int menuMainEditMode=0x7f09002b;
-        public static final int menuSelectAll=0x7f090029;
-        public static final int menuSelectReverse=0x7f09002d;
-        public static final int menuSelectedCount=0x7f09002a;
-        public static final int newItemButton=0x7f090010;
-        public static final int promptCancelButton=0x7f090016;
-        public static final int promptConfirmPassword=0x7f09001b;
-        public static final int promptConfirmPasswordTextView=0x7f090017;
-        public static final int promptImageView=0x7f09001c;
-        public static final int promptNewPassword=0x7f09001a;
-        public static final int promptOkButton=0x7f090015;
-        public static final int promptOldPassword=0x7f090019;
-        public static final int promptPasswordHint=0x7f09001d;
-        public static final int promptPasswordLayout=0x7f090018;
-        public static final int row=0x7f090022;
-        public static final int rowCheck=0x7f090021;
-        public static final int rowDate=0x7f090023;
-        public static final int rowDelete=0x7f090024;
-        public static final int titleText=0x7f090007;
-        public static final int todoList=0x7f09001f;
-        public static final int todoListItem=0x7f090020;
-        public static final int todoListLayout=0x7f090012;
-        public static final int visiblePasswordButton=0x7f090027;
-        public static final int visiblePasswordLabel=0x7f090025;
-        public static final int visiblePasswordText=0x7f090026;
+        public static final int ToDoListFragment=0x7f09001c;
+        public static final int auto=0x7f090000;
+        public static final int buttonLayout=0x7f09001d;
+        public static final int clearButton=0x7f090003;
+        public static final int clearableEditor=0x7f09001a;
+        public static final int detailCreateTime=0x7f090007;
+        public static final int detailCreatedTitle=0x7f090006;
+        public static final int detailModifyTime=0x7f090009;
+        public static final int detailModifyTitle=0x7f090008;
+        public static final int detailText=0x7f09000b;
+        public static final int detailTime=0x7f090005;
+        public static final int detailTimeLayout=0x7f09000c;
+        public static final int editText=0x7f090004;
+        public static final int editorLayout=0x7f090018;
+        public static final int expanableSubItemDetail=0x7f090029;
+        public static final int expandableSubItemDetailTime=0x7f090027;
+        public static final int expandableSubItemSeparator=0x7f090028;
+        public static final int expandableTodoList=0x7f09002a;
+        public static final int horizontal=0x7f090001;
+        public static final int imageViewExpand=0x7f09000e;
+        public static final int loginButtonLayout=0x7f090012;
+        public static final int loginCancelButton=0x7f090014;
+        public static final int loginImageView=0x7f090015;
+        public static final int loginOkButton=0x7f090013;
+        public static final int loginPassword=0x7f090017;
+        public static final int loginPasswordLayout=0x7f090016;
+        public static final int menuDeleteSelected=0x7f090036;
+        public static final int menuGroupSelect=0x7f090030;
+        public static final int menuMainChangePassword=0x7f090034;
+        public static final int menuMainEditDone=0x7f090037;
+        public static final int menuMainEditMode=0x7f090033;
+        public static final int menuSelectAll=0x7f090031;
+        public static final int menuSelectReverse=0x7f090035;
+        public static final int menuSelectedCount=0x7f090032;
+        public static final int newItemButton=0x7f090019;
+        public static final int promptCancelButton=0x7f09001f;
+        public static final int promptConfirmPassword=0x7f090024;
+        public static final int promptConfirmPasswordTextView=0x7f090020;
+        public static final int promptImageView=0x7f090025;
+        public static final int promptNewPassword=0x7f090023;
+        public static final int promptOkButton=0x7f09001e;
+        public static final int promptOldPassword=0x7f090022;
+        public static final int promptPasswordHint=0x7f090026;
+        public static final int promptPasswordLayout=0x7f090021;
+        public static final int row=0x7f090010;
+        public static final int rowCheck=0x7f09000f;
+        public static final int rowDate=0x7f09002c;
+        public static final int rowDelete=0x7f090011;
+        public static final int titleText=0x7f09000a;
+        public static final int todoList=0x7f09002b;
+        public static final int todoListItem=0x7f09000d;
+        public static final int todoListLayout=0x7f09001b;
+        public static final int vertical=0x7f090002;
+        public static final int visiblePasswordButton=0x7f09002f;
+        public static final int visiblePasswordLabel=0x7f09002d;
+        public static final int visiblePasswordText=0x7f09002e;
     }
     public static final class layout {
         public static final int clearable_editor=0x7f030000;
         public static final int clearable_editor_left=0x7f030001;
         public static final int detail=0x7f030002;
-        public static final int login=0x7f030003;
-        public static final int main=0x7f030004;
-        public static final int prompt_password=0x7f030005;
-        public static final int todo_list_exapanable_subitem=0x7f030006;
-        public static final int todo_list_expanable_fragment=0x7f030007;
-        public static final int todo_list_fragment=0x7f030008;
-        public static final int todo_list_item=0x7f030009;
-        public static final int todo_list_item_view=0x7f03000a;
-        public static final int visible_password=0x7f03000b;
+        public static final int detail_time_layout=0x7f030003;
+        public static final int expandable_item=0x7f030004;
+        public static final int login=0x7f030005;
+        public static final int main=0x7f030006;
+        public static final int main_expandable=0x7f030007;
+        public static final int prompt_password=0x7f030008;
+        public static final int todo_list_exapanable_subitem=0x7f030009;
+        public static final int todo_list_expanable_fragment=0x7f03000a;
+        public static final int todo_list_fragment=0x7f03000b;
+        public static final int todo_list_item=0x7f03000c;
+        public static final int todo_list_item_view=0x7f03000d;
+        public static final int visible_password=0x7f03000e;
     }
     public static final class menu {
         public static final int main_browse=0x7f080000;
@@ -132,6 +174,7 @@ containing a value of this type.
         public static final int changePasswordFailed=0x7f060017;
         public static final int changePasswordOk=0x7f060018;
         public static final int clearButtonText=0x7f060020;
+        public static final int collapseDescription=0x7f060030;
         public static final int contentProviderType=0x7f06000a;
         public static final int contentProviderUri=0x7f060009;
         public static final int createdTimeTitle=0x7f06001d;
@@ -145,6 +188,7 @@ containing a value of this type.
         public static final int detail_edit=0x7f060004;
         public static final int detail_title_hint=0x7f060003;
         public static final int editor_hint=0x7f06001c;
+        public static final int expandDescription=0x7f06002f;
         public static final int fullDateTimeFormat=0x7f06001f;
         public static final int getKeyFailed=0x7f060012;
         public static final int invalidPassword=0x7f06000d;
@@ -207,6 +251,8 @@ containing a value of this type.
         public static final int styleDetailTimeTime=0x7f050003;
         public static final int styleDetailTimeTitle=0x7f050002;
         public static final int styleDetailTitle=0x7f050001;
+        public static final int styleSubItemTime=0x7f050007;
+        public static final int styleSubItemTimeTitle=0x7f050006;
     }
     public static final class styleable {
         /** Attributes that can be used with a ClearableEditor.
@@ -236,6 +282,86 @@ containing a value of this type.
           @attr name com.zsm.encryptIt:clearButtonOnRight
         */
         public static final int ClearableEditor_clearButtonOnRight = 0;
+        /** Attributes that can be used with a DetailTimeLayout.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #DetailTimeLayout_detailCreateTitle com.zsm.encryptIt:detailCreateTitle}</code></td><td></td></tr>
+           <tr><td><code>{@link #DetailTimeLayout_detailModifyTitle com.zsm.encryptIt:detailModifyTitle}</code></td><td></td></tr>
+           <tr><td><code>{@link #DetailTimeLayout_detailTimeLabelStyle com.zsm.encryptIt:detailTimeLabelStyle}</code></td><td></td></tr>
+           <tr><td><code>{@link #DetailTimeLayout_detailTimeOrientation com.zsm.encryptIt:detailTimeOrientation}</code></td><td></td></tr>
+           <tr><td><code>{@link #DetailTimeLayout_detailTimeStyle com.zsm.encryptIt:detailTimeStyle}</code></td><td></td></tr>
+           </table>
+           @see #DetailTimeLayout_detailCreateTitle
+           @see #DetailTimeLayout_detailModifyTitle
+           @see #DetailTimeLayout_detailTimeLabelStyle
+           @see #DetailTimeLayout_detailTimeOrientation
+           @see #DetailTimeLayout_detailTimeStyle
+         */
+        public static final int[] DetailTimeLayout = {
+            0x7f010001, 0x7f010002, 0x7f010003, 0x7f010004,
+            0x7f010005
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.zsm.encryptIt.R.attr#detailCreateTitle}
+          attribute's value can be found in the {@link #DetailTimeLayout} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name com.zsm.encryptIt:detailCreateTitle
+        */
+        public static final int DetailTimeLayout_detailCreateTitle = 3;
+        /**
+          <p>This symbol is the offset where the {@link com.zsm.encryptIt.R.attr#detailModifyTitle}
+          attribute's value can be found in the {@link #DetailTimeLayout} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name com.zsm.encryptIt:detailModifyTitle
+        */
+        public static final int DetailTimeLayout_detailModifyTitle = 4;
+        /**
+          <p>This symbol is the offset where the {@link com.zsm.encryptIt.R.attr#detailTimeLabelStyle}
+          attribute's value can be found in the {@link #DetailTimeLayout} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name com.zsm.encryptIt:detailTimeLabelStyle
+        */
+        public static final int DetailTimeLayout_detailTimeLabelStyle = 0;
+        /**
+          <p>This symbol is the offset where the {@link com.zsm.encryptIt.R.attr#detailTimeOrientation}
+          attribute's value can be found in the {@link #DetailTimeLayout} array.
+
+
+          <p>Must be one of the following constant values.</p>
+<table>
+<colgroup align="left" />
+<colgroup align="left" />
+<colgroup align="left" />
+<tr><th>Constant</th><th>Value</th><th>Description</th></tr>
+<tr><td><code>auto</code></td><td>0</td><td></td></tr>
+<tr><td><code>vertical</code></td><td>1</td><td></td></tr>
+<tr><td><code>horizontal</code></td><td>2</td><td></td></tr>
+</table>
+          @attr name com.zsm.encryptIt:detailTimeOrientation
+        */
+        public static final int DetailTimeLayout_detailTimeOrientation = 2;
+        /**
+          <p>This symbol is the offset where the {@link com.zsm.encryptIt.R.attr#detailTimeStyle}
+          attribute's value can be found in the {@link #DetailTimeLayout} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name com.zsm.encryptIt:detailTimeStyle
+        */
+        public static final int DetailTimeLayout_detailTimeStyle = 1;
         /** Attributes that can be used with a VisiblePassword.
            <p>Includes the following attributes:</p>
            <table>
@@ -249,7 +375,7 @@ containing a value of this type.
            @see #VisiblePassword_labelText
          */
         public static final int[] VisiblePassword = {
-            0x01010264, 0x7f010001
+            0x01010264, 0x7f010006
         };
         /**
           <p>This symbol is the offset where the {@link android.R.attr#imeOptions}

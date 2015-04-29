@@ -74,11 +74,12 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		}
 		
 		mode = MODE.BROWSE;
-		setContentView( R.layout.main );
+//		setContentView( R.layout.main );
+		setContentView( R.layout.main_expandable );
 		
 		FragmentManager fm = getFragmentManager();
 		listFragment
-			= (ToDoListFragment) fm.findFragmentById(R.id.ToDoListFragment);
+			= (FragmentAdapter) fm.findFragmentById(R.id.ToDoListFragment);
 		listFragment.setModeKeeper( this );
 		listFragment.registerListDataSetObserver( new ListDataSetObserver() );
 		
@@ -90,10 +91,10 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		buttonLayout = findViewById( R.id.buttonLayout );
 		newItemButton = findViewById( R.id.newItemButton );
 		newItemButton.setOnClickListener( new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					doAdd( );
-				}
+			@Override
+			public void onClick(View v) {
+				doAdd( );
+			}
 		} );
 		
 		clearableEditor.addTextChangedListener( new EditorListener() );
@@ -184,6 +185,7 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 	private void updateSelectedCount() {
 		String fmt = getResources().getString( R.string.menuSelectedCount );
 		String str = String.format( fmt, operator.getSelectedCount() );
+		// TODO: menuItemSelectedCount May be null
 		menuItemSelectedCount.setTitle( str );
 		boolean allSelected
 			= operator.getSelectedCount() == operator.getShownCount();

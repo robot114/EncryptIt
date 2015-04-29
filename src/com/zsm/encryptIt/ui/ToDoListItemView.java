@@ -37,7 +37,7 @@ public class ToDoListItemView extends LinearLayout {
 	private WhatToDoListViewItem item;
 	private int position;
 	private ModeKeeper modeKeeper;
-	private boolean showDate;
+	private ExpandOperator expandOperator;
 	
 	private static int dateViewWidth = 0;
 	private static int textViewWidth = 0;
@@ -45,31 +45,24 @@ public class ToDoListItemView extends LinearLayout {
 	final static private DateFormat DATE_FORMAT
 		= DateFormat.getDateInstance( DateFormat.MEDIUM );
 	
-	public ToDoListItemView(Context context, ModeKeeper mk ) {
-		
-		this( context, mk, true );
-	}
-
-	public ToDoListItemView(Context context, ModeKeeper mk, boolean showDate ) {
+	public ToDoListItemView(Context context, int resource, ModeKeeper mk ) {
 		super(context);
 		modeKeeper = mk;
-		this.showDate = showDate;
 		
-		init();
+		init( resource );
 	}
 
-	private void init() {
+	private void init( int resource ) {
 		setWillNotDraw( false );
 		
 		String infService = Context.LAYOUT_INFLATER_SERVICE;
 		LayoutInflater li
 			= (LayoutInflater)getContext().getSystemService( infService );
-		li.inflate( R.layout.todo_list_item, this, true );
+		li.inflate( resource, this, true );
 		
 		selectedView = (CheckBox)findViewById( R.id.rowCheck );
 		textView = (TextView)findViewById(R.id.row);
 		dateView = (TextView)findViewById(R.id.rowDate);
-		dateView.setVisibility( showDate ? View.VISIBLE : View.GONE );
 		
 		deleteView = (ImageView)findViewById( R.id.rowDelete );
 		
@@ -80,12 +73,21 @@ public class ToDoListItemView extends LinearLayout {
 			}
 		} );
 		
+		final ImageView expandView
+			= (ImageView)findViewById( R.id.imageViewExpand );
+		
+		if( expandView != null ) {
+			expandView.setOnClickListener( new OnExpandClickListener(expandView) );
+		}
+		
 		DetailClickListener editListener
 			= new DetailClickListener( R.string.detail_edit, true,
 									   MainActivity.SHOW_FOR_EDIT,
 									   R.string.detailSaveAndBack );
 		textView.setOnClickListener( editListener );
-		dateView.setOnClickListener( editListener );
+		if( dateView != null ) {
+			dateView.setOnClickListener( editListener );
+		}
 		
 		deleteView.setOnClickListener(
 			new DetailClickListener( R.string.detail_delete, false,
@@ -110,6 +112,10 @@ public class ToDoListItemView extends LinearLayout {
 		margin = res.getDimension( R.dimen.notepad_margin );
 	}
 
+	public void setExpandOperator( ExpandOperator eo ) {
+		this.expandOperator = eo;
+	}
+	
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -124,7 +130,7 @@ public class ToDoListItemView extends LinearLayout {
 				  + "  ";
 			
 			dateViewWidth
-				= showDate 
+				= dateView != null 
 				  ? ( (int) dateView.getPaint().measureText(t)
 						+ dateView.getPaddingLeft()+dateView.getPaddingRight() )
 				  : 0;
@@ -188,9 +194,11 @@ public class ToDoListItemView extends LinearLayout {
 		selectedView.setChecked( item.isSelected() );
 
 		textView.setText( data.getTask() );
-		dateView.setText( time );
 		textView.setWidth(textViewWidth);
-		dateView.setWidth(dateViewWidth);
+		if( dateView != null ) {
+			dateView.setText( time );
+			dateView.setWidth(dateViewWidth);
+		}
 		this.item = item;
 		this.position = position;
 		
@@ -201,7 +209,9 @@ public class ToDoListItemView extends LinearLayout {
 	public void setOnLongClickListener( OnLongClickListener lcl ) {
 		// No super's setOnLongClickListener called to break the calling list.
 		textView.setOnLongClickListener(lcl);
-		dateView.setOnLongClickListener(lcl);
+		if( dateView != null ) {
+			dateView.setOnLongClickListener(lcl);
+		}
 	}
 	
 	private void makeComponentVisibleByMode() {
@@ -209,7 +219,36 @@ public class ToDoListItemView extends LinearLayout {
 //		selectedView.setVisibility( isBrowseMode ? View.GONE : View.VISIBLE );
 		deleteView.setVisibility( isBrowseMode ? View.VISIBLE : View.GONE );
 		textView.setLongClickable(isBrowseMode);
-		dateView.setLongClickable(isBrowseMode);
+		if( dateView != null) {
+			dateView.setLongClickable(isBrowseMode);
+		}
+	}
+
+	private final class OnExpandClickListener implements OnClickListener {
+		private final ImageView expandView;
+		private boolean expanded = false;
+
+		private OnExpandClickListener(ImageView expandView) {
+			this.expandView = expandView;
+		}
+
+		@Override
+		public void onClick(View v) {
+			if( expandOperator != null ) {
+				expandView.setImageResource( expanded 
+											 ? R.drawable.expand 
+											 : R.drawable.collapse );
+				Resources r = getResources();
+				String cd
+					= r.getString( expanded 
+								   ? R.string.expandDescription 
+								   : R.string.collapseDescription );
+				
+				expandView.setContentDescription( cd );
+				expanded = !expanded;
+				expandOperator.expand( expanded, position );
+			}
+		}
 	}
 
 	private final class DetailClickListener implements OnClickListener {

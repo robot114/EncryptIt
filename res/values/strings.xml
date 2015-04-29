@@ -22,5 +22,7 @@
     <string name="menuUnselectAll">Unselect All</string>
     <string name="menuSelectedCount">%d Selected</string>
     <string name="menuSelectReverse">Select Reverse</string>
+    <string name="expandDescription">Show the detail</string>
+    <string name="collapseDescription">Hide the detail</string>
     
 </resources>

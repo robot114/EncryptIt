@@ -2,6 +2,8 @@ package com.zsm.encryptIt.ui;
 
 import java.util.List;
 
+import com.zsm.encryptIt.R;
+
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +27,10 @@ public class WhatToDoItemAdapter extends ArrayAdapter<WhatToDoListViewItem> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ToDoListItemView view;
 		if( convertView == null ) {
-			view = new ToDoListItemView( getContext(), modeKeeper );
+			view
+				= new ToDoListItemView( getContext(),
+										R.layout.todo_list_item,
+										modeKeeper );
 		} else {
 			view = (ToDoListItemView)convertView;
 		}

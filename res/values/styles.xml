@@ -16,5 +16,25 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
-
+    <style name="styleSubItemTimeTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">9.76</item>
+        <item name="android:background">@color/notepad_paper</item>
+        <item name="android:ems">10</item>
+        <item name="android:inputType">none</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:textColor">@color/detailTimeTitleText</item>
+    </style>
+    <style name="styleSubItemTime">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">10</item>
+        <item name="android:background">@color/notepad_paper</item>
+        <item name="android:ems">10</item>
+        <item name="android:inputType">none</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:textColor">@color/detailTimeText</item>
+    </style>
+    
 </resources>

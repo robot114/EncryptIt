@@ -6,8 +6,11 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListView;
 
+import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.log.Log;
 import com.zsm.recordstore.LongRowId;
 
 class WhatToDoItemExpanableAdapter extends BaseExpandableListAdapter {
@@ -15,10 +18,12 @@ class WhatToDoItemExpanableAdapter extends BaseExpandableListAdapter {
 	private List<WhatToDoListViewItem> list;
 	private ModeKeeper modeKeeper;
 	private Context context;
+	private ExpandableListView listView;
 
-	WhatToDoItemExpanableAdapter( Context context, List<WhatToDoListViewItem> list ) {
+	WhatToDoItemExpanableAdapter( Context context, ExpandableListView lv, List<WhatToDoListViewItem> list ) {
 		this.context = context;
 		this.list = list;
+		listView = lv;
 	}
 	
 	public void setModeKeeper(ModeKeeper mk) {
@@ -56,7 +61,7 @@ class WhatToDoItemExpanableAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public long getChildId(int groupPosition, int childPosition) {
-		return 0;
+		return 1;
 	}
 
 	@Override
@@ -70,7 +75,23 @@ class WhatToDoItemExpanableAdapter extends BaseExpandableListAdapter {
 		
 		ToDoListItemView view;
 		if( convertView == null ) {
-			view = new ToDoListItemView( context, modeKeeper, false );
+			view
+				= new ToDoListItemView( context,
+										R.layout.expandable_item,
+										modeKeeper );
+			
+			view.setExpandOperator( new ExpandOperator() {
+
+				@Override
+				public void expand(boolean expand, int groupPosition) {
+					if( expand ) {
+						listView.expandGroup(groupPosition);
+					} else {
+						listView.collapseGroup(groupPosition);
+					}
+				}
+				
+			} );
 		} else {
 			view = (ToDoListItemView)convertView;
 		}

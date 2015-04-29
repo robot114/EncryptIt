@@ -3,4 +3,15 @@
     <declare-styleable name="ClearableEditor">
         <attr name="clearButtonOnRight" format="boolean"/>
     </declare-styleable>
+    <declare-styleable name="DetailTimeLayout">
+        <attr name="detailTimeLabelStyle" format="reference"/>
+        <attr name="detailTimeStyle" format="reference"/>
+        <attr name="detailTimeOrientation">
+            <enum name="auto" value="0"/>
+            <enum name="vertical" value="1"/>
+            <enum name="horizontal" value="2"/>
+        </attr>
+        <attr name="detailCreateTitle" format="reference"/>
+        <attr name="detailModifyTitle" format="reference"/>
+    </declare-styleable>
 </resources>

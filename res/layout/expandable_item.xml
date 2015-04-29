@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/todoListItem"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="@dimen/notepad_margin"
+    android:layout_marginTop="1dp" >
+
+    <ImageView
+        android:id="@+id/imageViewExpand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/expandDescription"
+        android:src="@drawable/expand" />
+
+    <CheckBox
+        android:id="@+id/rowCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/row"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:lines="1"
+        android:maxLines="1"
+        android:minLines="1"
+        android:padding="10dp"
+        android:textColor="@color/notepad_text" />
+
+    <ImageView
+        android:id="@+id/rowDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:src="@drawable/delete"
+        android:visibility="visible" />
+
+</LinearLayout>

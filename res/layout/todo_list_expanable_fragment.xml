@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:id="@+id/todoList"
+    android:id="@+id/expandableTodoList"
 	android:scrollbarStyle="insideOverlay"
 	android:scrollbars="vertical|horizontal" >
 </ExpandableListView>
