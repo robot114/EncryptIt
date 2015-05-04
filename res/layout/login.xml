@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
             android:contentDescription="@string/loginPrompt"
             android:drawableLeft="@drawable/lock"
             android:nextFocusForward="@+id/loginCancelButton"
@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentLeft="true"
             android:contentDescription="@string/quitPrompt"
             android:drawableLeft="@drawable/quit"
             android:text="@string/quit" />

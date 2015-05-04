@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,7 +20,6 @@ import android.widget.TextView;
 import android.widget.TextView.BufferType;
 import android.widget.Toast;
 
-import com.zsm.android.wedget.AlertDialogBuilder;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.WhatToDoItem;
 import com.zsm.encryptIt.app.EncryptItApplication;
@@ -150,29 +150,6 @@ public class DetailActivity extends ProtectedActivity implements TextWatcher {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		Intent intent = getIntent();
 		
-		positiveMenuItem = menu.add( intent.getIntExtra( KEY_DETAIL_OK, android.R.string.ok ) );
-		positiveMenuItem
-			.setShowAsActionFlags( MenuItem.SHOW_AS_ACTION_ALWAYS )
-			.setOnMenuItemClickListener( new OnMenuItemClickListener() {
-				@Override
-				public boolean onMenuItemClick(MenuItem item) {
-					if( doOK() ) {
-						finish();
-					}
-					return true;
-				}
-			} );
-		if( shouldEditable() ) {
-			MenuItem saveItem = menu.add( R.string.detailSave );
-			saveItem.setShowAsActionFlags( MenuItem.SHOW_AS_ACTION_ALWAYS )
-					.setOnMenuItemClickListener( new OnMenuItemClickListener() {
-						@Override
-						public boolean onMenuItemClick(MenuItem item) {
-							doEdit();
-							return true;
-						}
-					} );
-		}
 		MenuItem negitiveItem = menu.add( android.R.string.cancel );
 		negitiveItem
 			.setShowAsActionFlags( MenuItem.SHOW_AS_ACTION_ALWAYS )
@@ -184,6 +161,31 @@ public class DetailActivity extends ProtectedActivity implements TextWatcher {
 				}
 			});
 		
+		if( shouldEditable() ) {
+			MenuItem saveItem = menu.add( R.string.detailSave );
+			saveItem.setShowAsActionFlags( MenuItem.SHOW_AS_ACTION_ALWAYS )
+					.setOnMenuItemClickListener( new OnMenuItemClickListener() {
+						@Override
+						public boolean onMenuItemClick(MenuItem item) {
+							doEdit();
+							return true;
+						}
+					} );
+		}
+		positiveMenuItem
+			= menu.add( intent.getIntExtra( KEY_DETAIL_OK,
+											android.R.string.ok ) );
+		positiveMenuItem
+			.setShowAsActionFlags( MenuItem.SHOW_AS_ACTION_ALWAYS )
+			.setOnMenuItemClickListener( new OnMenuItemClickListener() {
+				@Override
+				public boolean onMenuItemClick(MenuItem item) {
+					if( doOK() ) {
+						finish();
+					}
+					return true;
+				}
+			} );
 		return true;
 	}
 
@@ -197,7 +199,7 @@ public class DetailActivity extends ProtectedActivity implements TextWatcher {
 
 	private Dialog initCancelPromptDialog() {
 		if( cancelPromptDialogBuilder == null ) {
-			cancelPromptDialogBuilder = new AlertDialogBuilder(this);
+			cancelPromptDialogBuilder = new Builder(this);
 			cancelPromptDialogBuilder
 				.setMessage(R.string.detailPromptCancel)
 				.setTitle(R.string.app_name)

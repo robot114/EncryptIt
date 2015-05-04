@@ -16,7 +16,7 @@ public interface ItemList {
 
 	void clear();
 
-	void removeItem(WhatToDoItem item);
+	boolean removeItem(WhatToDoItem item);
 
 	void addItem(WhatToDoItem item);
 

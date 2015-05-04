@@ -8,7 +8,6 @@ import android.widget.TextView;
 
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.WhatToDoItem;
-import com.zsm.log.Log;
 
 class ToDoListSubItemView extends LinearLayout {
 

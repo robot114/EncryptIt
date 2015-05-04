@@ -25,8 +25,8 @@ import com.zsm.log.Log;
  */
 public class FilterableList<E, C> implements List<E> {
 	
-	private List<E> originalList;
-	private List<E> matchedList;
+	final private List<E> originalList;
+	final private List<E> matchedList;
 	private C transferedCondition;
 	private Matcher<E, C> matcher;
 
@@ -36,16 +36,6 @@ public class FilterableList<E, C> implements List<E> {
 		
 		originalList = new ArrayList<E>();
 		matchedList = new ArrayList<E>();
-	}
-	
-	public FilterableList( ) {
-		originalList = new ArrayList<E>();
-		matchedList = new ArrayList<E>();
-	}
-
-	public void setMatcher( Matcher<E, C> m ) {
-		this.matcher = m;
-		transferedCondition = m.transferCondition( null );
 	}
 	
 	/**
@@ -316,10 +306,15 @@ public class FilterableList<E, C> implements List<E> {
 	public boolean removeAll(Collection<?> collection) {
         boolean result = false;
         Iterator<?> it = matchedList.iterator();
+        Iterator<?> oit = originalList.iterator();
         while (it.hasNext()) {
         	Object obj = it.next();
             if (collection.contains(obj)) {
-                originalList.remove( obj );
+            	Object oo;
+            	do {
+            		oo = oit.next();
+            	} while( !oo.equals(obj) );
+                oit.remove();
                 it.remove();
                 result = true;
             }

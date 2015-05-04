@@ -45,6 +45,8 @@ abstract public class ProtectedActivity extends Activity {
 		wasInBackground = app.wasInBackground;
 		app.stopActivityTransitionTimer();
 		
+		Log.d( "For resuming.", "activity", this, "wasInBackground",
+			   wasInBackground, "needPromptPassword", needPromptPassword() );
 		shouldResume = true;
 		if( wasInBackground && needPromptPassword() ) {
 			shouldResume = promptPassword( );
@@ -79,6 +81,7 @@ abstract public class ProtectedActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if( doLoginFailed( resultCode ) ) {
+			Log.w( "Login failed!" );
 			return;
 		}
 	}

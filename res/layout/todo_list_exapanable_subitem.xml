@@ -28,8 +28,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/detailTimeMarginLeft"
+        android:maxLines="5"
         android:text="Medium Text"
         android:textAppearance="?android:attr/textAppearanceSmall" />
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

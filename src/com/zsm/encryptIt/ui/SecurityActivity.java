@@ -24,7 +24,7 @@ abstract public class SecurityActivity extends ProtectedActivity {
 		new AlertDialog.Builder(this)
 			 .setTitle(r.getString( R.string.app_name )) 
 			 .setMessage(r.getString( id ))
-			 .setPositiveButton(null, null)
+			 .setPositiveButton(android.R.string.ok, null)
 			 .show();
 	}
 

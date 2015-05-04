@@ -2,21 +2,28 @@ package com.zsm.encryptIt.ui;
 
 import java.util.List;
 
-import com.zsm.encryptIt.R;
-
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 
-public class WhatToDoItemAdapter extends ArrayAdapter<WhatToDoListViewItem> {
+import com.zsm.recordstore.LongRowId;
+
+public class WhatToDoItemAdapter extends BaseAdapter {
 
 	private ModeKeeper modeKeeper;
+	private Context context;
+	private int resource;
+	private List<WhatToDoListViewItem> list;
 
-	public WhatToDoItemAdapter(Context context, int resource,
-							   List<WhatToDoListViewItem> objects ) {
+	public WhatToDoItemAdapter(Context context, int resource ) {
 		
-		super(context, resource, objects);
+		this.context = context;
+		this.resource = resource;
+	}
+	
+	public void setDataList( List<WhatToDoListViewItem> list ) {
+		this.list = list;
 	}
 
 	public void setModeKeeper(ModeKeeper mk) {
@@ -28,15 +35,31 @@ public class WhatToDoItemAdapter extends ArrayAdapter<WhatToDoListViewItem> {
 		ToDoListItemView view;
 		if( convertView == null ) {
 			view
-				= new ToDoListItemView( getContext(),
-										R.layout.todo_list_item,
-										modeKeeper );
+				= new ToDoListItemView( context, resource, modeKeeper );
 		} else {
 			view = (ToDoListItemView)convertView;
 		}
 
 		view.setDisplayValue( getItem( position ), position );
 		return view;
+	}
+
+	@Override
+	public int getCount() {
+		if( list == null ) {
+			return 0;
+		}
+		return list.size();
+	}
+
+	@Override
+	public WhatToDoListViewItem getItem(int position) {
+		return list.get(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return ((LongRowId)(getItem(position).getData().getContext())).getLongId();
 	}
 
 }

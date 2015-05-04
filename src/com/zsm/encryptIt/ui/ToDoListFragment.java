@@ -1,5 +1,7 @@
 package com.zsm.encryptIt.ui;
 
+import java.util.List;
+
 import android.app.ListFragment;
 import android.database.DataSetObserver;
 import android.os.Bundle;
@@ -7,9 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.zsm.encryptIt.AndroidItemListOperator;
 import com.zsm.encryptIt.R;
-import com.zsm.util.FilterableList;
 
 public class ToDoListFragment extends ListFragment implements FragmentAdapter {
 
@@ -17,15 +17,9 @@ public class ToDoListFragment extends ListFragment implements FragmentAdapter {
 	
 	private View view = null;
 
-	private AndroidItemListOperator listOperator;
-
-	private FilterableList<WhatToDoListViewItem, String> list;
-
-
 	@Override
-	public void setListOperator(AndroidItemListOperator operator) {
-		this.listOperator = operator;
-		listOperator.setDataList( list );
+	public void setDataListToAdapter(List<WhatToDoListViewItem> list) {
+		adapter.setDataList(list);
 	}
 	
 	@Override
@@ -36,19 +30,10 @@ public class ToDoListFragment extends ListFragment implements FragmentAdapter {
 				= inflater.inflate( R.layout.todo_list_fragment, 
 									container, false );
 			
-			list = new FilterableList<WhatToDoListViewItem, String>();
-
 			adapter
 				= new WhatToDoItemAdapter( getActivity(),
-										   R.layout.todo_list_item,
-										   list );
+										   R.layout.todo_list_item );
 			setListAdapter( adapter );
-			
-//			view
-//				= inflater.inflate( R.layout.todo_list_expanable_fragment, 
-//									container, false );
-//			adapter = new WhatToDoItemExpanableAdapter( getActivity() );
-			
 		}
 		return view;
 	}
@@ -61,6 +46,11 @@ public class ToDoListFragment extends ListFragment implements FragmentAdapter {
 	@Override
 	public void registerListDataSetObserver( DataSetObserver observer) {
 		adapter.registerDataSetObserver(observer);
+	}
+
+	@Override
+	public void unregisterListDataSetObserver( DataSetObserver observer) {
+		adapter.unregisterDataSetObserver(observer);
 	}
 
 	@Override

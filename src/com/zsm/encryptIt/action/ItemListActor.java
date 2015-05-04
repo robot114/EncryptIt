@@ -162,15 +162,25 @@ public class ItemListActor {
 		}
 		WhatToDoItem item = list.getItem( position );
 		
+		return doDelete(item);
+	}
+
+	/**
+	 * Delete the item in the list. The list could be the list of the UI to
+	 * display all the items. It is the invoker's response to notify
+	 * the UI to update after this method.
+	 * 
+	 * @param item the item to be deleted.
+	 * @return true, delete successfully, false, no such item or delete failed.
+	 */
+	public boolean doDelete(WhatToDoItem item) {
 		try {
 			adapter.remove( (RowId)item.getContext() );
 		} catch (Exception e) {
 			// Just log, and leave the item unchanged.
-			Log.e(e, "Unable to delete the item.",
-				  "position", position, "item", item );
+			Log.e(e, "Unable to delete the item.", item );
 			return false;
 		}
-		list.removeItem( item );
-		return true;
+		return list.removeItem( item );
 	}
 }

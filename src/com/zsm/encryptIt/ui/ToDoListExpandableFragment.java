@@ -1,8 +1,6 @@
 package com.zsm.encryptIt.ui;
 
-import com.zsm.encryptIt.AndroidItemListOperator;
-import com.zsm.encryptIt.R;
-import com.zsm.util.FilterableList;
+import java.util.List;
 
 import android.app.Fragment;
 import android.database.DataSetObserver;
@@ -12,21 +10,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 
+import com.zsm.encryptIt.R;
+
 public class ToDoListExpandableFragment extends Fragment implements FragmentAdapter {
 
 	private WhatToDoItemExpanableAdapter adapter;
 	
 	private View view = null;
 
-	private AndroidItemListOperator listOperator;
-
-	private FilterableList<WhatToDoListViewItem, String> list;
-
+	private ExpandableListView listView;
 
 	@Override
-	public void setListOperator(AndroidItemListOperator operator) {
-		this.listOperator = operator;
-		listOperator.setDataList( list );
+	public void setDataListToAdapter(List<WhatToDoListViewItem> list) {
+		adapter.setDataList( list );
+	    listView.setAdapter(adapter);
+	    listView.setGroupIndicator(null);
 	}
 	
 	@Override
@@ -43,14 +41,9 @@ public class ToDoListExpandableFragment extends Fragment implements FragmentAdap
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		
-		ExpandableListView lv;
-	    lv = (ExpandableListView) view.findViewById(R.id.expandableTodoList);
+		listView = (ExpandableListView) view.findViewById(R.id.expandableTodoList);
 	    
-		list = new FilterableList<WhatToDoListViewItem, String>();
-		adapter = new WhatToDoItemExpanableAdapter( getActivity(), lv, list );
-	    lv.setAdapter(adapter);
-	    lv.setGroupIndicator(null);
+		adapter = new WhatToDoItemExpanableAdapter( getActivity(), listView );
 	}
 
 	@Override
@@ -61,6 +54,11 @@ public class ToDoListExpandableFragment extends Fragment implements FragmentAdap
 	@Override
 	public void registerListDataSetObserver( DataSetObserver observer) {
 		adapter.registerDataSetObserver(observer);
+	}
+
+	@Override
+	public void unregisterListDataSetObserver( DataSetObserver observer) {
+		adapter.unregisterDataSetObserver(observer);
 	}
 
 	@Override

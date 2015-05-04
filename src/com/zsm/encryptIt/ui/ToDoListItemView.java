@@ -24,6 +24,9 @@ import com.zsm.log.Log;
 
 public class ToDoListItemView extends LinearLayout {
 
+	final static private DateFormat DATE_FORMAT
+		= DateFormat.getDateInstance( DateFormat.MEDIUM );
+
 	private Paint marginPaint;
 	private Paint linePaint;
 	private int paperColor;
@@ -42,8 +45,8 @@ public class ToDoListItemView extends LinearLayout {
 	private static int dateViewWidth = 0;
 	private static int textViewWidth = 0;
 	
-	final static private DateFormat DATE_FORMAT
-		= DateFormat.getDateInstance( DateFormat.MEDIUM );
+	private ImageView expandView;
+	private boolean expanded = false;
 	
 	public ToDoListItemView(Context context, int resource, ModeKeeper mk ) {
 		super(context);
@@ -73,11 +76,10 @@ public class ToDoListItemView extends LinearLayout {
 			}
 		} );
 		
-		final ImageView expandView
-			= (ImageView)findViewById( R.id.imageViewExpand );
+		expandView = (ImageView)findViewById( R.id.imageViewExpand );
 		
 		if( expandView != null ) {
-			expandView.setOnClickListener( new OnExpandClickListener(expandView) );
+			expandView.setOnClickListener( new OnExpandClickListener() );
 		}
 		
 		DetailClickListener editListener
@@ -215,36 +217,48 @@ public class ToDoListItemView extends LinearLayout {
 	}
 	
 	private void makeComponentVisibleByMode() {
+		switch( modeKeeper.getMode() ) {
+			case BROWSE:
+				selectedView.setVisibility( View.VISIBLE );
+				deleteView.setVisibility( View.VISIBLE );
+				break;
+			case EDIT:
+				selectedView.setVisibility( View.VISIBLE );
+				deleteView.setVisibility( View.GONE );
+				break;
+			case MULTI_DETAIL:
+				selectedView.setVisibility( View.GONE );
+				deleteView.setVisibility( View.GONE );
+				break;
+			default:
+				break;
+		}
+		
 		boolean isBrowseMode = modeKeeper.getMode() == ModeKeeper.MODE.BROWSE;
-//		selectedView.setVisibility( isBrowseMode ? View.GONE : View.VISIBLE );
-		deleteView.setVisibility( isBrowseMode ? View.VISIBLE : View.GONE );
 		textView.setLongClickable(isBrowseMode);
 		if( dateView != null) {
 			dateView.setLongClickable(isBrowseMode);
 		}
 	}
 
+	public void setExpanded( boolean isExpanded ) {
+		expandView.setImageResource( !isExpanded 
+									 ? R.drawable.expand 
+									 : R.drawable.collapse );
+		Resources r = getResources();
+		String cd
+			= r.getString( !isExpanded 
+						   ? R.string.expandDescription 
+						   : R.string.collapseDescription );
+		
+		expandView.setContentDescription( cd );
+		expanded = isExpanded;
+	}
+
 	private final class OnExpandClickListener implements OnClickListener {
-		private final ImageView expandView;
-		private boolean expanded = false;
-
-		private OnExpandClickListener(ImageView expandView) {
-			this.expandView = expandView;
-		}
-
 		@Override
 		public void onClick(View v) {
 			if( expandOperator != null ) {
-				expandView.setImageResource( expanded 
-											 ? R.drawable.expand 
-											 : R.drawable.collapse );
-				Resources r = getResources();
-				String cd
-					= r.getString( expanded 
-								   ? R.string.expandDescription 
-								   : R.string.collapseDescription );
-				
-				expandView.setContentDescription( cd );
 				expanded = !expanded;
 				expandOperator.expand( expanded, position );
 			}
@@ -291,5 +305,4 @@ public class ToDoListItemView extends LinearLayout {
 			return true;
 		}
 	}
-
 }

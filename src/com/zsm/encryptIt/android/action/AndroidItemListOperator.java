@@ -1,9 +1,10 @@
-package com.zsm.encryptIt;
+package com.zsm.encryptIt.android.action;
 
 import java.io.IOException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Observable;
@@ -22,6 +23,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 
+import com.zsm.encryptIt.WhatToDoItem;
 import com.zsm.encryptIt.action.ItemList;
 import com.zsm.encryptIt.action.ItemListActor;
 import com.zsm.encryptIt.action.ItemStorageAdapter;
@@ -42,9 +44,10 @@ import com.zsm.recordstore.AbstractRawCursor;
 import com.zsm.util.FilterableList;
 import com.zsm.util.Matcher;
 
-public class AndroidItemListOperator implements ItemList, LoaderCallbacks<Cursor> {
+public class AndroidItemListOperator
+				implements ItemList, LoaderCallbacks<Cursor> {
 
-	private FilterableList<WhatToDoListViewItem, String> list;
+	final private FilterableList<WhatToDoListViewItem, String> list;
 	private String filtString = "";
 	
 	private Context context;
@@ -59,15 +62,22 @@ public class AndroidItemListOperator implements ItemList, LoaderCallbacks<Cursor
 	public AndroidItemListOperator( Context context, LoaderManager lm,
 									FragmentAdapter adapter ) {
 		
+		list
+			= new FilterableList<WhatToDoListViewItem, String>(
+					new StringMatcher() );
+		
 		this.context = context;
-		this.loaderManager = lm;
+		loaderManager = lm;
 		selectionObserver = new SelectObserver();
-		this.fragmentAdapter = adapter;
+		fragmentAdapter = adapter;
+		fragmentAdapter.setDataListToAdapter(list);
 	}
 	
-	public void setDataList(FilterableList<WhatToDoListViewItem, String> list) {
-		this.list = list;
-		list.setMatcher(new StringMatcher());
+	public void closeStorage() {
+		if( storageAdapter != null ) {
+			storageAdapter.close();
+			storageAdapter = null;
+		}
 	}
 	
 	public boolean initList( Key key, Handler handler ) {
@@ -210,8 +220,8 @@ public class AndroidItemListOperator implements ItemList, LoaderCallbacks<Cursor
 	}
 
 	@Override
-	public void removeItem(final WhatToDoItem item) {
-		list.remove( new WhatToDoListViewItem( item ) );
+	public boolean removeItem(final WhatToDoItem item) {
+		return list.remove( new WhatToDoListViewItem( item ) );
 	}
 
 	@Override
@@ -258,6 +268,20 @@ public class AndroidItemListOperator implements ItemList, LoaderCallbacks<Cursor
 		return res;
 	}
 	
+	public boolean doDeleteSelected() {
+		List<WhatToDoListViewItem> sl = getSelectedDataList();
+		ItemListActor actor = getApp().getItemListActor();
+		boolean res = false;
+		for( WhatToDoListViewItem item : sl ) {
+			res |= actor.doDelete(item.getData());
+		}
+		
+		if( res ) {
+			refilter();
+		}
+		return res;
+	}
+
 	public void selectAll( boolean select ) {
 		for( WhatToDoListViewItem item : list ) {
 			item.setSelected( select );
@@ -281,9 +305,19 @@ public class AndroidItemListOperator implements ItemList, LoaderCallbacks<Cursor
 		notifyDataSetChanged();
 	}
 
-
 	public List<WhatToDoListViewItem> getDataList() {
 		return list;
+	}
+	
+	public List<WhatToDoListViewItem> getSelectedDataList() {
+		List<WhatToDoListViewItem> sl = new ArrayList<WhatToDoListViewItem>();
+		
+		for( WhatToDoListViewItem item : list ) {
+			if( item.isSelected() ) {
+				sl.add(item);
+			}
+		}
+		return sl;
 	}
 
 	private final class SelectObserver implements Observer {

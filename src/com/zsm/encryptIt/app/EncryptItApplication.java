@@ -17,6 +17,7 @@ import com.zsm.driver.android.log.AndroidLog;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.SystemParameter;
 import com.zsm.encryptIt.action.ItemListActor;
+import com.zsm.encryptIt.android.action.AndroidItemListOperator;
 import com.zsm.encryptIt.android.action.AndroidPasswordHandler;
 import com.zsm.log.Log;
 import com.zsm.recordstore.RecordStoreManager;
@@ -27,7 +28,7 @@ import com.zsm.security.PasswordPolicy;
 
 public class EncryptItApplication extends Application {
 
-    private final long MAX_ACTIVITY_TRANSITION_TIME_MS = 2000;
+    private final long MAX_ACTIVITY_TRANSITION_TIME_MS = 5000;
     
     private Timer activityTransitionTimer;
     private TimerTask activityTransitionTimerTask;
@@ -39,6 +40,8 @@ public class EncryptItApplication extends Application {
 	private Key key;
 	private Thread threadForKey;
 	private ItemListActor itemActioner;
+
+	private AndroidItemListOperator uiListOperator;
 
 	public EncryptItApplication() {
 		Log.install( new AndroidLog( "EncryptIt" ) );
@@ -67,8 +70,8 @@ public class EncryptItApplication extends Application {
 	}
 
 	public void startActivityTransitionTimer() {
-	    this.activityTransitionTimer = new Timer();
-	    this.activityTransitionTimerTask = new TimerTask() {
+	    activityTransitionTimer = new Timer();
+	    activityTransitionTimerTask = new TimerTask() {
 	        public void run() {
 	        	EncryptItApplication.this.wasInBackground = true;
 	        }
@@ -79,12 +82,14 @@ public class EncryptItApplication extends Application {
 	}
 
 	public void stopActivityTransitionTimer() {
-	    if (this.activityTransitionTimerTask != null) {
-	        this.activityTransitionTimerTask.cancel();
+	    if (activityTransitionTimerTask != null) {
+	        activityTransitionTimerTask.cancel();
+	        activityTransitionTimerTask = null;
 	    }
 
-	    if (this.activityTransitionTimer != null) {
-	        this.activityTransitionTimer.cancel();
+	    if (activityTransitionTimer != null) {
+	        activityTransitionTimer.cancel();
+	        activityTransitionTimer = null;
 	    }
 
 	    this.wasInBackground = false;
@@ -104,6 +109,19 @@ public class EncryptItApplication extends Application {
 	
 	public void setItemListActor(ItemListActor itemListActor) {
 		itemActioner = itemListActor;
+	}
+	
+	public void setUIListOperator( AndroidItemListOperator o ) {
+		if( uiListOperator != null && o != null ) {
+			throw new IllegalStateException( 
+				"ItemListOperator has been set, but not cleared."
+				+ " Set it to null first!" );
+		}
+		uiListOperator = o;
+	}
+	
+	public AndroidItemListOperator getUIListOperator() {
+		return uiListOperator;
 	}
 	
 	public void waitForPassword() throws InterruptedException {

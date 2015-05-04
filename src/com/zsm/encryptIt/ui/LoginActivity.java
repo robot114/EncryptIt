@@ -100,6 +100,13 @@ public class LoginActivity extends SecurityActivity {
 		buttonLayout.setLayoutParams(params);
 	}
 
+	@Override
+	public void onBackPressed() {
+		setResult( LOGIN_FAILED );
+		super.onBackPressed();
+	}
+
+	@Override
 	protected boolean needPromptPassword() {
 		return false;
 	}

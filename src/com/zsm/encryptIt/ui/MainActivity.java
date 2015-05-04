@@ -6,6 +6,8 @@ import java.security.Key;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -26,9 +28,9 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import com.zsm.encryptIt.AndroidItemListOperator;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.action.KeyAction;
+import com.zsm.encryptIt.android.action.AndroidItemListOperator;
 import com.zsm.encryptIt.android.action.AndroidKeyActor;
 import com.zsm.encryptIt.android.action.PasswordPromptParameter;
 import com.zsm.encryptIt.app.EncryptItApplication;
@@ -39,6 +41,7 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 
 	protected static final int SHOW_FOR_EDIT = 3;
 	protected static final int SHOW_FOR_DELETE = 4;
+	protected static final int SHOW_FOR_DELETE_SELECTED = 5;
 	
 	public static final int ENCRYPT_IT_ID = 0;
 	
@@ -59,19 +62,14 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 	
 	private MenuItem menuItemSelectedCount;
 	private MenuItem menuItemSelectAll;
+	private ListDataSetObserver listDataObserver;
 
-	public MainActivity() {
-	}
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		Log.d( "The MainActivity is to be created", this );
 		initEnviroment();
-		
-		if( !promptPassword( ) ) {
-			return;
-		}
 		
 		mode = MODE.BROWSE;
 //		setContentView( R.layout.main );
@@ -81,7 +79,6 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		listFragment
 			= (FragmentAdapter) fm.findFragmentById(R.id.ToDoListFragment);
 		listFragment.setModeKeeper( this );
-		listFragment.registerListDataSetObserver( new ListDataSetObserver() );
 		
 		clearableEditor
 			= (ClearableEditor) findViewById( R.id.clearableEditor );
@@ -112,17 +109,21 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 										   getLoaderManager(),
 										   listFragment );
 		
-		listFragment.setListOperator( operator );
+		listFragment.setDataListToAdapter( operator.getDataList() );
+		getApp().setUIListOperator(operator);
 		
 		setHeightByWindow( );
 		
+		if( !promptPassword( ) ) {
+			return;
+		}
 		waitForKeyThenInitList();
 	}
 	
 	private void waitForKeyThenInitList() {
+		Log.d( "Waiting for the key..." );
 		final Handler handler = new Handler();
-		final EncryptItApplication app
-			= (EncryptItApplication)getApplicationContext();
+		final EncryptItApplication app = getApp();
 		final Thread threadForKey = new Thread( new Runnable(){
 			@Override
 			public void run() {
@@ -144,13 +145,16 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 	}
 	
 	private Key waitForKey() throws InterruptedException {
-		EncryptItApplication context
-			= (EncryptItApplication)getApplicationContext();
+		EncryptItApplication context = getApp();
 		
 		context.waitForPassword();
 		Key key = context.getKey();
 		
 		return key;
+	}
+
+	private EncryptItApplication getApp() {
+		return (EncryptItApplication)getApplicationContext();
 	}
 	
 	private void initEnviroment() {
@@ -178,6 +182,9 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		}
 		menuItemSelectAll = menu.findItem( R.id.menuSelectAll );
 		menuItemSelectedCount = menu.findItem( R.id.menuSelectedCount );
+		listDataObserver = new ListDataSetObserver();
+		listFragment.registerListDataSetObserver( listDataObserver );
+
 		updateSelectedCount();
 		return true;
 	}
@@ -185,7 +192,6 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 	private void updateSelectedCount() {
 		String fmt = getResources().getString( R.string.menuSelectedCount );
 		String str = String.format( fmt, operator.getSelectedCount() );
-		// TODO: menuItemSelectedCount May be null
 		menuItemSelectedCount.setTitle( str );
 		boolean allSelected
 			= operator.getSelectedCount() == operator.getShownCount();
@@ -210,7 +216,44 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 			return false;
 		}
 	}
+
+	private void deleteSelected() {
+		Intent intent = new Intent( this, MultiDetailActivity.class );
+		startActivityForResult( intent, SHOW_FOR_DELETE_SELECTED );
+	}
 	
+	@Override
+	public void onBackPressed() {
+		new Builder(this)
+			.setMessage(R.string.promptExit)
+			.setTitle(R.string.app_name)
+			.setPositiveButton( android.R.string.yes, 
+				   			   	new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick( DialogInterface dialog,
+									 int which) {
+					MainActivity.super.onBackPressed();
+				}
+			} )
+			.setNegativeButton( android.R.string.no, null )
+			.setCancelable( false )
+			.create()
+			.show();
+	}
+
+	@Override
+	protected void onDestroy() {
+		Log.d( "MainActivity to be destoried" );
+		getApp().stopActivityTransitionTimer();
+		if( listDataObserver != null ) {
+			listFragment.unregisterListDataSetObserver( listDataObserver );
+			listDataObserver = null;
+		}
+		operator.closeStorage();
+		getApp().setUIListOperator(null);
+		super.onDestroy();
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		super.onOptionsItemSelected(item);
@@ -235,13 +278,16 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 				operator.selectReverse();
 				updateSelectedCount();
 				return true;
+			case R.id.menuDeleteSelected:
+				deleteSelected();
+				updateSelectedCount();
+				return true;
 			default:
 				break;
 		}
 		
 		return false;
 	}
-
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
@@ -290,6 +336,8 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.d( "MainActivity Result: ", "requestCode", requestCode, "resultCode",
+			   resultCode );
 		super.onActivityResult(requestCode, resultCode, data);
 		if( checkLoginFailed( resultCode ) ) {
 			return;
@@ -307,6 +355,9 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 			case SHOW_FOR_DELETE:
 				doDelete(resultCode, data);
 				break;
+			case SHOW_FOR_DELETE_SELECTED:
+				doDeleteSelected( resultCode, data );
+				break;
 		}
 	}
 
@@ -315,7 +366,12 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		// Here the filter needed to be done event it is cancelled
 		// in the detail activity, because it is cancelled, the task
 		// may be changed and saved.
+		refilter();
+	}
+
+	private void refilter() {
 		operator.filter(clearableEditor.getText());
+		operator.notifyDataSetChanged();
 	}
 
 	private void doDelete(int resultCode, Intent data) {
@@ -323,7 +379,18 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 			case RESULT_OK:
 				operator.doDelete(
 						data.getIntExtra( DetailActivity.KEY_ROW_POSITION, -1 ) );
-				operator.filter(clearableEditor.getText());
+				refilter();
+				break;
+			default:
+				break;
+		}
+	}
+
+	private void doDeleteSelected(int resultCode, Intent data) {
+		switch( resultCode ) {
+			case RESULT_OK:
+				operator.doDeleteSelected( );
+				refilter();
 				break;
 			default:
 				break;
@@ -341,7 +408,7 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 				Key key = EncryptItApplication.getPasswordHandler().getKey(param);
 				
 				EncryptItApplication context
-					= (EncryptItApplication)getApplicationContext();
+					= getApp();
 				context.setKey( key );
 				context.resumeFromWaitForPassword();
 				break;
@@ -398,11 +465,16 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 	
 	@Override
 	public MODE getMode() {
-		return this.mode;
+		return mode;
 	}
 
 	@Override
 	public void switchTo(MODE mode) {
+		if( mode != MODE.BROWSE && mode != MODE.EDIT ) {
+			throw new IllegalStateException( 
+						"Just MODE.BROWSE and MODE.EDIT support!" );
+		}
+		
 		this.mode = mode;
 		// Clear all selection to avoid delete by mistake
 		operator.selectAll( false );

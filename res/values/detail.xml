@@ -65,8 +65,9 @@
     <string name="detailHint">Add detail here</string>
     <string name="detail_title_hint">Enter something for this task</string>
     <string name="detail_edit">Edit</string>
-    <string name="detail_delete">Are you sure to delete this?</string>
+    <string name="detail_delete">Confirm to delete this item</string>
     <string name="detailSaveAndBack">Save and Back</string>
     <string name="detailSave">Save</string>
     <string name="deatilSaved">Change saved!</string>
+    <string name="detailDeleteSelected">Delete the Selected Items</string>
 </resources>

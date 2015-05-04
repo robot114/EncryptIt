@@ -112,6 +112,14 @@ abstract public class Log {
     }
     
     /**
+     * Log the calling position with DEBUG level
+     * 
+     */
+    public static void d(Object... objects) {
+        p(null, DEBUG, "", objects);
+    }
+    
+    /**
      * Log the event with INFO level
      * 
      * @param t make the log traceable

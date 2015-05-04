@@ -1,6 +1,6 @@
 package com.zsm.encryptIt.ui;
 
-import com.zsm.encryptIt.AndroidItemListOperator;
+import java.util.List;
 
 import android.database.DataSetObserver;
 
@@ -12,6 +12,8 @@ public interface FragmentAdapter {
 
 	public abstract void setModeKeeper(ModeKeeper mk);
 
-	public abstract void setListOperator(AndroidItemListOperator operator);
+	public void setDataListToAdapter(List<WhatToDoListViewItem> list);
+
+	public abstract void unregisterListDataSetObserver( DataSetObserver observer );
 
 }

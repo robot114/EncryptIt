@@ -24,5 +24,8 @@
     <string name="menuSelectReverse">Select Reverse</string>
     <string name="expandDescription">Show the detail</string>
     <string name="collapseDescription">Hide the detail</string>
+    <string name="promptExit">Do you want to quit?</string>
+    <string name="confirmDeleteSelected">Confirm to delete these items</string>
+    <string name="confirmDeleteSelectedAgain">All these items to be deleted, and can not be restored.\r\nAre you sure to delete them?</string>
     
 </resources>

@@ -20,12 +20,15 @@ class WhatToDoItemExpanableAdapter extends BaseExpandableListAdapter {
 	private Context context;
 	private ExpandableListView listView;
 
-	WhatToDoItemExpanableAdapter( Context context, ExpandableListView lv, List<WhatToDoListViewItem> list ) {
+	WhatToDoItemExpanableAdapter( Context context, ExpandableListView lv ) {
 		this.context = context;
-		this.list = list;
 		listView = lv;
 	}
 	
+	public void setDataList(List<WhatToDoListViewItem> list) {
+		this.list = list;
+	}
+
 	public void setModeKeeper(ModeKeeper mk) {
 		modeKeeper = mk;
 	}
@@ -70,7 +73,7 @@ class WhatToDoItemExpanableAdapter extends BaseExpandableListAdapter {
 	}
 
 	@Override
-	public View getGroupView(int groupPosition, boolean isExpanded,
+	public View getGroupView(int groupPosition, final boolean isExpanded,
 							 View convertView, ViewGroup parent) {
 		
 		ToDoListItemView view;
@@ -83,8 +86,8 @@ class WhatToDoItemExpanableAdapter extends BaseExpandableListAdapter {
 			view.setExpandOperator( new ExpandOperator() {
 
 				@Override
-				public void expand(boolean expand, int groupPosition) {
-					if( expand ) {
+				public void expand(boolean expanded, int groupPosition) {
+					if( expanded ) {
 						listView.expandGroup(groupPosition);
 					} else {
 						listView.collapseGroup(groupPosition);
@@ -97,6 +100,7 @@ class WhatToDoItemExpanableAdapter extends BaseExpandableListAdapter {
 		}
 
 		view.setDisplayValue( list.get( groupPosition ), groupPosition );
+		view.setExpanded( isExpanded );
 		return view;
 	}
 

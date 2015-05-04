@@ -29,6 +29,14 @@ public class WhatToDoListViewItem extends Observable {
 		}
 	}
 
+	public void setSelected(boolean selected, boolean notifyChanged) {
+		if( notifyChanged ) {
+			setSelected( selected );
+		} else {
+			this.selected = selected;
+		}
+	}
+	
 	@Override
 	public boolean equals(Object o) {
 		if( o == null || !( o instanceof WhatToDoListViewItem ) ) {
@@ -44,5 +52,4 @@ public class WhatToDoListViewItem extends Observable {
 	public int hashCode() {
 		return data.hashCode();
 	}
-	
 }
