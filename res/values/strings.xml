@@ -27,5 +27,11 @@
     <string name="promptExit">Do you want to quit?</string>
     <string name="confirmDeleteSelected">Confirm to delete these items</string>
     <string name="confirmDeleteSelectedAgain">All these items to be deleted, and can not be restored.\r\nAre you sure to delete them?</string>
+    <string name="logClear">Clear logs</string>
+    <string name="searchLogsForward">Search forward</string>
+    <string name="searchLogsBackword">Search Backward</string>
+    <string name="searchLogToEnd">Reach to the end,\r\nwould you want to from the beginning?</string>
+    <string name="searchLogToBegin">Reach to the beginning,\r\nwould you want to from the end?</string>
+    <string name="searchLogNoFound">Target string not found!</string>
     
 </resources>

@@ -2,6 +2,7 @@ package com.zsm.encryptIt.ui;
 
 import java.security.GeneralSecurityException;
 import java.security.Key;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -39,9 +40,12 @@ import com.zsm.security.PasswordHandler;
 
 public class MainActivity extends ProtectedActivity implements ModeKeeper {
 
+	private static final String SHOW_LOG = "show log!";
+	
 	protected static final int SHOW_FOR_EDIT = 3;
 	protected static final int SHOW_FOR_DELETE = 4;
 	protected static final int SHOW_FOR_DELETE_SELECTED = 5;
+	protected static final int SHOW_FOR_LOG = 50;
 	
 	public static final int ENCRYPT_IT_ID = 0;
 	
@@ -90,6 +94,18 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		newItemButton.setOnClickListener( new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if( Log.isIinstalled(EncryptItApplication.FILE_LOG)) {
+					String text
+						= clearableEditor.getText().toString()
+							.toLowerCase( Locale.getDefault() );
+					
+					if( text.equals( SHOW_LOG ) ) {
+						Intent intent
+							= new Intent( MainActivity.this, LogActivity.class );
+						MainActivity.this.startActivity( intent );
+						return;
+					}
+				}
 				doAdd( );
 			}
 		} );

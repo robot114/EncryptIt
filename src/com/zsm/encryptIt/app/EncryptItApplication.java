@@ -1,5 +1,6 @@
 package com.zsm.encryptIt.app;
 
+import java.io.File;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -11,6 +12,8 @@ import javax.crypto.NoSuchPaddingException;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.os.Environment;
 import android.telephony.TelephonyManager;
 
 import com.zsm.driver.android.log.AndroidLog;
@@ -19,6 +22,7 @@ import com.zsm.encryptIt.SystemParameter;
 import com.zsm.encryptIt.action.ItemListActor;
 import com.zsm.encryptIt.android.action.AndroidItemListOperator;
 import com.zsm.encryptIt.android.action.AndroidPasswordHandler;
+import com.zsm.log.FileLog;
 import com.zsm.log.Log;
 import com.zsm.recordstore.RecordStoreManager;
 import com.zsm.recordstore.driver.android.sqlite.SQLiteDriver;
@@ -28,7 +32,11 @@ import com.zsm.security.PasswordPolicy;
 
 public class EncryptItApplication extends Application {
 
-    private final long MAX_ACTIVITY_TRANSITION_TIME_MS = 5000;
+    private static final int MAX_LOG_FILE_LENGTH = 1024*1024*1024;
+
+	public static final String FILE_LOG = "FileLog";
+
+	private final long MAX_ACTIVITY_TRANSITION_TIME_MS = 5000;
     
     private Timer activityTransitionTimer;
     private TimerTask activityTransitionTimerTask;
@@ -44,14 +52,40 @@ public class EncryptItApplication extends Application {
 	private AndroidItemListOperator uiListOperator;
 
 	public EncryptItApplication() {
-		Log.install( new AndroidLog( "EncryptIt" ) );
-		Log.setLevel(Log.DEBUG);
+		Log.setGlobalLevel( Log.DEBUG );
+		
+		Log.install( "AndroidLog", new AndroidLog( "EncryptIt" ) );
+		Log.setLevel( "AndroidLog", Log.DEBUG );
+		
+		String logFileName
+			= Environment.getExternalStorageDirectory()
+				+ "/EncryptId/log/EncryptIt.log";
+		try {
+			Log.install( FILE_LOG, new FileLog( logFileName,
+												MAX_LOG_FILE_LENGTH ));
+		} catch (Exception e) {
+			Log.e( "Install log failed!", "id", FILE_LOG,
+					"file name", logFileName );
+		}
 	}
 	
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		
+		if( !Log.isIinstalled(FILE_LOG) ) {
+			ContextWrapper cw = new ContextWrapper(this);
+			File directory = cw.getDir("log", Context.MODE_PRIVATE);
+			String logFileName = directory.getAbsolutePath() +"/EncryptIt.log";
+			try {
+				Log.install( FILE_LOG, new FileLog( logFileName,
+													MAX_LOG_FILE_LENGTH ) );
+			} catch (Exception e) {
+				Log.e( "Install log failed!", "id", FILE_LOG,
+						"file name", logFileName );
+			}
+		}
+		Log.setLevel(FILE_LOG, Log.DEBUG);
 		RecordStoreManager.getInstance()
 			.setDefaultDriver( new SQLiteDriver(this) );
 		

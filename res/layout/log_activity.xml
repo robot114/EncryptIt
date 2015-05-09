@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" xmlns:app="http://schemas.android.com/apk/res/com.zsm.encryptIt">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <com.zsm.encryptIt.ui.ClearableEditor
+            android:id="@+id/textViewSearchLogs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@+id/imageViewSearchLogsForward"
+            app:clearButtonOnRight="false" >
+
+        </com.zsm.encryptIt.ui.ClearableEditor>
+
+        <ImageView
+            android:id="@+id/imageViewSearchLogsBackward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="134dp"
+            android:contentDescription="@string/searchLogsBackword"
+            android:src="@drawable/search_backward" />
+
+        <ImageView
+            android:id="@+id/imageViewSearchLogsForward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="29dp"
+            android:contentDescription="@string/searchLogsForward"
+            android:src="@drawable/search_forward" />
+
+    </RelativeLayout>
+
+    <fragment
+        android:id="@+id/fragmentLog"
+        android:name="com.zsm.encryptIt.ui.LogListFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

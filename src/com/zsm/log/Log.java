@@ -2,6 +2,9 @@ package com.zsm.log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Set;
 
 abstract public class Log {
 
@@ -37,11 +40,19 @@ abstract public class Log {
      */
     public static final int NO_LOG = 5;
     
-    private static Log instance;
+    final static private long zeroTime = System.currentTimeMillis();
+
+    private static HashMap <String, Log> instances;
     
     private int level = ERROR;
     
-    private long zeroTime = System.currentTimeMillis();
+    static private int globalLevel = ERROR;
+    
+    /**
+     * Do anything needed when the log instance is uninstalled.
+     * @throws IOException 
+     */
+    abstract protected void uninstall() throws IOException;
 
 	/**
      * Create a reader to get all the logs. The reader <b>MUST NOT</b> append
@@ -50,7 +61,7 @@ abstract public class Log {
      * @return Reader reader to get all the logs.
      * @throws IOException when creating the reader failed.
      */
-    abstract protected BufferedReader createReader() throws IOException;
+    abstract public BufferedReader createReader() throws IOException;
     
 	/**
      * Print the message to the log. After this method called,
@@ -71,26 +82,60 @@ abstract public class Log {
     abstract public void clearContent() throws IOException;
 
     /**
-     * Installs an instance of
+     * Installs an instance.
      * 
+     * @param id identity of the instance
      * @param newInstance the new instance for the Log object
      * @throws LogException when there is already an instance installed.
      */
-    public static void install(Log newInstance) throws LogException {
-    	if( instance != null ) {
-    		throw new LogException( "Uninstanll the installed instance first!" );
+    public static void install(String id, Log newInstance) throws LogException {
+    	if( instances == null ) {
+    		instances = new HashMap<String, Log>();
     	}
-        instance = newInstance;
+        instances.put(id, newInstance);
     }
     
     /**
+     * To check if the special instance installed
+     * 
+     * @param id of the instance to be checked
+     * @return true, the instance installed; false, otherwise
+     */
+    public static boolean isIinstalled( String id ) {
+   		return instances.get(id) != null;
+    }
+    
+   /**
      * Uninstall the log instance if it has been installed. If no instance
      * installed, nothing will happen. 
      * 
+     * @param id id of the instance to be uninstalled
+     * @throws IOException 
      */
-    public static void uninstall() {
-   		instance = null;
+    public static void uninstall( String id ) throws IOException {
+   		instances.remove(id).uninstall();
     }
+    
+    /**
+     * Uninstall all the instances
+     * @throws IOException 
+     */
+    public void uninstallAll() throws IOException {
+    	Set<String> keySet = instances.keySet();
+    	for( String key : keySet ) {
+    		uninstall( key );
+    	}
+    }
+    
+	/**
+     * Get an instance by its id
+     * 
+     * @param id of the instance
+     * @return the instance
+     */
+	public static Log getInstance(String id) {
+		return instances.get(id);
+	}
     
     /**
      * Log the event with DEBUG level
@@ -191,64 +236,127 @@ abstract public class Log {
      * @param message the message to print
      */
     public static void p(Throwable t, int level, String message, Object... objects) {
+    	if( globalLevel > level ) {
+    		return;
+    	}
+    	
     	try {
-        	if( level >= instance.level ) {
-        		StringBuffer buffer = new StringBuffer();
-        		
-            	StackTraceElement[] e = Thread.currentThread().getStackTrace();
-            	int count = 0;
-            	int i;
-            	for( i = 0; i < e.length; i++ ) {
-            		if( e[i].getClassName().equals( CLASS_NAME ) ) {
-            			count++;
-            		} else if( count > 0 ) {
-            			break;
-            		}
-            	}
-            	
-        		buffer.append( instance.getThreadAndTimeStamp() );
-        		buffer.append( "-" );
-        		if( i < e.length ) {
-	        		buffer.append( e[i] );
-	        		buffer.append( ". Message: " );
-        		}
-        		buffer.append(message);
-        		if( objects.length > 0 ) {
-	        		buffer.append( " With objects: " );
-	        		for( Object obj : objects ) {
-	        			buffer.append(obj);
-	        			buffer.append( ", " );
-	        		}
-        		}
-                synchronized( instance ) {
-                	instance.print(t, buffer, level);
-                }
-        	}
+    		Set<Entry<String, Log>> set = instances.entrySet();
+    		StringBuffer buffer = null;
+            synchronized( instances ) {
+	    		for( Entry<String, Log> e : set) {
+	    			if( e.getValue().level <= level ) {
+	    				if( buffer == null ) {
+	    					buffer = message( message, objects );
+    	                }
+	                	e.getValue().print(t, buffer, level);
+    				}
+    			}
+    		}
     	} catch ( Exception e ) {
     		// When failed to record a log, the system MUST NOT be affected!
     		System.out.println( message );
     		e.printStackTrace();
     	}
    }
+
+	private static StringBuffer message(String message, Object... objects) {
+		
+		StringBuffer buffer = new StringBuffer();
+		
+		StackTraceElement[] e = Thread.currentThread().getStackTrace();
+		int count = 0;
+		int i;
+		for( i = 0; i < e.length; i++ ) {
+			if( e[i].getClassName().equals( CLASS_NAME ) ) {
+				count++;
+			} else if( count > 0 ) {
+				break;
+			}
+		}
+		
+		buffer.append( getThreadAndTimeStamp() );
+		buffer.append( "-" );
+		if( i < e.length ) {
+			buffer.append( e[i] );
+			buffer.append( ". Message: " );
+		}
+		buffer.append(message);
+		if( objects.length > 0 ) {
+			buffer.append( " With objects: " );
+			for( Object obj : objects ) {
+				buffer.append(obj);
+				buffer.append( ", " );
+			}
+		}
+		return buffer;
+	}
     
     /**
-     * Sets the logging level for printing log details, the lower the value 
-     * the more verbose would the printouts be
+     * Sets the global logging level for printing log details, the lower the value 
+     * the more verbose information would be out. If a log's level is lower the
+     * global level, it will not be out at all. If a log's level is higher than
+     * or equal to the global level, but lower than a special instance's level,
+     * it will not be out for this special instance. But it may be out for other
+     * instance.
      * 
      * @param level one of DEBUG, INFO, WARNING, ERROR
      */
-    public static void setLevel(int level) {
-        instance.level = level;
+    public static void setGlobalLevel(int level) {
+    	globalLevel = level;
+    }
+
+    /**
+     * Returns the global logging level for printing log details.
+     * 
+     * @see {@link setGlobalLevel}
+     * 
+     * @id id of the instance to get the level
+     * @return one of DEBUG, INFO, WARNING, ERROR
+     */
+    public static int getGlobalLevel( ) {
+        return globalLevel;
     }
     
     /**
-     * Returns the logging level for printing log details, the lower the value 
-     * the more verbose would the printouts be
+     * Sets the logging level for a special instance.
      * 
+     * @see {@link setGlobalLevel}
+     * 
+     * @param id of the instance to change the level
+     * @param level one of DEBUG, INFO, WARNING, ERROR
+     */
+    public static void setLevel(String id, int level) {
+    	Log log = getInstance(id);
+    	if( log != null ) {
+    		getInstance(id).level = level;
+    	} else {
+    		Log.e( "Instance not installed", "instance", id );
+    	}
+    }
+
+    /**
+     * Returns the logging level for special instance
+     * 
+     * @see {@link setGlobalLevel}
+     * 
+     * @id id of the instance to get the level
      * @return one of DEBUG, INFO, WARNING, ERROR
      */
-    public static int getLevel() {
-        return instance.level;
+    public static int getLevel( String id ) {
+        return getInstance(id).level;
+    }
+    
+    /**
+     * Returns the logging level for <b>THIS</b> instance
+     * 
+     * @see {@link setGlobalLevel}
+     * 
+     * @id id of the instance to get the level
+     * @return one of DEBUG, INFO, WARNING, ERROR
+     */
+    protected int getLevel( ) {
+        return level;
     }
     
     /**
@@ -257,11 +365,11 @@ abstract public class Log {
      * 
      * @return string containing the whole log
      */
-    public static String getLogContent() {
+    public String getLogContent() {
     	BufferedReader r = null;
         try {
             StringBuffer text = new StringBuffer();
-            r = instance.createReader();
+            r = createReader();
             String str;
             while( ( str = r.readLine() ) != null ) {
             	text.append( str  );
@@ -287,7 +395,7 @@ abstract public class Log {
      * 
      * @return timestamp string for use in the log
      */
-    private String getThreadAndTimeStamp() {
+    private static String getThreadAndTimeStamp() {
         long time = System.currentTimeMillis() - zeroTime;
         long milli = time % 1000;
         time /= 1000;

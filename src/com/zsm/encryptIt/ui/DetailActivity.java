@@ -24,7 +24,7 @@ import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.WhatToDoItem;
 import com.zsm.encryptIt.app.EncryptItApplication;
 
-public class DetailActivity extends ProtectedActivity implements TextWatcher {
+public class DetailActivity extends ProtectedActivity {
 	
 	static final String KEY_DEATAIL_TEXT = "DEATAIL_TEXT";
 	static final String KEY_TRIMED_TASK = "TRIMED_TASK";
@@ -68,8 +68,6 @@ public class DetailActivity extends ProtectedActivity implements TextWatcher {
 		boolean editable = shouldEditable();
 		
 		taskText.setEnabled( editable );
-		taskText.addTextChangedListener( this );
-		
 		detailText.setEnabled( editable );
 		
 		TextView created = (TextView)findViewById( R.id.detailCreateTime );
@@ -85,6 +83,9 @@ public class DetailActivity extends ProtectedActivity implements TextWatcher {
 		detailText.setText( originalDetail, BufferType.SPANNABLE );
 		Linkify.addLinks(taskText, Linkify.ALL);
 		Linkify.addLinks(detailText, Linkify.ALL);
+		
+		taskText.addTextChangedListener(new LinksWatcher( taskText ));
+		detailText.addTextChangedListener(new LinksWatcher( detailText ));
 		
 		created.setText(TIME_FORMAT.format(whatToDoItem.getCreatedTime()));
 		modified.setText( TIME_FORMAT.format(whatToDoItem.getModifiedTime()));
@@ -234,21 +235,30 @@ public class DetailActivity extends ProtectedActivity implements TextWatcher {
 		newDetail = detailText.getText().toString();
 	}
 
-	@Override
-	public void beforeTextChanged(CharSequence s, int start, int count,
-			int after) {
-	}
-
-	@Override
-	public void onTextChanged(CharSequence s, int start, int before, int count) {
-	}
-
-	@Override
-	public void afterTextChanged(Editable s) {
-	}
-
 	protected boolean needPromptPassword() {
 		return true;
+	}
+
+	final private class LinksWatcher implements TextWatcher {
+		private TextView view;
+		
+		private LinksWatcher( TextView tv ) {
+			view = tv;
+		}
+		
+		@Override
+		public void beforeTextChanged(CharSequence s, int start, int count,
+				int after) {
+		}
+	
+		@Override
+		public void onTextChanged(CharSequence s, int start, int before, int count) {
+		}
+	
+		@Override
+		public void afterTextChanged(Editable s) {
+			Linkify.addLinks(view, Linkify.ALL);
+		}
 	}
 
 }

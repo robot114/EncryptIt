@@ -10,7 +10,6 @@ import android.widget.ExpandableListView;
 
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.WhatToDoItem;
-import com.zsm.log.Log;
 import com.zsm.recordstore.LongRowId;
 
 class WhatToDoItemExpanableAdapter extends BaseExpandableListAdapter {

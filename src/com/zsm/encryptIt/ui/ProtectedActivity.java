@@ -64,6 +64,12 @@ abstract public class ProtectedActivity extends Activity {
 		setContentVisible(View.INVISIBLE);
 	}
 
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+	}
+
 	/**
 	 * Hide the content to protect the content as much as possible
 	 * 

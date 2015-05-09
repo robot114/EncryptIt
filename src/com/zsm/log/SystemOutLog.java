@@ -16,7 +16,7 @@ public class SystemOutLog extends Log {
 	 * Return a dummy reader which can read nothing actually.
 	 */
 	@Override
-	protected BufferedReader createReader() throws IOException {
+	public BufferedReader createReader() throws IOException {
 		return new DummyReader();
 	}
 
@@ -40,6 +40,11 @@ public class SystemOutLog extends Log {
 	 */
 	@Override
 	public void clearContent() throws IOException {
+	}
+
+	@Override
+	protected void uninstall() throws IOException {
+		// Do nothing
 	}
 
 }

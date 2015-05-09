@@ -22,7 +22,7 @@ public class AndroidLog extends Log {
 	}
 	
 	@Override
-	protected BufferedReader createReader() throws IOException {
+	public BufferedReader createReader() throws IOException {
 		return new DummyReader();
 	}
 
@@ -64,4 +64,8 @@ public class AndroidLog extends Log {
 		// TODO: clear the logs
 	}
 
+	@Override
+	protected void uninstall() {
+		// Do nothing
+	}
 }
