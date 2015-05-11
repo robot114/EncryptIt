@@ -10,6 +10,8 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -112,6 +114,21 @@ public class ToDoListItemView extends LinearLayout {
 		
 		paperColor = res.getColor( R.color.notepad_paper );
 		margin = res.getDimension( R.dimen.notepad_margin );
+	}
+
+	@Override
+	public void setBackgroundResource(int resid) {
+		super.setBackgroundResource(resid);
+		Drawable currentDrawable = getBackground().getCurrent();
+		if( currentDrawable instanceof ColorDrawable ) {
+			paperColor = ((ColorDrawable) currentDrawable).getColor();
+		}
+	}
+
+	@Override
+	public void setBackgroundColor(int bgc) {
+		super.setBackgroundColor(bgc);
+		paperColor = bgc;
 	}
 
 	public void setExpandOperator( ExpandOperator eo ) {

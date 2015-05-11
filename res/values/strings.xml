@@ -33,5 +33,10 @@
     <string name="searchLogToEnd">Reach to the end,\r\nwould you want to from the beginning?</string>
     <string name="searchLogToBegin">Reach to the beginning,\r\nwould you want to from the end?</string>
     <string name="searchLogNoFound">Target string not found!</string>
+    <string name="descriptionDelete">Delete this item</string>
+    <string name="prefLockAppTime">Time to lock the app</string>
+    <string name="prefLockAppTimeSummary">How long in second before the app locked when it cannot be seen.</string>
+    <string name="menuPreferences">Preferences</string>
+    <string name="menuPreferencesDescription">Setting the preferences</string>
     
 </resources>

@@ -1,6 +1,7 @@
 package com.zsm.encryptIt.app;
 
 import java.io.File;
+import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -10,6 +11,7 @@ import java.util.concurrent.Semaphore;
 
 import javax.crypto.NoSuchPaddingException;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -22,6 +24,9 @@ import com.zsm.encryptIt.SystemParameter;
 import com.zsm.encryptIt.action.ItemListActor;
 import com.zsm.encryptIt.android.action.AndroidItemListOperator;
 import com.zsm.encryptIt.android.action.AndroidPasswordHandler;
+import com.zsm.encryptIt.android.action.PasswordPromptParameter;
+import com.zsm.encryptIt.ui.LoginActivity;
+import com.zsm.encryptIt.ui.preferences.Preferences;
 import com.zsm.log.FileLog;
 import com.zsm.log.Log;
 import com.zsm.recordstore.RecordStoreManager;
@@ -36,7 +41,7 @@ public class EncryptItApplication extends Application {
 
 	public static final String FILE_LOG = "FileLog";
 
-	private final long MAX_ACTIVITY_TRANSITION_TIME_MS = 5000;
+	private long maxActivityTransitionTimeMs = 5000;
     
     private Timer activityTransitionTimer;
     private TimerTask activityTransitionTimerTask;
@@ -91,8 +96,10 @@ public class EncryptItApplication extends Application {
 		
 		passwordHandler = new AndroidPasswordHandler();
 		initPaswordPolicy();
+		
+		Preferences.init(this);
 	}
-	
+
 	private void initPaswordPolicy() {
 		passwordPolicy = new LengthPasswordPolicy( 8 );
 		
@@ -104,6 +111,10 @@ public class EncryptItApplication extends Application {
 	}
 
 	public void startActivityTransitionTimer() {
+		if( maxActivityTransitionTimeMs == 0 ) {
+			return;
+		}
+		
 	    activityTransitionTimer = new Timer();
 	    activityTransitionTimerTask = new TimerTask() {
 	        public void run() {
@@ -111,8 +122,9 @@ public class EncryptItApplication extends Application {
 	        }
 	    };
 
-	    this.activityTransitionTimer.schedule(activityTransitionTimerTask,
-	                                           MAX_ACTIVITY_TRANSITION_TIME_MS);
+	    activityTransitionTimer
+	    	.schedule(activityTransitionTimerTask,
+	    			  Preferences.getInstance().getLockAppTimeInMs());
 	}
 
 	public void stopActivityTransitionTimer() {
@@ -201,6 +213,38 @@ public class EncryptItApplication extends Application {
 		char[] password = mngr.getDeviceId().toCharArray();
 		
 		SystemParameter.initEncryptSetting(key, password);
+	}
+
+	public void resumeProtectedActivity(Activity activity,
+										boolean needPromptPassword) {
+		
+		boolean inBg = wasInBackground;
+		stopActivityTransitionTimer();
+		
+		Log.d( "For resuming.", "activity", this, "wasInBackground",
+				inBg, "needPromptPassword", needPromptPassword );
+		if( inBg && needPromptPassword ) {
+			promptPassword(activity );
+		}
+	}
+	
+	public boolean promptPassword(Activity activity) {
+		try {
+			PasswordPromptParameter passwordPromptParam
+				= new PasswordPromptParameter(
+						PasswordPromptParameter.PROMPT_PASSWORD,
+						getApplicationContext(), activity );
+			EncryptItApplication.getPasswordHandler()
+				.promptPassword( passwordPromptParam );
+			
+			return true;
+		} catch (GeneralSecurityException e) {
+			// Any error makes the application quit
+			Log.e( e, "Show prompt password activity failed!" );
+			activity.setResult( LoginActivity.LOGIN_FAILED );
+			activity.finish();
+			return false;
+		}
 	}
 
 }

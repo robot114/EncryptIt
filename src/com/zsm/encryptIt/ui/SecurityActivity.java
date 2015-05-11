@@ -13,7 +13,7 @@ import com.zsm.log.Log;
 abstract public class SecurityActivity extends ProtectedActivity {
 
 	static final int TOO_MUCH_TIMES_TO_TRY = RESULT_FIRST_USER + 1;
-	static final int LOGIN_FAILED = TOO_MUCH_TIMES_TO_TRY+1;
+	public static final int LOGIN_FAILED = TOO_MUCH_TIMES_TO_TRY+1;
 	static final int INITIALIZE_PASSWORD_FAILED = TOO_MUCH_TIMES_TO_TRY+2;
 	
 	protected int passwordAllowToTry;

@@ -43,6 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
+        android:contentDescription="@string/descriptionDelete"
         android:src="@drawable/delete"
         android:visibility="visible" />
 

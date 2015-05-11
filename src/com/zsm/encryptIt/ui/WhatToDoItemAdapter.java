@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import com.zsm.encryptIt.R;
 import com.zsm.recordstore.LongRowId;
 
 public class WhatToDoItemAdapter extends BaseAdapter {
@@ -40,6 +41,11 @@ public class WhatToDoItemAdapter extends BaseAdapter {
 			view = (ToDoListItemView)convertView;
 		}
 
+		if( position % 2 == 0 ) {
+			view.setBackgroundResource( R.drawable.item_view_even );
+		} else {
+			view.setBackgroundResource( R.drawable.item_view_odd );
+		}
 		view.setDisplayValue( getItem( position ), position );
 		return view;
 	}

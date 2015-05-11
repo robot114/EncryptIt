@@ -46,6 +46,7 @@
             	  android:authorities="@string/contentProviderUri">
         </provider>
         <activity android:name=".ui.LogActivity"></activity>
+        <activity android:name=".ui.preferences.PreferencesActivity"></activity>
         
 
     </application>

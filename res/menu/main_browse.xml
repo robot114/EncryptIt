@@ -28,4 +28,10 @@
 		  android:titleCondensed="@string/menuSelectReverse"
 		  android:showAsAction="never">
     </item>
+    <item android:id="@+id/menuPreferences"
+          android:showAsAction="never"
+          android:title="@string/menuPreferences"
+          android:icon="@drawable/settings"
+          android:titleCondensed="@string/app_name">
+    </item>
 </menu>

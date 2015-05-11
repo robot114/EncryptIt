@@ -6,6 +6,9 @@ import android.content.Intent;
 
 public class PasswordPromptParameter {
 
+	public static final int PROMPT_PASSWORD = 1;
+	public static final int CHANGE_PASSWORD = 2;
+	
 	private int requestCode;
 	private Context appContext;
 	private Activity parent;

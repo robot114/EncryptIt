@@ -35,6 +35,7 @@ import com.zsm.encryptIt.android.action.AndroidItemListOperator;
 import com.zsm.encryptIt.android.action.AndroidKeyActor;
 import com.zsm.encryptIt.android.action.PasswordPromptParameter;
 import com.zsm.encryptIt.app.EncryptItApplication;
+import com.zsm.encryptIt.ui.preferences.PreferencesActivity;
 import com.zsm.log.Log;
 import com.zsm.security.PasswordHandler;
 
@@ -45,6 +46,7 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 	protected static final int SHOW_FOR_EDIT = 3;
 	protected static final int SHOW_FOR_DELETE = 4;
 	protected static final int SHOW_FOR_DELETE_SELECTED = 5;
+	protected static final int SHOW_FOR_PREFERENCES = 30;
 	protected static final int SHOW_FOR_LOG = 50;
 	
 	public static final int ENCRYPT_IT_ID = 0;
@@ -130,7 +132,7 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		
 		setHeightByWindow( );
 		
-		if( !promptPassword( ) ) {
+		if( !((EncryptItApplication)getApplication()).promptPassword( this ) ) {
 			return;
 		}
 		waitForKeyThenInitList();
@@ -220,7 +222,8 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		try {
 			PasswordPromptParameter passwordPromptParam
 				= new PasswordPromptParameter(
-					CHANGE_PASSWORD, getApplicationContext(), this );
+						PasswordPromptParameter.CHANGE_PASSWORD,
+						getApplicationContext(), this );
 			EncryptItApplication.getPasswordHandler()
 				.promptChangePassword( passwordPromptParam );
 			
@@ -298,6 +301,10 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 				deleteSelected();
 				updateSelectedCount();
 				return true;
+			case R.id.menuPreferences:
+				Intent intent = new Intent( this, PreferencesActivity.class );
+				startActivityForResult( intent, SHOW_FOR_PREFERENCES );
+				break;
 			default:
 				break;
 		}
@@ -359,10 +366,10 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 			return;
 		}
 		switch( requestCode ) {
-			case PROMPT_PASSWORD:
+			case PasswordPromptParameter.PROMPT_PASSWORD:
 				doPassword(resultCode, data);
 				break;
-			case CHANGE_PASSWORD:
+			case PasswordPromptParameter.CHANGE_PASSWORD:
 				doChangePassword(resultCode, data);
 				break;
 			case SHOW_FOR_EDIT:
@@ -417,9 +424,10 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		switch ( resultCode ) {
 			case Activity.RESULT_OK:
 				PasswordPromptParameter param
-					= new PasswordPromptParameter( PROMPT_PASSWORD,
-												   getApplicationContext(),
-												   this );
+					= new PasswordPromptParameter( 
+							PasswordPromptParameter.PROMPT_PASSWORD,
+							getApplicationContext(),
+							this );
 				param.setData( intent );
 				Key key = EncryptItApplication.getPasswordHandler().getKey(param);
 				

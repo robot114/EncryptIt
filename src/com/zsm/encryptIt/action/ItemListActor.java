@@ -48,7 +48,13 @@ public class ItemListActor {
 	public void initList( AbstractRawCursor cursor ) {
 		list.clear();
 		
-		boolean hasItem = cursor.moveToFirst();
+		boolean hasItem = false;
+		
+		try {
+			hasItem = cursor.moveToFirst();
+		} catch( Exception e ) {
+			Log.e( e, "Initialize the list failed!" );
+		}
 		
 		while( hasItem ) {
 			try {
