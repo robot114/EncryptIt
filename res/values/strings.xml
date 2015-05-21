@@ -27,7 +27,6 @@
     <string name="promptExit">Do you want to quit?</string>
     <string name="confirmDeleteSelected">Confirm to delete these items</string>
     <string name="confirmDeleteSelectedAgain">All these items to be deleted, and can not be restored.\r\nAre you sure to delete them?</string>
-    <string name="logClear">Clear logs</string>
     <string name="searchLogsForward">Search forward</string>
     <string name="searchLogsBackword">Search Backward</string>
     <string name="searchLogToEnd">Reach to the end,\r\nwould you want to from the beginning?</string>
@@ -38,5 +37,21 @@
     <string name="prefLockAppTimeSummary">How long in second before the app locked when it cannot be seen.</string>
     <string name="menuPreferences">Preferences</string>
     <string name="menuPreferencesDescription">Setting the preferences</string>
+    <string name="prefLookAndFeel">Looking and Feeling</string>
+    <string name="prefMainListExpandable">Main List Expandable</string>
+    <string name="prefMainListExpandableDesc">Wether the items in the main list are expandable. The app must restart, before this setting takes affect.</string>
+    <string name="prefLookAndFeelDesc">Set the looking and feeling of the app</string>
+    <string name="prefAbout">About</string>
+    <string name="prefAboutDesc">About this application</string>
+    <string name="aboutInfo">Encrypt !t. Encrypt for you!!!</string>
+    <string name="aboutCopyrRight">by ZhengShangmin@yahoo.com</string>
+    <string name="menuLogClear">Clear logs</string>
+    <string name="menuLogShow">Select logs to show</string>
+    <string name="prefAdvancedForDev">Advanced Settings</string>
+    <string name="prefAdvancedForDevDesc">Advanced settings. It is only for the developers.</string>
+    <string name="prefAdvancedLogLevel">Log Level</string>
+    <string name="prefAdvancedLogLevelDesc">The lowest level of the log to be recorded.</string>
+    <string name="prefAdvancedLogChannels">Log channels</string>
+    <string name="prefAdvancedLogChannelsDesc">Channels to which the logs will be sent. The Android channel will always opened, even it is not selected here. The change will take affect after the app restart.</string>
     
 </resources>

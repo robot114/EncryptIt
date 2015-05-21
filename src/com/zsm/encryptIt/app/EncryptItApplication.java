@@ -25,7 +25,8 @@ import com.zsm.encryptIt.action.ItemListActor;
 import com.zsm.encryptIt.android.action.AndroidItemListOperator;
 import com.zsm.encryptIt.android.action.AndroidPasswordHandler;
 import com.zsm.encryptIt.android.action.PasswordPromptParameter;
-import com.zsm.encryptIt.ui.LoginActivity;
+import com.zsm.encryptIt.ui.ActivityOperator;
+import com.zsm.encryptIt.ui.MainActivity;
 import com.zsm.encryptIt.ui.preferences.Preferences;
 import com.zsm.log.FileLog;
 import com.zsm.log.Log;
@@ -37,9 +38,11 @@ import com.zsm.security.PasswordPolicy;
 
 public class EncryptItApplication extends Application {
 
-    private static final int MAX_LOG_FILE_LENGTH = 1024*1024*1024;
+	private static final int MAX_LOG_FILE_LENGTH = 1024*1024*1024;
 
+    public static final String ANDROID_LOG = "AndroidLog";
 	public static final String FILE_LOG = "FileLog";
+	public static final String DEFAULT_LOG = ANDROID_LOG;
 
 	private long maxActivityTransitionTimeMs = 5000;
     
@@ -56,12 +59,37 @@ public class EncryptItApplication extends Application {
 
 	private AndroidItemListOperator uiListOperator;
 
+	private Activity mainActivity;
+
 	public EncryptItApplication() {
-		Log.setGlobalLevel( Log.DEBUG );
+		Log.setGlobalLevel( Log.LEVEL.DEBUG );
 		
-		Log.install( "AndroidLog", new AndroidLog( "EncryptIt" ) );
-		Log.setLevel( "AndroidLog", Log.DEBUG );
+		Log.install( ANDROID_LOG, new AndroidLog( "EncryptIt" ) );
+		Log.setLevel( ANDROID_LOG, Log.LEVEL.DEBUG );
+	}
+
+	@Override
+	public void onCreate() {
+		super.onCreate();
 		
+		installFileLogRetry();
+		Log.setLevel(FILE_LOG, Log.LEVEL.DEBUG);
+		RecordStoreManager.getInstance()
+			.setDefaultDriver( new SQLiteDriver(this) );
+		
+		passwordHandler = new AndroidPasswordHandler();
+		initPaswordPolicy();
+		
+		Preferences.init(this);
+		
+		Log.setGlobalLevel( Preferences.getInstance().getLogLevel() );
+		if( Preferences.getInstance().getLogChannels().contains( FILE_LOG ) ) {
+			installFileLog();
+			installFileLogRetry();
+		}
+	}
+
+	private void installFileLog() {
 		String logFileName
 			= Environment.getExternalStorageDirectory()
 				+ "/EncryptId/log/EncryptIt.log";
@@ -74,10 +102,7 @@ public class EncryptItApplication extends Application {
 		}
 	}
 	
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		
+	private void installFileLogRetry() {
 		if( !Log.isIinstalled(FILE_LOG) ) {
 			ContextWrapper cw = new ContextWrapper(this);
 			File directory = cw.getDir("log", Context.MODE_PRIVATE);
@@ -90,14 +115,6 @@ public class EncryptItApplication extends Application {
 						"file name", logFileName );
 			}
 		}
-		Log.setLevel(FILE_LOG, Log.DEBUG);
-		RecordStoreManager.getInstance()
-			.setDefaultDriver( new SQLiteDriver(this) );
-		
-		passwordHandler = new AndroidPasswordHandler();
-		initPaswordPolicy();
-		
-		Preferences.init(this);
 	}
 
 	private void initPaswordPolicy() {
@@ -110,6 +127,14 @@ public class EncryptItApplication extends Application {
 				R.string.passwordTooShort);
 	}
 
+	public void setMainActivity( MainActivity a ) {
+		mainActivity = a;
+	}
+	
+	public Activity getMainActivity() {
+		return mainActivity;
+	}
+	
 	public void startActivityTransitionTimer() {
 		if( maxActivityTransitionTimeMs == 0 ) {
 			return;
@@ -215,7 +240,7 @@ public class EncryptItApplication extends Application {
 		SystemParameter.initEncryptSetting(key, password);
 	}
 
-	public void resumeProtectedActivity(Activity activity,
+	public void resumeProtectedActivity(ActivityOperator ao,
 										boolean needPromptPassword) {
 		
 		boolean inBg = wasInBackground;
@@ -224,16 +249,16 @@ public class EncryptItApplication extends Application {
 		Log.d( "For resuming.", "activity", this, "wasInBackground",
 				inBg, "needPromptPassword", needPromptPassword );
 		if( inBg && needPromptPassword ) {
-			promptPassword(activity );
+			promptPassword( ao );
 		}
 	}
 	
-	public boolean promptPassword(Activity activity) {
+	public boolean promptPassword(ActivityOperator ao) {
 		try {
 			PasswordPromptParameter passwordPromptParam
 				= new PasswordPromptParameter(
 						PasswordPromptParameter.PROMPT_PASSWORD,
-						getApplicationContext(), activity );
+						getApplicationContext(), ao );
 			EncryptItApplication.getPasswordHandler()
 				.promptPassword( passwordPromptParam );
 			
@@ -241,8 +266,9 @@ public class EncryptItApplication extends Application {
 		} catch (GeneralSecurityException e) {
 			// Any error makes the application quit
 			Log.e( e, "Show prompt password activity failed!" );
-			activity.setResult( LoginActivity.LOGIN_FAILED );
-			activity.finish();
+//			ao.setResult( PasswordPromptParameter.LOGIN_FAILED );
+//			ao.finish();
+			ao.finishAffinity();
 			return false;
 		}
 	}

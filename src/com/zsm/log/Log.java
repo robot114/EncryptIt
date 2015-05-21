@@ -8,45 +8,25 @@ import java.util.Set;
 
 abstract public class Log {
 
+	public enum LEVEL { DEBUG, INFO, WARNING, ERROR, NO_LOG };
+    
 	private static final String CLASS_NAME = Log.class.getName();
 
-	/**
-     * Constant indicating the logging level Debug is the default and the lowest level
-     * followed by info, warning and error
-     */
-    public static final int DEBUG = 1;
-
-    /**
-     * Constant indicating the logging level information is the default and the lowest level
-     * followed by info, warning and error
-     */
-    public static final int INFO = 2;
-
-    /**
-     * Constant indicating the logging level warning is the default and the lowest level
-     * followed by info, warning and error
-     */
-    public static final int WARNING = 3;
-
-    /**
-     * Constant indicating the logging level error is the default and the lowest level
-     * followed by info, warning and error
-     */
-    public static final int ERROR = 4;
-    
-
-    /**
-     * Constant indicating no log will be output
-     */
-    public static final int NO_LOG = 5;
-    
     final static private long zeroTime = System.currentTimeMillis();
 
     private static HashMap <String, Log> instances;
     
-    private int level = ERROR;
+    private LEVEL level = LEVEL.ERROR;
     
-    static private int globalLevel = ERROR;
+    static private LEVEL globalLevel = LEVEL.ERROR;
+    
+    /**
+     * Get a readable string, which is the description of the log instance.
+     * This string will be used to tell the user which kind of log being used.
+     * 
+     * @return the readable string
+     */
+    abstract public String toReadableString();
     
     /**
      * Do anything needed when the log instance is uninstalled.
@@ -72,7 +52,8 @@ abstract public class Log {
      * 
      * @throws IOException when print failed
      */
-    protected abstract void print(Throwable t, Object message, int level) throws IOException;
+    protected abstract void print(Throwable t, Object message, LEVEL level)
+    							throws IOException;
     
 	/**
      * Clear all the logs.
@@ -144,7 +125,7 @@ abstract public class Log {
      * @param message the message to print
      */
     public static void d(Throwable t, String message, Object... objects) {
-        p(t, DEBUG, message, objects);
+        p(t, LEVEL.DEBUG, message, objects);
     }
     
     /**
@@ -153,7 +134,7 @@ abstract public class Log {
      * @param message the message to print
      */
     public static void d(String message, Object... objects) {
-        p(null, DEBUG, message, objects);
+        p(null, LEVEL.DEBUG, message, objects);
     }
     
     /**
@@ -161,7 +142,7 @@ abstract public class Log {
      * 
      */
     public static void d(Object... objects) {
-        p(null, DEBUG, "", objects);
+        p(null, LEVEL.DEBUG, "", objects);
     }
     
     /**
@@ -171,7 +152,7 @@ abstract public class Log {
      * @param message the message to print
      */
     public static void i(Throwable t, String message, Object... objects) {
-        p(t, INFO, message, objects);
+        p(t, LEVEL.INFO, message, objects);
     }
     
     /**
@@ -180,7 +161,7 @@ abstract public class Log {
      * @param message the message to print
      */
     public static void i(String message, Object... objects) {
-        p(null, INFO, message, objects);
+        p(null, LEVEL.INFO, message, objects);
     }
     
     /**
@@ -190,7 +171,7 @@ abstract public class Log {
      * @param message the message to print
      */
     public static void w(Throwable t, String message, Object... objects) {
-        p(t, WARNING, message, objects);
+        p(t, LEVEL.WARNING, message, objects);
     }
     
     /**
@@ -199,7 +180,7 @@ abstract public class Log {
      * @param message the message to print
      */
     public static void w(String message, Object... objects) {
-        p(null, WARNING, message, objects);
+        p(null, LEVEL.WARNING, message, objects);
     }
     
     /**
@@ -208,7 +189,7 @@ abstract public class Log {
      * @param t make the log traceable
      */
 	public static void e(Throwable t) {
-		p(t, ERROR, t.toString() );
+		p(t, LEVEL.ERROR, t.toString() );
 	}
 
     /**
@@ -218,7 +199,7 @@ abstract public class Log {
      * @param message the message to print
      */
     public static void e(Throwable t, String message, Object... objects) {
-        p(t, ERROR, message, objects);
+        p(t, LEVEL.ERROR, message, objects);
     }
     
     /**
@@ -227,7 +208,7 @@ abstract public class Log {
      * @param message the message to print
      */
     public static void e(String message, Object... objects) {
-        p(null, ERROR, message, objects);
+        p(null, LEVEL.ERROR, message, objects);
     }
     
     /**
@@ -235,8 +216,8 @@ abstract public class Log {
      * @param level specify the log level, one of DEBUG, INFO, WARNING, ERROR
      * @param message the message to print
      */
-    public static void p(Throwable t, int level, String message, Object... objects) {
-    	if( globalLevel > level ) {
+    public static void p(Throwable t, LEVEL level, String message, Object... objects) {
+    	if( globalLevel.compareTo( level ) > 0 ) {
     		return;
     	}
     	
@@ -245,7 +226,7 @@ abstract public class Log {
     		StringBuffer buffer = null;
             synchronized( instances ) {
 	    		for( Entry<String, Log> e : set) {
-	    			if( e.getValue().level <= level ) {
+	    			if( e.getValue().level.compareTo( level ) <= 0 ) {
 	    				if( buffer == null ) {
 	    					buffer = message( message, objects );
     	                }
@@ -302,7 +283,7 @@ abstract public class Log {
      * 
      * @param level one of DEBUG, INFO, WARNING, ERROR
      */
-    public static void setGlobalLevel(int level) {
+    public static void setGlobalLevel(LEVEL level) {
     	globalLevel = level;
     }
 
@@ -314,7 +295,7 @@ abstract public class Log {
      * @id id of the instance to get the level
      * @return one of DEBUG, INFO, WARNING, ERROR
      */
-    public static int getGlobalLevel( ) {
+    public static LEVEL getGlobalLevel( ) {
         return globalLevel;
     }
     
@@ -326,7 +307,7 @@ abstract public class Log {
      * @param id of the instance to change the level
      * @param level one of DEBUG, INFO, WARNING, ERROR
      */
-    public static void setLevel(String id, int level) {
+    public static void setLevel(String id, LEVEL level) {
     	Log log = getInstance(id);
     	if( log != null ) {
     		getInstance(id).level = level;
@@ -343,7 +324,7 @@ abstract public class Log {
      * @id id of the instance to get the level
      * @return one of DEBUG, INFO, WARNING, ERROR
      */
-    public static int getLevel( String id ) {
+    public static LEVEL getLevel( String id ) {
         return getInstance(id).level;
     }
     
@@ -355,7 +336,7 @@ abstract public class Log {
      * @id id of the instance to get the level
      * @return one of DEBUG, INFO, WARNING, ERROR
      */
-    protected int getLevel( ) {
+    protected LEVEL getLevel( ) {
         return level;
     }
     

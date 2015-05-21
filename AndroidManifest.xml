@@ -24,13 +24,14 @@
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize"
             android:launchMode="standard"
             android:excludeFromRecents="true"
-            android:showOnLockScreen="false">
+            android:showOnLockScreen="false"
+            android:theme="@android:style/Theme.Holo.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ui.LoginActivity" android:launchMode="singleTop">
+        <activity android:name=".ui.LoginActivity" android:launchMode="singleTop" android:excludeFromRecents="true">
         </activity>
         <activity android:name=".ui.DetailActivity"
             	  android:uiOptions="splitActionBarWhenNarrow"
@@ -42,11 +43,13 @@
 				  android:noHistory="true"
 				  android:excludeFromRecents="true">
         </activity>
-        <activity android:name=".ui.MultiDetailActivity"></activity><provider android:name="com.zsm.encryptIt.android.EncryptItContentProvider"
+        <activity android:name=".ui.MultiDetailActivity" android:excludeFromRecents="true"></activity>
+        <provider android:name="com.zsm.encryptIt.android.EncryptItContentProvider"
             	  android:authorities="@string/contentProviderUri">
         </provider>
-        <activity android:name=".ui.LogActivity"></activity>
+        <activity android:name=".ui.LogActivity" android:excludeFromRecents="true"></activity>
         <activity android:name=".ui.preferences.PreferencesActivity"></activity>
+        <activity android:name=".ui.preferences.AdvancedPreferencesActivity"></activity>
         
 
     </application>

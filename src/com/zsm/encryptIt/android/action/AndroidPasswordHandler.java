@@ -26,7 +26,7 @@ public class AndroidPasswordHandler implements PasswordHandler {
 			intent.putExtra(PasswordActivity.KEY_TYPE, PasswordActivity.TYPE_INIT);
 		}
 		
-		param.getParent()
+		param.getOperator()
 			.startActivityForResult( intent, param.getRequestCode() );
 	}
 
@@ -40,12 +40,14 @@ public class AndroidPasswordHandler implements PasswordHandler {
 	}
 
 	@Override
-	public void promptChangePassword(Object context) throws GeneralSecurityException {
+	public void promptChangePassword(Object context)
+					throws GeneralSecurityException {
+		
 		PasswordPromptParameter param = (PasswordPromptParameter)context;
 		Intent intent = new Intent( param.getAppContext(), PasswordActivity.class );
 		intent.putExtra(PasswordActivity.KEY_TYPE, PasswordActivity.TYPE_CHANGE);
 		
-		param.getParent()
+		param.getOperator()
 			.startActivityForResult( intent, param.getRequestCode() );
 	}
 

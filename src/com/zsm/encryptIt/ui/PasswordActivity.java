@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.zsm.encryptIt.R;
+import com.zsm.encryptIt.android.action.PasswordPromptParameter;
 import com.zsm.encryptIt.app.EncryptItApplication;
 import com.zsm.log.Log;
 import com.zsm.security.PasswordHandler;
@@ -150,7 +151,7 @@ public class PasswordActivity extends SecurityActivity {
 	private void doPassword(final VisiblePassword oldPasswordView, final int type) {
 		int strId = isPasswordSafity();
 		if( strId > 0 ) {
-			promptResult( strId );
+			UIUtility.promptResult( this, strId );
 			return;
 		}
 		char[] password = null;
@@ -159,7 +160,7 @@ public class PasswordActivity extends SecurityActivity {
 			Key key = checkPasswordAndGetKey( password );
 			if( key == null ) {
 				Log.e( "Initialize password failed!" );
-				setResult( INITIALIZE_PASSWORD_FAILED );
+				setResult( PasswordPromptParameter.INITIALIZE_PASSWORD_FAILED );
 				finish();
 				return;
 			} else {
@@ -180,7 +181,7 @@ public class PasswordActivity extends SecurityActivity {
 				setResult(RESULT_OK, intent);
 				finish();
 			} else if( passwordTriedTooMuch() ) {
-				setResult( TOO_MUCH_TIMES_TO_TRY );
+				setResult( PasswordPromptParameter.TOO_MUCH_TIMES_TO_TRY );
 				finish();
 				return;
 			} else {

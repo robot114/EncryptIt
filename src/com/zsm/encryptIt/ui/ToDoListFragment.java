@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 
 import com.zsm.encryptIt.R;
 
-public class ToDoListFragment extends ListFragment implements FragmentAdapter {
+public class ToDoListFragment extends ListFragment implements ListFragmentAdapter {
 
 	private WhatToDoItemAdapter adapter;
 	

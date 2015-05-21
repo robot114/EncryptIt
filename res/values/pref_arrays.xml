@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="prefLockAppEntries">
+        <item >Do not lock</item>
+        <item >1 sec.</item>
+        <item >2 sec.</item>
+        <item >3 sec.</item>
+        <item >4 sec.</item>
+        <item >5 sec.</item>
+        <item >6 sec.</item>
+        <item >7 sec.</item>
+        <item >8 sec.</item>
+        <item >9 sec.</item>
+        <item >10 sec.</item>
+        <item >15 sec.</item>
+        <item >20 sec.</item>
+        <item >25 sec.</item>
+        <item >30 sec.</item>
+        <item >35 sec.</item>
+        <item >40 sec.</item>
+        <item >45 sec.</item>
+        <item >50 sec.</item>
+        <item >55 sec.</item>
+        <item >60 sec.</item>
+    </string-array>
+    
+    <string-array name="prefLockAppEntryValues">
+        <item >0</item>
+        <item >1</item>
+        <item >2</item>
+        <item >3</item>
+        <item >4</item>
+        <item >5</item>
+        <item >6</item>
+        <item >7</item>
+        <item >8</item>
+        <item >9</item>
+        <item >10</item>
+        <item >15</item>
+        <item >20</item>
+        <item >25</item>
+        <item >30</item>
+        <item >35</item>
+        <item >40</item>
+        <item >45</item>
+        <item >50</item>
+        <item >55</item>
+        <item >60</item>
+    </string-array>
+    
+    <string-array name="prefLogLevelEntries">
+        <item >DEBUG</item>
+        <item >INFO</item>
+        <item >WARNING</item>
+        <item >ERROR</item>
+        <item >NONE</item>
+    </string-array>
+    
+    <string-array name="prefLogChannelsEntries">
+        <item >To Android System Log(Always open)</item>
+        <item >To a File</item>
+    </string-array>
+    
+    <string-array name="prefLogChannelsValues">
+        <item >AndroidLog</item>
+        <item >FileLog</item>
+    </string-array>
+</resources>

@@ -21,10 +21,10 @@ public class SystemOutLog extends Log {
 	}
 
 	@Override
-	protected void print(Throwable t, Object message, int level)
+	protected void print(Throwable t, Object message, LEVEL level)
 			throws IOException {
 		
-		if( level >= WARNING ) {
+		if( level.compareTo( LEVEL.WARNING ) >= 0 ) {
 			System.err.println( message );
 			if( t == null ) {
 				t = new Exception();
@@ -45,6 +45,11 @@ public class SystemOutLog extends Log {
 	@Override
 	protected void uninstall() throws IOException {
 		// Do nothing
+	}
+
+	@Override
+	public String toReadableString() {
+		return "Logs out by System.out";
 	}
 
 }

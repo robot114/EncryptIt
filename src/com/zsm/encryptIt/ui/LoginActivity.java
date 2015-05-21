@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.zsm.encryptIt.R;
+import com.zsm.encryptIt.android.action.PasswordPromptParameter;
 import com.zsm.encryptIt.app.EncryptItApplication;
 import com.zsm.security.PasswordHandler;
 
@@ -54,7 +55,7 @@ public class LoginActivity extends SecurityActivity {
 	
 			@Override
 			public void onClick(View v) {
-				LoginActivity.this.setResult( LOGIN_FAILED );
+				LoginActivity.this.setResult( PasswordPromptParameter.LOGIN_FAILED );
 				finish();
 			}
 		} );
@@ -71,7 +72,7 @@ public class LoginActivity extends SecurityActivity {
 			finish();
 			return;
 		} else if( passwordTriedTooMuch() ) {
-			setResult( LOGIN_FAILED );
+			setResult( PasswordPromptParameter.LOGIN_FAILED );
 			finish();
 			return;
 		} else {
@@ -102,7 +103,7 @@ public class LoginActivity extends SecurityActivity {
 
 	@Override
 	public void onBackPressed() {
-		setResult( LOGIN_FAILED );
+		setResult( PasswordPromptParameter.LOGIN_FAILED );
 		super.onBackPressed();
 	}
 

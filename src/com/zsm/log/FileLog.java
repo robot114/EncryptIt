@@ -48,7 +48,7 @@ public class FileLog extends Log {
 	}
 
 	@Override
-	protected void print(Throwable t, Object message, int level)
+	protected void print(Throwable t, Object message, LEVEL level)
 			throws IOException {
 		
 		writer.append( message.toString() ).append( "\r\n" );
@@ -74,5 +74,10 @@ public class FileLog extends Log {
 	@Override
 	protected void uninstall() throws IOException {
 		writer.close();
+	}
+
+	@Override
+	public String toReadableString() {
+		return "Log in File";
 	}
 }

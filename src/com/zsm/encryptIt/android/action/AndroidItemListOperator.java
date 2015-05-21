@@ -34,7 +34,7 @@ import com.zsm.encryptIt.android.EncryptItContentProvider;
 import com.zsm.encryptIt.android.ProviderStorageAdapter;
 import com.zsm.encryptIt.android.RawWrappedAndroidCursor;
 import com.zsm.encryptIt.app.EncryptItApplication;
-import com.zsm.encryptIt.ui.FragmentAdapter;
+import com.zsm.encryptIt.ui.ListFragmentAdapter;
 import com.zsm.encryptIt.ui.MainActivity;
 import com.zsm.encryptIt.ui.WhatToDoListViewItem;
 import com.zsm.log.Log;
@@ -57,10 +57,10 @@ public class AndroidItemListOperator
 	
 	private int selectedCount;
 	private SelectObserver selectionObserver;
-	private FragmentAdapter fragmentAdapter;
+	private ListFragmentAdapter fragmentAdapter;
 	
 	public AndroidItemListOperator( Context context, LoaderManager lm,
-									FragmentAdapter adapter ) {
+									ListFragmentAdapter adapter ) {
 		
 		list
 			= new FilterableList<WhatToDoListViewItem, String>(

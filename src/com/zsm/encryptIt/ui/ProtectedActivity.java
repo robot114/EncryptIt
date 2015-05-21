@@ -6,10 +6,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.zsm.encryptIt.android.action.PasswordPromptParameter;
 import com.zsm.encryptIt.app.EncryptItApplication;
 import com.zsm.log.Log;
 
-abstract public class ProtectedActivity extends Activity {
+abstract public class ProtectedActivity extends Activity
+						implements ActivityOperator {
 
 	/**
 	 * Method must be implemented by subclass to indicate whether the login
@@ -82,7 +84,7 @@ abstract public class ProtectedActivity extends Activity {
 	 */
 	final protected boolean doLoginFailed(int resultCode) {
 		if( checkLoginFailed(resultCode) ) {
-			setResult( LoginActivity.LOGIN_FAILED );
+			setResult( PasswordPromptParameter.LOGIN_FAILED );
 			finish();
 			return true;
 		}
@@ -91,7 +93,7 @@ abstract public class ProtectedActivity extends Activity {
 	}
 
 	protected boolean checkLoginFailed(int resultCode) {
-		return resultCode == LoginActivity.LOGIN_FAILED;
+		return resultCode == PasswordPromptParameter.LOGIN_FAILED;
 	}
 
 	protected int getStatusBarHeight() { 

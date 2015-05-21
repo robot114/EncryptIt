@@ -1,17 +1,14 @@
 package com.zsm.encryptIt.ui;
 
-import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.util.Locale;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.FragmentManager;
 import android.app.AlertDialog.Builder;
+import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,24 +27,22 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.zsm.encryptIt.R;
-import com.zsm.encryptIt.action.KeyAction;
 import com.zsm.encryptIt.android.action.AndroidItemListOperator;
 import com.zsm.encryptIt.android.action.AndroidKeyActor;
 import com.zsm.encryptIt.android.action.PasswordPromptParameter;
 import com.zsm.encryptIt.app.EncryptItApplication;
+import com.zsm.encryptIt.ui.preferences.Preferences;
 import com.zsm.encryptIt.ui.preferences.PreferencesActivity;
 import com.zsm.log.Log;
-import com.zsm.security.PasswordHandler;
 
-public class MainActivity extends ProtectedActivity implements ModeKeeper {
+public class MainActivity extends ProtectedActivity
+				implements ModeKeeper, ActivityOperator {
 
 	private static final String SHOW_LOG = "show log!";
 	
 	protected static final int SHOW_FOR_EDIT = 3;
 	protected static final int SHOW_FOR_DELETE = 4;
 	protected static final int SHOW_FOR_DELETE_SELECTED = 5;
-	protected static final int SHOW_FOR_PREFERENCES = 30;
-	protected static final int SHOW_FOR_LOG = 50;
 	
 	public static final int ENCRYPT_IT_ID = 0;
 	
@@ -61,7 +56,7 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 	private View listLayout;
 	private View buttonLayout;
 
-	private FragmentAdapter listFragment;
+	private ListFragmentAdapter listFragment;
 	private AndroidItemListOperator operator;
 	
 	private MODE mode;
@@ -77,13 +72,18 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		Log.d( "The MainActivity is to be created", this );
 		initEnviroment();
 		
+		getApp().setMainActivity(this);
+		
 		mode = MODE.BROWSE;
-//		setContentView( R.layout.main );
-		setContentView( R.layout.main_expandable );
+		if( Preferences.getInstance().getMainListExpandable() ) {
+			setContentView( R.layout.main_expandable );
+		} else {
+			setContentView( R.layout.main );
+		}
 		
 		FragmentManager fm = getFragmentManager();
 		listFragment
-			= (FragmentAdapter) fm.findFragmentById(R.id.ToDoListFragment);
+			= (ListFragmentAdapter) fm.findFragmentById(R.id.ToDoListFragment);
 		listFragment.setModeKeeper( this );
 		
 		clearableEditor
@@ -132,7 +132,7 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		
 		setHeightByWindow( );
 		
-		if( !((EncryptItApplication)getApplication()).promptPassword( this ) ) {
+		if( !(getApp().promptPassword( this ) ) ) {
 			return;
 		}
 		waitForKeyThenInitList();
@@ -218,24 +218,6 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 									: R.string.menuSelectAll);
 	}
 	
-	private boolean changePassword() {
-		try {
-			PasswordPromptParameter passwordPromptParam
-				= new PasswordPromptParameter(
-						PasswordPromptParameter.CHANGE_PASSWORD,
-						getApplicationContext(), this );
-			EncryptItApplication.getPasswordHandler()
-				.promptChangePassword( passwordPromptParam );
-			
-			return true;
-		} catch (GeneralSecurityException e) {
-			// Any error makes the application quit
-			Log.e( e, "Show prompt password activity failed!" );
-			finish();
-			return false;
-		}
-	}
-
 	private void deleteSelected() {
 		Intent intent = new Intent( this, MultiDetailActivity.class );
 		startActivityForResult( intent, SHOW_FOR_DELETE_SELECTED );
@@ -278,9 +260,6 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		super.onOptionsItemSelected(item);
 		
 		switch( item.getItemId() ) {
-			case R.id.menuMainChangePassword:
-				changePassword();
-				return true;
 			case R.id.menuMainEditMode:
 				switchTo( MODE.EDIT );
 				return true;
@@ -303,7 +282,7 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 				return true;
 			case R.id.menuPreferences:
 				Intent intent = new Intent( this, PreferencesActivity.class );
-				startActivityForResult( intent, SHOW_FOR_PREFERENCES );
+				startActivity( intent );
 				break;
 			default:
 				break;
@@ -368,9 +347,6 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		switch( requestCode ) {
 			case PasswordPromptParameter.PROMPT_PASSWORD:
 				doPassword(resultCode, data);
-				break;
-			case PasswordPromptParameter.CHANGE_PASSWORD:
-				doChangePassword(resultCode, data);
 				break;
 			case SHOW_FOR_EDIT:
 				doEdit(resultCode, data);
@@ -437,7 +413,7 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 				context.resumeFromWaitForPassword();
 				break;
 			case Activity.RESULT_CANCELED:
-			case SecurityActivity.TOO_MUCH_TIMES_TO_TRY:
+			case PasswordPromptParameter.TOO_MUCH_TIMES_TO_TRY:
 				finish();
 				break;
 			default:
@@ -445,40 +421,6 @@ public class MainActivity extends ProtectedActivity implements ModeKeeper {
 		}
 	}
 
-	public void doChangePassword(int resultCode, Intent intent) {
-		switch ( resultCode ) {
-			case Activity.RESULT_OK:
-				char[] oldPassword
-					= intent.getCharArrayExtra(PasswordHandler.KEY_OLD_PASSWORD);
-				char[] newPassword
-					= intent.getCharArrayExtra(PasswordHandler.KEY_NEW_PASSWORD);
-				int id = R.string.changePasswordFailed;
-				if( KeyAction.getInstance()
-						.changePassword(oldPassword, newPassword) ) {
-					
-					id = R.string.changePasswordOk;
-				}
-				promptResult( id );
-				break;
-			case SecurityActivity.TOO_MUCH_TIMES_TO_TRY:
-				finish();
-				break;
-			case Activity.RESULT_CANCELED:
-			default:
-				break;
-		}
-	}
-
-	private void promptResult(int id) {
-		Resources r = getResources();
-		
-		new AlertDialog.Builder(this)
-			 .setTitle(r.getString( R.string.app_name )) 
-			 .setMessage(r.getString( id ))
-			 .setPositiveButton(null, null)
-			 .show();
-	}
-	
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);

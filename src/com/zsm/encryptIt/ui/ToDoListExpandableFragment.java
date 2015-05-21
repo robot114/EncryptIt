@@ -12,7 +12,7 @@ import android.widget.ExpandableListView;
 
 import com.zsm.encryptIt.R;
 
-public class ToDoListExpandableFragment extends Fragment implements FragmentAdapter {
+public class ToDoListExpandableFragment extends Fragment implements ListFragmentAdapter {
 
 	private WhatToDoItemExpanableAdapter adapter;
 	

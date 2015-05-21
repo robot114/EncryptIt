@@ -2,14 +2,12 @@ package com.zsm.driver.android.log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import com.zsm.log.DummyReader;
 import com.zsm.log.Log;
 
 public class AndroidLog extends Log {
-	
-	private static final int DELTA_OF_TWO_LEVEL
-		= android.util.Log.DEBUG - Log.DEBUG;
 	
 	private String tag;
 
@@ -23,14 +21,24 @@ public class AndroidLog extends Log {
 	
 	@Override
 	public BufferedReader createReader() throws IOException {
-		return new DummyReader();
+		try {
+			  Process process = Runtime.getRuntime().exec("logcat -d");
+			  BufferedReader bufferedReader
+			  	= new BufferedReader(
+			  			new InputStreamReader(process.getInputStream()));
+			  
+			  return bufferedReader;
+		} catch (IOException e) {
+			Log.e( e );
+			return new DummyReader();
+		}
 	}
 
 	@Override
-	protected void print(Throwable t, Object message, int level)
+	protected void print(Throwable t, Object message, LEVEL level)
 			throws IOException {
 
-		if( level + DELTA_OF_TWO_LEVEL >= getLevel() ) {
+		if( level.compareTo( getLevel() ) >= 0 ) {
 			// By default, log of other level does not display
 			android.util.Log.e( tag, "" + message, t );
 		} else {
@@ -38,7 +46,7 @@ public class AndroidLog extends Log {
 		}
 	}
 
-	private void androidLog( Throwable t, Object message, int level ) {
+	private void androidLog( Throwable t, Object message, LEVEL level ) {
 		switch( level ) {
 		case INFO:
 		 	android.util.Log.i(tag, "" + message, t );
@@ -61,11 +69,16 @@ public class AndroidLog extends Log {
 	}
 	@Override
 	public void clearContent() throws IOException {
-		// TODO: clear the logs
+		Runtime.getRuntime().exec("logcat -c");
 	}
 
 	@Override
 	protected void uninstall() {
 		// Do nothing
+	}
+
+	@Override
+	public String toReadableString() {
+		return "Android System Log";
 	}
 }

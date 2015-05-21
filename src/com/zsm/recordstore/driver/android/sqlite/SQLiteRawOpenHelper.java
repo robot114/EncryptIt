@@ -36,9 +36,7 @@ public class SQLiteRawOpenHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.p( null, 
-			   Log.WARNING,
-			   "Upgrade from version " + oldVersion + " to " + newVersion
+		Log.w( "Upgrade from version " + oldVersion + " to " + newVersion
 			   + ". All datas are destroyed!" );
 		
 		db.execSQL( "DROP TABLE IF EXIST " + RawRecordStore.TABLE_NAME );

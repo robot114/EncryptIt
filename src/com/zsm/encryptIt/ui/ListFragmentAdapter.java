@@ -4,7 +4,7 @@ import java.util.List;
 
 import android.database.DataSetObserver;
 
-public interface FragmentAdapter {
+public interface ListFragmentAdapter {
 
 	public abstract void notifyDataSetChanged();
 

@@ -16,7 +16,7 @@ import com.zsm.log.Log;
 
 public class MultiDetailActivity extends ProtectedActivity implements ModeKeeper {
 
-	private FragmentAdapter listFragment;
+	private ListFragmentAdapter listFragment;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -28,7 +28,7 @@ public class MultiDetailActivity extends ProtectedActivity implements ModeKeeper
 		
 		FragmentManager fm = getFragmentManager();
 		listFragment
-			= (FragmentAdapter) fm.findFragmentById(R.id.ToDoListFragment);
+			= (ListFragmentAdapter) fm.findFragmentById(R.id.ToDoListFragment);
 		listFragment.setModeKeeper( this );
 		
 		listFragment.setDataListToAdapter( 

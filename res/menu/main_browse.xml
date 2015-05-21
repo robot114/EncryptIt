@@ -18,11 +18,6 @@
           android:showAsAction="ifRoom"
           android:title="@string/menuEnterEditMode">
     </item>
-    <item android:id="@+id/menuMainChangePassword"
-          android:icon="@drawable/key"
-          android:title="@string/menuChangePassword"
-          android:showAsAction="never">
-    </item>
     <item android:id="@+id/menuSelectReverse"
 		  android:title="@string/menuSelectReverse"
 		  android:titleCondensed="@string/menuSelectReverse"
