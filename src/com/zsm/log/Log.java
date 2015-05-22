@@ -21,14 +21,6 @@ abstract public class Log {
     static private LEVEL globalLevel = LEVEL.ERROR;
     
     /**
-     * Get a readable string, which is the description of the log instance.
-     * This string will be used to tell the user which kind of log being used.
-     * 
-     * @return the readable string
-     */
-    abstract public String toReadableString();
-    
-    /**
      * Do anything needed when the log instance is uninstalled.
      * @throws IOException 
      */
@@ -221,24 +213,22 @@ abstract public class Log {
     		return;
     	}
     	
-    	try {
-    		Set<Entry<String, Log>> set = instances.entrySet();
-    		StringBuffer buffer = null;
-            synchronized( instances ) {
-	    		for( Entry<String, Log> e : set) {
-	    			if( e.getValue().level.compareTo( level ) <= 0 ) {
-	    				if( buffer == null ) {
-	    					buffer = message( message, objects );
-    	                }
-	                	e.getValue().print(t, buffer, level);
-    				}
-    			}
-    		}
-    	} catch ( Exception e ) {
-    		// When failed to record a log, the system MUST NOT be affected!
-    		System.out.println( message );
-    		e.printStackTrace();
-    	}
+		Set<Entry<String, Log>> set = instances.entrySet();
+		StringBuffer buffer = null;
+		for( Entry<String, Log> e : set) {
+			if( e.getValue().level.compareTo( level ) <= 0 ) {
+				if( buffer == null ) {
+					buffer = message( message, objects );
+                }
+		    	try {
+		    		e.getValue().print(t, buffer, level);
+		    	} catch ( Exception ex ) {
+		    		// When failed to record a log, the system MUST NOT be affected!
+		    		System.out.println( message );
+		    		ex.printStackTrace();
+		    	}
+			}
+		}
    }
 
 	private static StringBuffer message(String message, Object... objects) {
@@ -388,5 +378,16 @@ abstract public class Log {
         
         return "[" + Thread.currentThread().getName() + "] "
         		+ hour  + ":" + min + ":" + sec + "," + milli;
+    }
+    
+    /**
+     * Return all the install log instances. The return is a set of entry.
+     * For each item, the key is the log instance's id, and the value is
+     * the log instance.
+     * 
+     * @return the entry set
+     */
+    public static Set<Entry<String, Log>> getAllInstalledInstances() {
+    	return instances.entrySet();
     }
 }

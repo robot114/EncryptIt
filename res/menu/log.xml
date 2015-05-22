@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/menuLogShow"
+    <item android:id="@+id/menuLogCurrent" android:showAsAction="always" android:title="@string/menuLogShow"></item><item android:id="@+id/menuLogShow"
           android:title="@string/menuLogShow"
           android:onClick="doSelectAndShowLog"
-          android:showAsAction="always">
+          android:showAsAction="always" android:icon="@drawable/select_log">
     </item>
     <item android:id="@+id/menuLogClear"
           android:title="@string/menuLogClear"
           android:showAsAction="ifRoom"
-          android:onClick="doClearLog"></item>
+          android:onClick="doClearLog" android:icon="@drawable/clear_log"></item>
     <item android:id="@+id/menuAdvancedSetting"
           android:title="@string/prefAdvancedForDev"
           android:showAsAction="ifRoom"
 		  android:onClick="doLogPreferences"></item>
+    
     
 </menu>

@@ -2,6 +2,8 @@ package com.zsm.encryptIt.ui;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import android.app.AlertDialog;
 import android.app.FragmentManager;
@@ -31,6 +33,7 @@ public class LogActivity extends ProtectedActivity {
 	
 	private LogListFragment listFragment;
 	private String logChannel = EncryptItApplication.DEFAULT_LOG;
+	private MenuItem itemCurrentLog;
 
 	@Override
 	protected boolean needPromptPassword() {
@@ -83,12 +86,12 @@ public class LogActivity extends ProtectedActivity {
 			} );
 		
 		findViewById( R.id.imageViewSearchLogsBackward )
-		.setOnClickListener( new OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				doSearchBackward(text);
-			}
-		} );
+			.setOnClickListener( new OnClickListener(){
+				@Override
+				public void onClick(View v) {
+					doSearchBackward(text);
+				}
+			} );
 	}
 
 	@Override
@@ -102,7 +105,7 @@ public class LogActivity extends ProtectedActivity {
 					handler.post( new Runnable() {
 						@Override
 						public void run() {
-							fillLogs(logChannel);
+							fillLogs();
 						}
 					} );
 				}
@@ -110,7 +113,7 @@ public class LogActivity extends ProtectedActivity {
 		}
 	}
 
-	private void fillLogs(String logChannel) {
+	private void fillLogs() {
 		listFragment.clear();
 		Log log = Log.getInstance( logChannel );
 		if( log == null ) {
@@ -144,6 +147,8 @@ public class LogActivity extends ProtectedActivity {
 		MenuInflater mi = getMenuInflater();
 		mi.inflate( R.menu.log, menu);
 		
+		itemCurrentLog = menu.findItem( R.id.menuLogCurrent );
+		updateCurrentLogInBar();
         return true;
 	}
 
@@ -168,44 +173,50 @@ public class LogActivity extends ProtectedActivity {
 	public void doSelectAndShowLog(MenuItem item) {
 		AlertDialog.Builder builderSingle
 			= new AlertDialog.Builder( LogActivity.this);
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
-        		LogActivity.this,
-                android.R.layout.select_dialog_singlechoice);
-        arrayAdapter.add("Hardik");
-        arrayAdapter.add("Archit");
-        arrayAdapter.add("Jignesh");
-        arrayAdapter.add("Umang");
-        arrayAdapter.add("Gatti");
+        final ArrayAdapter<Log> arrayAdapter
+        	= new ArrayAdapter<Log>( 
+        			LogActivity.this, android.R.layout.select_dialog_singlechoice);
+        
+		Set<Entry<String, Log>> set = Log.getAllInstalledInstances();
+		int index = 0, i = 0;
+		for( Entry<String, Log> e : set) {
+			arrayAdapter.add( e.getValue() );
+			if( e.getKey().equals( logChannel ) ) {
+				index = i;
+			}
+			i++;
+		}
+		
         builderSingle
         	.setIcon(R.drawable.ic_launcher)
-        	.setTitle("Select One Name:-")
-        	.setAdapter(arrayAdapter,
-                new DialogInterface.OnClickListener() {
+        	.setTitle(R.string.menuLogShow)
+        	.setNegativeButton( android.R.string.cancel, null )
+        	.setSingleChoiceItems(arrayAdapter, index,
+        			  			  new DialogInterface.OnClickListener() {
+        		
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+            		onSelectLogChannel(arrayAdapter, which);
+            		dialog.cancel();
+                }
 
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String strName = arrayAdapter.getItem(which);
-                        AlertDialog.Builder builderInner = new AlertDialog.Builder(
-                        		LogActivity.this);
-                        builderInner.setMessage(strName);
-                        builderInner.setTitle("Your Selected Item is");
-                        builderInner.setPositiveButton("Ok",
-                                new DialogInterface.OnClickListener() {
-
-                                    @Override
-                                    public void onClick(
-                                            DialogInterface dialog,
-                                            int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
-                        builderInner.show();
-                    }
-                });
-        builderSingle.show();
-        fillLogs(logChannel);
+            })
+            .show();
 	}
 
+	private void onSelectLogChannel(
+					final ArrayAdapter<Log> arrayAdapter, int which) {
+		Set<Entry<String, Log>> set = Log.getAllInstalledInstances();
+		for( Entry<String, Log> e : set) {
+			if( e.getValue() == arrayAdapter.getItem(which) ) {
+                logChannel = e.getKey();
+                break;
+			}
+		}
+		fillLogs( );
+		updateCurrentLogInBar();
+	}
+	
 	private void doSearchForward(final ClearableEditor text) {
 		String str = text.getText().toString();
 		if( str.equals( "" ) ) {
@@ -220,5 +231,10 @@ public class LogActivity extends ProtectedActivity {
 			return;
 		}
 		listFragment.searchBackward( str );
+	}
+	
+	private void updateCurrentLogInBar() {
+		itemCurrentLog.setTitle( Log.getInstance( logChannel ).toString() );
+		setTitle(Log.getInstance( logChannel ).toString());
 	}
 }

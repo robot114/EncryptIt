@@ -48,7 +48,7 @@ public class SystemOutLog extends Log {
 	}
 
 	@Override
-	public String toReadableString() {
+	public String toString() {
 		return "Logs out by System.out";
 	}
 

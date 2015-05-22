@@ -45,8 +45,8 @@
     <string name="prefAboutDesc">About this application</string>
     <string name="aboutInfo">Encrypt !t. Encrypt for you!!!</string>
     <string name="aboutCopyrRight">by ZhengShangmin@yahoo.com</string>
-    <string name="menuLogClear">Clear logs</string>
-    <string name="menuLogShow">Select logs to show</string>
+    <string name="menuLogClear">Clear</string>
+    <string name="menuLogShow">Log channel</string>
     <string name="prefAdvancedForDev">Advanced Settings</string>
     <string name="prefAdvancedForDevDesc">Advanced settings. It is only for the developers.</string>
     <string name="prefAdvancedLogLevel">Log Level</string>

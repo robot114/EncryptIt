@@ -38,12 +38,7 @@ public class AndroidLog extends Log {
 	protected void print(Throwable t, Object message, LEVEL level)
 			throws IOException {
 
-		if( level.compareTo( getLevel() ) >= 0 ) {
-			// By default, log of other level does not display
-			android.util.Log.e( tag, "" + message, t );
-		} else {
-			androidLog( t, message, level );
-		}
+		androidLog( t, message, level );
 	}
 
 	private void androidLog( Throwable t, Object message, LEVEL level ) {
@@ -78,7 +73,7 @@ public class AndroidLog extends Log {
 	}
 
 	@Override
-	public String toReadableString() {
+	public String toString() {
 		return "Android System Log";
 	}
 }

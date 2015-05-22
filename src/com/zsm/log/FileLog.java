@@ -77,7 +77,7 @@ public class FileLog extends Log {
 	}
 
 	@Override
-	public String toReadableString() {
+	public String toString() {
 		return "Log in File";
 	}
 }
