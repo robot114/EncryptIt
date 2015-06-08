@@ -72,8 +72,6 @@ public class EncryptItApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		
-		installFileLogRetry();
-		Log.setLevel(FILE_LOG, Log.LEVEL.DEBUG);
 		RecordStoreManager.getInstance()
 			.setDefaultDriver( new SQLiteDriver(this) );
 		
@@ -86,6 +84,7 @@ public class EncryptItApplication extends Application {
 		if( Preferences.getInstance().getLogChannels().contains( FILE_LOG ) ) {
 			installFileLog();
 			installFileLogRetry();
+			Log.setLevel(FILE_LOG, Log.LEVEL.DEBUG);
 		}
 	}
 
@@ -138,6 +137,11 @@ public class EncryptItApplication extends Application {
 	public void startActivityTransitionTimer() {
 		if( maxActivityTransitionTimeMs == 0 ) {
 			return;
+		}
+		
+		if( activityTransitionTimer != null ) {
+			stopActivityTransitionTimer(); 
+			Log.w( "There is a timer running, stop it first", activityTransitionTimer );
 		}
 		
 	    activityTransitionTimer = new Timer();
@@ -266,8 +270,6 @@ public class EncryptItApplication extends Application {
 		} catch (GeneralSecurityException e) {
 			// Any error makes the application quit
 			Log.e( e, "Show prompt password activity failed!" );
-//			ao.setResult( PasswordPromptParameter.LOGIN_FAILED );
-//			ao.finish();
 			ao.finishAffinity();
 			return false;
 		}

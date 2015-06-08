@@ -35,8 +35,7 @@ public class WhatToDoItemAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ToDoListItemView view;
 		if( convertView == null ) {
-			view
-				= new ToDoListItemView( context, resource, modeKeeper );
+			view = new ToDoListItemView( context, resource, modeKeeper );
 		} else {
 			view = (ToDoListItemView)convertView;
 		}

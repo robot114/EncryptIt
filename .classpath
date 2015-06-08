@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="D:/JavaWorkSpace/lib/sqldroid-1.0.3.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry exported="true" kind="lib" path="D:/JavaWorkSpace/ZsmLib/bin/zsmlib.jar" sourcepath="/ZsmLib/src"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

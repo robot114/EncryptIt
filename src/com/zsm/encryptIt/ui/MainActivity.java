@@ -407,8 +407,7 @@ public class MainActivity extends ProtectedActivity
 				param.setData( intent );
 				Key key = EncryptItApplication.getPasswordHandler().getKey(param);
 				
-				EncryptItApplication context
-					= getApp();
+				EncryptItApplication context = getApp();
 				context.setKey( key );
 				context.resumeFromWaitForPassword();
 				break;
