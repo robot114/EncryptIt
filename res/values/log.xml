@@ -3,4 +3,7 @@
     <color name="logBackground">#F8F8F8</color>
     <color name="logFoundBackground">#B0B0FF</color>
     
+    <string name="menuLogClear">Clear</string>
+    <string name="menuLogShow">Log channel</string>
+    
 </resources>

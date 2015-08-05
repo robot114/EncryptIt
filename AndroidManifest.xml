@@ -47,9 +47,9 @@
         <provider android:name="com.zsm.encryptIt.android.EncryptItContentProvider"
             	  android:authorities="@string/contentProviderUri">
         </provider>
-        <activity android:name=".ui.LogActivity" android:excludeFromRecents="true"></activity>
+        <activity android:name=".ui.SecurityLogActivity" android:excludeFromRecents="true"></activity>
         <activity android:name=".ui.preferences.PreferencesActivity"></activity>
-        <activity android:name=".ui.preferences.AdvancedPreferencesActivity"></activity>
+        <activity android:name=".ui.preferences.SecurityAdvancedPreferencesActivity"></activity>
         
 
     </application>

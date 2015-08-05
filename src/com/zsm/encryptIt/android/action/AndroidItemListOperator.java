@@ -82,8 +82,8 @@ public class AndroidItemListOperator
 	
 	public boolean initList( Key key, Handler handler ) {
 		getApp().setItemListActor( new ItemListActor() );
-//		return forContentProvider( key, handler );
-		return forAndroidPersistence(key, handler);
+		return forContentProvider( key, handler );
+//		return forAndroidPersistence(key, handler);
 	}
 	
 	private boolean forContentProvider( Key key, Handler handler ) {

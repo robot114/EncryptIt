@@ -9,11 +9,11 @@ package com.zsm.encryptIt;
 
 public final class R {
     public static final class array {
-        public static final int prefLockAppEntries=0x7f090000;
-        public static final int prefLockAppEntryValues=0x7f090001;
-        public static final int prefLogChannelsEntries=0x7f090003;
-        public static final int prefLogChannelsValues=0x7f090004;
-        public static final int prefLogLevelEntries=0x7f090002;
+        public static final int prefLockAppEntries=0x7f070003;
+        public static final int prefLockAppEntryValues=0x7f070004;
+        public static final int prefLogChannelsEntries=0x7f070001;
+        public static final int prefLogChannelsValues=0x7f070002;
+        public static final int prefLogLevelEntries=0x7f070000;
     }
     public static final class attr {
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -63,15 +63,15 @@ containing a value of this type.
     }
     public static final class color {
         public static final int clearableBackground=0x7f050000;
-        public static final int detailText=0x7f050006;
-        public static final int detailTextBackground=0x7f050005;
-        public static final int detailTimeBackground=0x7f050003;
-        public static final int detailTimeText=0x7f050004;
-        public static final int detailTimeTitleBackground=0x7f050001;
-        public static final int detailTimeTitleText=0x7f050002;
-        public static final int detailTitleBackground=0x7f050007;
-        public static final int logBackground=0x7f050008;
-        public static final int logFoundBackground=0x7f050009;
+        public static final int detailText=0x7f050008;
+        public static final int detailTextBackground=0x7f050007;
+        public static final int detailTimeBackground=0x7f050005;
+        public static final int detailTimeText=0x7f050006;
+        public static final int detailTimeTitleBackground=0x7f050003;
+        public static final int detailTimeTitleText=0x7f050004;
+        public static final int detailTitleBackground=0x7f050009;
+        public static final int logBackground=0x7f050001;
+        public static final int logFoundBackground=0x7f050002;
         public static final int notepad_line=0x7f05000c;
         public static final int notepad_margin=0x7f05000d;
         public static final int notepad_paper=0x7f05000a;
@@ -80,8 +80,8 @@ containing a value of this type.
         public static final int promptPasswordHint=0x7f05000f;
     }
     public static final class dimen {
-        public static final int detailTimeMarginLeft=0x7f080000;
-        public static final int notepad_margin=0x7f080001;
+        public static final int detailTimeMarginLeft=0x7f090000;
+        public static final int notepad_margin=0x7f090001;
     }
     public static final class drawable {
         public static final int add=0x7f020000;
@@ -211,85 +211,85 @@ containing a value of this type.
         public static final int main_edit=0x7f0a0003;
     }
     public static final class string {
-        public static final int aboutCopyrRight=0x7f070046;
-        public static final int aboutInfo=0x7f070045;
-        public static final int app_name=0x7f07001a;
-        public static final int changePasswordFailed=0x7f070018;
-        public static final int changePasswordOk=0x7f070019;
-        public static final int clearButtonText=0x7f070021;
-        public static final int collapseDescription=0x7f070031;
-        public static final int confirmDeleteSelected=0x7f070033;
-        public static final int confirmDeleteSelectedAgain=0x7f070034;
-        public static final int contentProviderType=0x7f07000b;
-        public static final int contentProviderUri=0x7f07000a;
-        public static final int createdTimeTitle=0x7f07001e;
-        public static final int deatilSaved=0x7f070008;
-        public static final int descriptionDelete=0x7f07003a;
-        public static final int detailDeleteSelected=0x7f070009;
-        public static final int detailHint=0x7f070002;
-        public static final int detailNothingChanged=0x7f070000;
-        public static final int detailPromptCancel=0x7f070001;
-        public static final int detailSave=0x7f070007;
-        public static final int detailSaveAndBack=0x7f070006;
-        public static final int detail_delete=0x7f070005;
-        public static final int detail_edit=0x7f070004;
-        public static final int detail_title_hint=0x7f070003;
-        public static final int editor_hint=0x7f07001d;
-        public static final int expandDescription=0x7f070030;
-        public static final int fullDateTimeFormat=0x7f070020;
-        public static final int getKeyFailed=0x7f070013;
-        public static final int invalidPassword=0x7f07000e;
-        public static final int login=0x7f070026;
-        public static final int loginPrompt=0x7f07000d;
-        public static final int menuChangePassword=0x7f070028;
-        public static final int menuDeleteSelected=0x7f070029;
-        public static final int menuEditDone=0x7f07002b;
-        public static final int menuEnterEditMode=0x7f07002a;
-        public static final int menuLogClear=0x7f070047;
-        public static final int menuLogShow=0x7f070048;
-        public static final int menuPreferences=0x7f07003d;
-        public static final int menuPreferencesDescription=0x7f07003e;
-        public static final int menuSelectAll=0x7f07002c;
-        public static final int menuSelectReverse=0x7f07002f;
-        public static final int menuSelectedCount=0x7f07002e;
-        public static final int menuUnselectAll=0x7f07002d;
-        public static final int modifyTimeTitle=0x7f07001f;
-        public static final int newItemDescription=0x7f070023;
-        public static final int oldPasswordPrompt=0x7f07000f;
-        public static final int passwordLabel=0x7f070024;
-        public static final int passwordTooShort=0x7f070017;
-        public static final int passwordTriedTooMuch=0x7f070014;
-        public static final int passwordUnknownResult=0x7f070016;
-        public static final int prefAbout=0x7f070043;
-        public static final int prefAboutDesc=0x7f070044;
-        public static final int prefAdvancedForDev=0x7f070049;
-        public static final int prefAdvancedForDevDesc=0x7f07004a;
-        public static final int prefAdvancedLogChannels=0x7f07004d;
-        public static final int prefAdvancedLogChannelsDesc=0x7f07004e;
-        public static final int prefAdvancedLogLevel=0x7f07004b;
-        public static final int prefAdvancedLogLevelDesc=0x7f07004c;
-        public static final int prefLockAppTime=0x7f07003b;
-        public static final int prefLockAppTimeSummary=0x7f07003c;
-        public static final int prefLookAndFeel=0x7f07003f;
-        public static final int prefLookAndFeelDesc=0x7f070042;
-        public static final int prefMainListExpandable=0x7f070040;
-        public static final int prefMainListExpandableDesc=0x7f070041;
-        public static final int promptConfirmPasswordLbel=0x7f070012;
-        public static final int promptExit=0x7f070032;
-        public static final int promptNewPasswordLabel=0x7f070011;
-        public static final int promptOldPasswordLabel=0x7f070010;
-        public static final int promptPassword=0x7f070015;
-        public static final int promptPasswordNotEqual=0x7f07000c;
-        public static final int quit=0x7f070025;
-        public static final int quitPrompt=0x7f070027;
-        public static final int rowEdit=0x7f070022;
-        public static final int searchLogNoFound=0x7f070039;
-        public static final int searchLogToBegin=0x7f070038;
-        public static final int searchLogToEnd=0x7f070037;
-        public static final int searchLogsBackword=0x7f070036;
-        public static final int searchLogsForward=0x7f070035;
-        public static final int todoItemContentDescription=0x7f07001c;
-        public static final int todoItemHint=0x7f07001b;
+        public static final int aboutCopyrRight=0x7f06004e;
+        public static final int aboutInfo=0x7f06004d;
+        public static final int app_name=0x7f06000c;
+        public static final int changePasswordFailed=0x7f060027;
+        public static final int changePasswordOk=0x7f060028;
+        public static final int clearButtonText=0x7f060000;
+        public static final int collapseDescription=0x7f06003e;
+        public static final int confirmDeleteSelected=0x7f060040;
+        public static final int confirmDeleteSelectedAgain=0x7f060041;
+        public static final int contentProviderType=0x7f06001a;
+        public static final int contentProviderUri=0x7f060019;
+        public static final int createdTimeTitle=0x7f06002c;
+        public static final int deatilSaved=0x7f060017;
+        public static final int descriptionDelete=0x7f060042;
+        public static final int detailDeleteSelected=0x7f060018;
+        public static final int detailHint=0x7f060011;
+        public static final int detailNothingChanged=0x7f06000f;
+        public static final int detailPromptCancel=0x7f060010;
+        public static final int detailSave=0x7f060016;
+        public static final int detailSaveAndBack=0x7f060015;
+        public static final int detail_delete=0x7f060014;
+        public static final int detail_edit=0x7f060013;
+        public static final int detail_title_hint=0x7f060012;
+        public static final int editor_hint=0x7f06002b;
+        public static final int expandDescription=0x7f06003d;
+        public static final int fullDateTimeFormat=0x7f06002e;
+        public static final int getKeyFailed=0x7f060022;
+        public static final int invalidPassword=0x7f06001d;
+        public static final int login=0x7f060033;
+        public static final int loginPrompt=0x7f06001c;
+        public static final int menuChangePassword=0x7f060035;
+        public static final int menuDeleteSelected=0x7f060036;
+        public static final int menuEditDone=0x7f060038;
+        public static final int menuEnterEditMode=0x7f060037;
+        public static final int menuLogClear=0x7f06000d;
+        public static final int menuLogShow=0x7f06000e;
+        public static final int menuPreferences=0x7f060045;
+        public static final int menuPreferencesDescription=0x7f060046;
+        public static final int menuSelectAll=0x7f060039;
+        public static final int menuSelectReverse=0x7f06003c;
+        public static final int menuSelectedCount=0x7f06003b;
+        public static final int menuUnselectAll=0x7f06003a;
+        public static final int modifyTimeTitle=0x7f06002d;
+        public static final int newItemDescription=0x7f060030;
+        public static final int oldPasswordPrompt=0x7f06001e;
+        public static final int passwordLabel=0x7f060031;
+        public static final int passwordTooShort=0x7f060026;
+        public static final int passwordTriedTooMuch=0x7f060023;
+        public static final int passwordUnknownResult=0x7f060025;
+        public static final int prefAbout=0x7f06004b;
+        public static final int prefAboutDesc=0x7f06004c;
+        public static final int prefAdvancedForDev=0x7f060006;
+        public static final int prefAdvancedForDevDesc=0x7f060007;
+        public static final int prefAdvancedLogChannels=0x7f06000a;
+        public static final int prefAdvancedLogChannelsDesc=0x7f06000b;
+        public static final int prefAdvancedLogLevel=0x7f060008;
+        public static final int prefAdvancedLogLevelDesc=0x7f060009;
+        public static final int prefLockAppTime=0x7f060043;
+        public static final int prefLockAppTimeSummary=0x7f060044;
+        public static final int prefLookAndFeel=0x7f060047;
+        public static final int prefLookAndFeelDesc=0x7f06004a;
+        public static final int prefMainListExpandable=0x7f060048;
+        public static final int prefMainListExpandableDesc=0x7f060049;
+        public static final int promptConfirmPasswordLbel=0x7f060021;
+        public static final int promptExit=0x7f06003f;
+        public static final int promptNewPasswordLabel=0x7f060020;
+        public static final int promptOldPasswordLabel=0x7f06001f;
+        public static final int promptPassword=0x7f060024;
+        public static final int promptPasswordNotEqual=0x7f06001b;
+        public static final int quit=0x7f060032;
+        public static final int quitPrompt=0x7f060034;
+        public static final int rowEdit=0x7f06002f;
+        public static final int searchLogNoFound=0x7f060005;
+        public static final int searchLogToBegin=0x7f060004;
+        public static final int searchLogToEnd=0x7f060003;
+        public static final int searchLogsBackword=0x7f060002;
+        public static final int searchLogsForward=0x7f060001;
+        public static final int todoItemContentDescription=0x7f06002a;
+        public static final int todoItemHint=0x7f060029;
     }
     public static final class style {
         /** 
@@ -312,18 +312,40 @@ containing a value of this type.
         res/values-v11/styles.xml on API 14+ devices.
     
  API 14 theme customizations can go here. 
+
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    
+
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        
+
+        Base application theme for API 11+. This theme completely replaces
+        AppBaseTheme from res/values/styles.xml on API 11+ devices.
+    
+ API 11 theme customizations can go here. 
+
+        Base application theme for API 14+. This theme completely replaces
+        AppBaseTheme from BOTH res/values/styles.xml and
+        res/values-v11/styles.xml on API 14+ devices.
+    
+ API 14 theme customizations can go here. 
          */
-        public static final int AppBaseTheme=0x7f060004;
+        public static final int AppBaseTheme=0x7f080000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
+ Application theme. 
+ All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f060005;
-        public static final int styleDetailText=0x7f060000;
-        public static final int styleDetailTimeTime=0x7f060003;
-        public static final int styleDetailTimeTitle=0x7f060002;
-        public static final int styleDetailTitle=0x7f060001;
-        public static final int styleSubItemTime=0x7f060007;
-        public static final int styleSubItemTimeTitle=0x7f060006;
+        public static final int AppTheme=0x7f080001;
+        public static final int styleDetailText=0x7f080002;
+        public static final int styleDetailTimeTime=0x7f080005;
+        public static final int styleDetailTimeTitle=0x7f080004;
+        public static final int styleDetailTitle=0x7f080003;
+        public static final int styleSubItemTime=0x7f080007;
+        public static final int styleSubItemTimeTitle=0x7f080006;
     }
     public static final class xml {
         public static final int advanced_preferences=0x7f040000;

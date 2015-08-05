@@ -7,7 +7,6 @@
     <string name="createdTimeTitle">Created:</string>
     <string name="modifyTimeTitle">Modify:</string>
     <string name="fullDateTimeFormat">YY/MM/DD HH:MM:SS</string>
-    <string name="clearButtonText">Clear the text in the editor</string>
     <string name="rowEdit">Edit and detail</string>
     <string name="newItemDescription">New an item</string>
     <string name="passwordLabel">"Password: "</string>
@@ -45,8 +44,6 @@
     <string name="prefAboutDesc">About this application</string>
     <string name="aboutInfo">Encrypt !t. Encrypt for you!!!</string>
     <string name="aboutCopyrRight">by ZhengShangmin@yahoo.com</string>
-    <string name="menuLogClear">Clear</string>
-    <string name="menuLogShow">Log channel</string>
     <string name="prefAdvancedForDev">Advanced Settings</string>
     <string name="prefAdvancedForDevDesc">Advanced settings. It is only for the developers.</string>
     <string name="prefAdvancedLogLevel">Log Level</string>

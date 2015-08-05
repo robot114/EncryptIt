@@ -12,6 +12,7 @@ public interface ActivityOperator {
      * @see {@link Activity#startActivityForResult(Intent, int)}
 	 */
 	void startActivityForResult(Intent intent, int requestCode);
+	
     /**
      * Call {@link Activity#finishAffinity()} from the operator.
      * The operator may be an activity or a fragment. For a fragment,

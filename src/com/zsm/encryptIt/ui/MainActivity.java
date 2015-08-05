@@ -1,7 +1,6 @@
 package com.zsm.encryptIt.ui;
 
 import java.security.Key;
-import java.util.Locale;
 
 import android.app.Activity;
 import android.app.AlertDialog.Builder;
@@ -26,6 +25,8 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.zsm.android.ui.ClearableEditor;
+import com.zsm.driver.android.log.LogActivity;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.android.action.AndroidItemListOperator;
 import com.zsm.encryptIt.android.action.AndroidKeyActor;
@@ -33,6 +34,7 @@ import com.zsm.encryptIt.android.action.PasswordPromptParameter;
 import com.zsm.encryptIt.app.EncryptItApplication;
 import com.zsm.encryptIt.ui.preferences.Preferences;
 import com.zsm.encryptIt.ui.preferences.PreferencesActivity;
+import com.zsm.encryptIt.ui.preferences.SecurityAdvancedPreferencesActivity;
 import com.zsm.log.Log;
 
 public class MainActivity extends ProtectedActivity
@@ -96,17 +98,15 @@ public class MainActivity extends ProtectedActivity
 		newItemButton.setOnClickListener( new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if( Log.isIinstalled(EncryptItApplication.FILE_LOG)) {
-					String text
-						= clearableEditor.getText().toString()
-							.toLowerCase( Locale.getDefault() );
-					
-					if( text.equals( SHOW_LOG ) ) {
-						Intent intent
-							= new Intent( MainActivity.this, LogActivity.class );
-						MainActivity.this.startActivity( intent );
-						return;
-					}
+				String text = clearableEditor.getText().toString();
+				
+				if( text.equals( SHOW_LOG ) ) {
+					Intent intent
+						= new Intent( MainActivity.this, SecurityLogActivity.class );
+					intent.putExtra( LogActivity.KEY_PREFERENCE_ACTIVITY,
+									 SecurityAdvancedPreferencesActivity.class);
+					MainActivity.this.startActivity( intent );
+					return;
 				}
 				doAdd( );
 			}

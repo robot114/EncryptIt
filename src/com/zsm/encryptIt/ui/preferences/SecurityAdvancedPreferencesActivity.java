@@ -1,20 +1,11 @@
 package com.zsm.encryptIt.ui.preferences;
 
-import android.os.Bundle;
-import android.preference.PreferenceActivity;
-
-import com.zsm.encryptIt.R;
+import com.zsm.driver.android.log.AdvancedPreferencesActivity;
 import com.zsm.encryptIt.app.EncryptItApplication;
 import com.zsm.encryptIt.ui.ActivityOperator;
 
-public class AdvancedPreferencesActivity extends PreferenceActivity
+public class SecurityAdvancedPreferencesActivity extends AdvancedPreferencesActivity
 				implements ActivityOperator {
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.advanced_preferences);
-	}
 
 	@Override
 	protected void onResume() {

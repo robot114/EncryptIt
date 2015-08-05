@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:custom="http://schemas.android.com/apk/res/com.zsm.encryptIt"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
     android:background="@color/notepad_paper"
@@ -17,21 +18,20 @@
             android:id="@+id/newItemButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
             android:contentDescription="@string/newItemDescription"
             android:src="@drawable/add" />
 
-        <com.zsm.encryptIt.ui.ClearableEditor
+        <com.zsm.android.ui.ClearableEditor
             android:id="@+id/clearableEditor"
             android:layout_width="243dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@id/newItemButton"
+            android:layout_toStartOf="@id/newItemButton"
             custom:clearButtonOnRight="false" >
-
-        </com.zsm.encryptIt.ui.ClearableEditor>
-
+        </com.zsm.android.ui.ClearableEditor>
     </RelativeLayout>
 
     <LinearLayout
@@ -45,7 +45,8 @@
             android:name="com.zsm.encryptIt.ui.ToDoListFragment"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.50" />
+            android:layout_weight="0.50"
+            tools:layout="@layout/todo_list_expanable_fragment" />
     </LinearLayout>
 
     <LinearLayout
