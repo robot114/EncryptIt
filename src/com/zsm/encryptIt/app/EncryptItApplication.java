@@ -1,6 +1,5 @@
 package com.zsm.encryptIt.app;
 
-import java.io.File;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
@@ -14,11 +13,10 @@ import javax.crypto.NoSuchPaddingException;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.content.ContextWrapper;
-import android.os.Environment;
 import android.telephony.TelephonyManager;
 
-import com.zsm.driver.android.log.AndroidLog;
+import com.zsm.driver.android.log.LogInstaller;
+import com.zsm.driver.android.log.LogPreferences;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.SystemParameter;
 import com.zsm.encryptIt.action.ItemListActor;
@@ -28,7 +26,6 @@ import com.zsm.encryptIt.android.action.PasswordPromptParameter;
 import com.zsm.encryptIt.ui.ActivityOperator;
 import com.zsm.encryptIt.ui.MainActivity;
 import com.zsm.encryptIt.ui.preferences.Preferences;
-import com.zsm.log.FileLog;
 import com.zsm.log.Log;
 import com.zsm.recordstore.RecordStoreManager;
 import com.zsm.recordstore.driver.android.sqlite.SQLiteDriver;
@@ -37,12 +34,6 @@ import com.zsm.security.PasswordHandler;
 import com.zsm.security.PasswordPolicy;
 
 public class EncryptItApplication extends Application {
-
-	private static final int MAX_LOG_FILE_LENGTH = 1024*1024*1024;
-
-    public static final String ANDROID_LOG = "AndroidLog";
-	public static final String FILE_LOG = "FileLog";
-	public static final String DEFAULT_LOG = ANDROID_LOG;
 
 	private long maxActivityTransitionTimeMs = 5000;
     
@@ -62,10 +53,7 @@ public class EncryptItApplication extends Application {
 	private Activity mainActivity;
 
 	public EncryptItApplication() {
-		Log.setGlobalLevel( Log.LEVEL.DEBUG );
-		
-		Log.install( ANDROID_LOG, new AndroidLog( "EncryptIt" ) );
-		Log.setLevel( ANDROID_LOG, Log.LEVEL.DEBUG );
+		LogInstaller.installAndroidLog( "EncryptIt" );
 	}
 
 	@Override
@@ -80,40 +68,8 @@ public class EncryptItApplication extends Application {
 		
 		Preferences.init(this);
 		
-		Log.setGlobalLevel( Preferences.getInstance().getLogLevel() );
-		if( Preferences.getInstance().getLogChannels().contains( FILE_LOG ) ) {
-			installFileLog();
-			installFileLogRetry();
-			Log.setLevel(FILE_LOG, Log.LEVEL.DEBUG);
-		}
-	}
-
-	private void installFileLog() {
-		String logFileName
-			= Environment.getExternalStorageDirectory()
-				+ "/EncryptId/log/EncryptIt.log";
-		try {
-			Log.install( FILE_LOG, new FileLog( logFileName,
-												MAX_LOG_FILE_LENGTH ));
-		} catch (Exception e) {
-			Log.e( "Install log failed!", "id", FILE_LOG,
-					"file name", logFileName );
-		}
-	}
-	
-	private void installFileLogRetry() {
-		if( !Log.isIinstalled(FILE_LOG) ) {
-			ContextWrapper cw = new ContextWrapper(this);
-			File directory = cw.getDir("log", Context.MODE_PRIVATE);
-			String logFileName = directory.getAbsolutePath() +"/EncryptIt.log";
-			try {
-				Log.install( FILE_LOG, new FileLog( logFileName,
-													MAX_LOG_FILE_LENGTH ) );
-			} catch (Exception e) {
-				Log.e( "Install log failed!", "id", FILE_LOG,
-						"file name", logFileName );
-			}
-		}
+		LogPreferences.init( this );
+		LogInstaller.installFileLog( this );
 	}
 
 	private void initPaswordPolicy() {

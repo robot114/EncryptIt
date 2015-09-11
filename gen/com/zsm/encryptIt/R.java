@@ -348,7 +348,7 @@ containing a value of this type.
         public static final int styleSubItemTimeTitle=0x7f080006;
     }
     public static final class xml {
-        public static final int advanced_preferences=0x7f040000;
+        public static final int log_preferences=0x7f040000;
         public static final int std_preferences=0x7f040001;
     }
     public static final class styleable {
