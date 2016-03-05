@@ -7,13 +7,11 @@ import android.app.AlertDialog.Builder;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -54,10 +51,6 @@ public class MainActivity extends ProtectedActivity
 	private ClearableEditor clearableEditor;
 	private View newItemButton;
 	
-	private View editorLayout;
-	private View listLayout;
-	private View buttonLayout;
-
 	private ListFragmentAdapter listFragment;
 	private AndroidItemListOperator operator;
 	
@@ -91,9 +84,6 @@ public class MainActivity extends ProtectedActivity
 		clearableEditor
 			= (ClearableEditor) findViewById( R.id.clearableEditor );
 		
-		listLayout = findViewById( R.id.todoListLayout );
-		editorLayout = findViewById( R.id.editorLayout );
-		buttonLayout = findViewById( R.id.buttonLayout );
 		newItemButton = findViewById( R.id.newItemButton );
 		newItemButton.setOnClickListener( new OnClickListener() {
 			@Override
@@ -129,8 +119,6 @@ public class MainActivity extends ProtectedActivity
 		
 		listFragment.setDataListToAdapter( operator.getDataList() );
 		getApp().setUIListOperator(operator);
-		
-		setHeightByWindow( );
 		
 		if( !(getApp().promptPassword( this ) ) ) {
 			return;
@@ -291,41 +279,6 @@ public class MainActivity extends ProtectedActivity
 		return false;
 	}
 
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		int winHeight
-			=  (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-											   newConfig.screenHeightDp,
-											   getResources().getDisplayMetrics());
-		setListHeightByScreen(winHeight);
-	}
-
-	private void setHeightByWindow() {
-		int winHeight = getWindow().getDecorView().getHeight();
-		setListHeightByScreen( winHeight - getStatusBarHeight() );
-	}
-
-	/**
-	 * This method calculates the height excluding the height of status bar.
-	 * 
-	 * @param screenHeight
-	 */
-	private void setListHeightByScreen( final int screenHeight ) {
-		new Handler().post( new Runnable() {
-			@Override
-			public void run() {
-				int height
-					= screenHeight - editorLayout.getHeight()
-						- buttonLayout.getHeight()
-						- getActionBar().getHeight();
-				LayoutParams params
-					= new LayoutParams(LayoutParams.MATCH_PARENT, height);
-				listLayout.setLayoutParams(params);
-			}
-		} );
-	}
-	
 	private void doAdd() {
 		if( operator.doAdd(clearableEditor.getText().toString()) ) {
 			clearableEditor.clearText();
@@ -420,14 +373,6 @@ public class MainActivity extends ProtectedActivity
 		}
 	}
 
-	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		super.onWindowFocusChanged(hasFocus);
-		if( hasFocus ) {
-			setHeightByWindow();
-		}
-	}
-	
 	@Override
 	public MODE getMode() {
 		return mode;

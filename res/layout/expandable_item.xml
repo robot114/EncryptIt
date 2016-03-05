@@ -3,13 +3,14 @@
     android:id="@+id/todoListItem"
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="@dimen/notepad_margin"
+    android:layout_marginStart="@dimen/notepad_margin"
     android:layout_marginTop="1dp" >
 
     <ImageView
         android:id="@+id/imageViewExpand"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:contentDescription="@string/expandDescription"
         android:src="@drawable/expand" />
 
@@ -17,13 +18,14 @@
         android:id="@+id/rowCheck"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:visibility="visible" />
 
     <TextView
         android:id="@+id/row"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
+        android:layout_gravity="start|center_vertical"
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:lines="1"
@@ -36,7 +38,9 @@
         android:id="@+id/rowDelete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:clickable="true"
+        android:contentDescription="@string/descriptionDelete"
         android:src="@drawable/delete"
         android:visibility="visible" />
 

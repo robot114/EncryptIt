@@ -20,14 +20,14 @@
         android:id="@+id/expandableSubItemSeparator"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginLeft="@dimen/detailTimeMarginLeft"
+        android:layout_marginStart="@dimen/detailTimeMarginLeft"
         android:background="@android:color/darker_gray" />
 
     <TextView
         android:id="@+id/expanableSubItemDetail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/detailTimeMarginLeft"
+        android:layout_marginStart="@dimen/detailTimeMarginLeft"
         android:maxLines="5"
         android:text="Medium Text"
         android:textAppearance="?android:attr/textAppearanceSmall" />

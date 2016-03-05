@@ -11,6 +11,7 @@
         android:id="@+id/editorLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_weight="0"
         android:background="@color/clearableBackground"
         android:orientation="horizontal" >
 
@@ -25,35 +26,23 @@
 
         <com.zsm.android.ui.ClearableEditor
             android:id="@+id/clearableEditor"
-            android:layout_width="243dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
             android:layout_toStartOf="@id/newItemButton"
             custom:clearButtonOnRight="false" >
+
         </com.zsm.android.ui.ClearableEditor>
     </RelativeLayout>
 
-    <LinearLayout
-        android:id="@+id/todoListLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="100dp"
-        android:orientation="vertical" >
-
-        <fragment
-            android:id="@+id/ToDoListFragment"
-            android:name="com.zsm.encryptIt.ui.ToDoListFragment"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.50"
-            tools:layout="@layout/todo_list_expanable_fragment" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/buttonLayout"
+    <fragment
+        android:id="@+id/ToDoListFragment"
+        android:name="com.zsm.encryptIt.ui.ToDoListFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-    </LinearLayout>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        tools:layout="@layout/todo_list_expanable_fragment" />
 
 </LinearLayout>

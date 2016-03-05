@@ -10,6 +10,7 @@
         android:id="@+id/editorLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_weight="0"
         android:background="@color/clearableBackground"
         android:orientation="horizontal" >
 
@@ -18,6 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
             android:contentDescription="@string/newItemDescription"
             android:src="@drawable/add" />
 
@@ -34,25 +36,12 @@
 
     </RelativeLayout>
 
-    <LinearLayout
-        android:id="@+id/todoListLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="100dp"
-        android:orientation="vertical" >
-
-        <fragment
-            android:id="@+id/ToDoListFragment"
-            android:name="com.zsm.encryptIt.ui.ToDoListExpandableFragment"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.50" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/buttonLayout"
+    <fragment
+        android:id="@+id/ToDoListFragment"
+        android:name="com.zsm.encryptIt.ui.ToDoListExpandableFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-    </LinearLayout>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        tools:layout="@layout/todo_list_expanable_fragment" />
 
 </LinearLayout>

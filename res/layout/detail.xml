@@ -9,7 +9,7 @@
         android:id="@+id/detailTime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:orientation="vertical" >
 
@@ -50,7 +50,7 @@
         style="@style/styleDetailTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/detailTime"
         android:hint="@string/detail_title_hint"
         android:imeOptions="actionNext" >
@@ -63,7 +63,7 @@
         style="@style/styleDetailText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
 		android:hint="@string/detailHint"
         android:layout_below="@+id/titleText" />
 

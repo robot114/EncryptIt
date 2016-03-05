@@ -98,11 +98,6 @@ class WhatToDoItemExpanableAdapter extends BaseExpandableListAdapter {
 			view = (ToDoListItemView)convertView;
 		}
 
-		if( groupPosition % 2 == 0 ) {
-			view.setBackgroundResource( R.drawable.item_view_even );
-		} else {
-			view.setBackgroundResource( R.drawable.item_view_odd );
-		}
 		view.setDisplayValue( list.get( groupPosition ), groupPosition );
 		view.setExpanded( isExpanded );
 		return view;
@@ -120,11 +115,6 @@ class WhatToDoItemExpanableAdapter extends BaseExpandableListAdapter {
 			view = (ToDoListSubItemView)convertView;
 		}
 
-		if( groupPosition % 2 == 0 ) {
-			view.setBackgroundResource( R.drawable.item_view_even );
-		} else {
-			view.setBackgroundResource( R.drawable.item_view_odd );
-		}
 		view.setDisplayValue( list.get( groupPosition ) );
 		
 		return view;
