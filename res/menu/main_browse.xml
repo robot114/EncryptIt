@@ -29,4 +29,12 @@
           android:icon="@drawable/settings"
           android:titleCondensed="@string/app_name">
     </item>
+    <item android:id="@+id/menuCall"
+          android:title="@string/aboutCopyrRight"
+          android:titleCondensed="@string/app_name"
+          android:icon="@drawable/phone"
+          android:menuCategory="system"
+          android:showAsAction="always"
+          android:onClick="onSecurityCall">
+    </item>
 </menu>

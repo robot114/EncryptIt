@@ -12,7 +12,12 @@ import javax.crypto.NoSuchPaddingException;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.os.IBinder;
 import android.telephony.TelephonyManager;
 
 import com.zsm.driver.android.log.LogInstaller;
@@ -23,6 +28,8 @@ import com.zsm.encryptIt.action.ItemListActor;
 import com.zsm.encryptIt.android.action.AndroidItemListOperator;
 import com.zsm.encryptIt.android.action.AndroidPasswordHandler;
 import com.zsm.encryptIt.android.action.PasswordPromptParameter;
+import com.zsm.encryptIt.dialer.CallBase;
+import com.zsm.encryptIt.dialer.SecurityCallingService;
 import com.zsm.encryptIt.ui.ActivityOperator;
 import com.zsm.encryptIt.ui.MainActivity;
 import com.zsm.encryptIt.ui.preferences.Preferences;
@@ -33,7 +40,7 @@ import com.zsm.security.LengthPasswordPolicy;
 import com.zsm.security.PasswordHandler;
 import com.zsm.security.PasswordPolicy;
 
-public class EncryptItApplication extends Application {
+public class EncryptItApplication extends Application implements CallBase {
 
 	private long maxActivityTransitionTimeMs = 5000;
     
@@ -51,6 +58,10 @@ public class EncryptItApplication extends Application {
 	private AndroidItemListOperator uiListOperator;
 
 	private Activity mainActivity;
+
+	protected SecurityCallingService mService;
+
+	private String mOutgoingNumber;
 
 	public EncryptItApplication() {
 		LogInstaller.installAndroidLog( "EncryptIt" );
@@ -70,8 +81,34 @@ public class EncryptItApplication extends Application {
 		
 		LogPreferences.init( this );
 		LogInstaller.installFileLog( this );
+		PackageManager pm = getPackageManager();
+		if( pm.hasSystemFeature( PackageManager.FEATURE_TELEPHONY ) ) {
+			binService();
+		}
 	}
 
+	private void binService() {
+		ServiceConnection serviceConnection = new ServiceConnection() {
+		    @Override
+		    public void onServiceConnected(ComponentName name, IBinder service) {
+		    	Log.d("Service connected", service);
+		    	SecurityCallingService.ServiceBinder binder
+		    		= (SecurityCallingService.ServiceBinder) service;
+		    	mService = binder.getService();
+		    }
+		 
+		    @Override
+		    public void onServiceDisconnected(ComponentName name) {
+		    	mService = null;
+		    }
+
+		};
+		
+		Intent intent = new Intent(this, SecurityCallingService.class);
+		bindService(intent, serviceConnection,
+					Context.BIND_AUTO_CREATE|Context.BIND_ABOVE_CLIENT);
+	}
+	
 	private void initPaswordPolicy() {
 		passwordPolicy = new LengthPasswordPolicy( 8 );
 		
@@ -231,4 +268,13 @@ public class EncryptItApplication extends Application {
 		}
 	}
 
+	@Override
+	public void setOutgoingCall(String number) {
+		mOutgoingNumber = number;
+	}
+
+	@Override
+	public String getOutgoingCall() {
+		return mOutgoingNumber;
+	}
 }

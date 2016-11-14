@@ -7,6 +7,7 @@ import android.app.AlertDialog.Builder;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,6 +30,7 @@ import com.zsm.encryptIt.android.action.AndroidItemListOperator;
 import com.zsm.encryptIt.android.action.AndroidKeyActor;
 import com.zsm.encryptIt.android.action.PasswordPromptParameter;
 import com.zsm.encryptIt.app.EncryptItApplication;
+import com.zsm.encryptIt.dialer.SecurityDialerActivity;
 import com.zsm.encryptIt.ui.preferences.Preferences;
 import com.zsm.encryptIt.ui.preferences.PreferencesActivity;
 import com.zsm.encryptIt.ui.preferences.SecurityAdvancedPreferencesActivity;
@@ -192,6 +194,12 @@ public class MainActivity extends ProtectedActivity
 		listFragment.registerListDataSetObserver( listDataObserver );
 
 		updateSelectedCount();
+		
+		PackageManager pm = getPackageManager();
+		if( !pm.hasSystemFeature( PackageManager.FEATURE_TELEPHONY ) ) {
+			menu.removeItem( R.id.menuCall );
+		}
+		
 		return true;
 	}
 
@@ -279,6 +287,13 @@ public class MainActivity extends ProtectedActivity
 		return false;
 	}
 
+	public boolean onSecurityCall(MenuItem item) {
+		Intent intent
+			= new Intent( this, SecurityDialerActivity.class );
+		MainActivity.this.startActivity( intent );
+		return true;
+	}
+	
 	private void doAdd() {
 		if( operator.doAdd(clearableEditor.getText().toString()) ) {
 			clearableEditor.clearText();
@@ -406,8 +421,7 @@ public class MainActivity extends ProtectedActivity
 		}
 
 		@Override
-		public void onTextChanged(CharSequence s, int start, int before,
-				int count) {
+		public void onTextChanged(CharSequence s, int start, int before, int count) {
 			
 			operator.filter( s );
 		}

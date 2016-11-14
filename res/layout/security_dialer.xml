@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/notepad_margin"
+    android:orientation="vertical"
+    tools:ignore="ButtonStyle,HardcodedText" >
+
+    <EditText
+        android:id="@+id/textPhoneNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="@dimen/notepad_margin"
+        android:gravity="center_horizontal"
+        android:imeOptions="actionGo"
+        android:inputType="phone"
+        android:minLines="1"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/dialerTargetSize" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:layout_margin="@dimen/notepad_margin"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal" >
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:longClickable="false"
+                android:onClick="onClickKey"
+                android:text="1"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="@dimen/dialerTargetSize"
+                tools:ignore="ButtonStyle" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:longClickable="false"
+                android:onClick="onClickKey"
+                android:text="2"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="@dimen/dialerTargetSize" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:longClickable="false"
+                android:onClick="onClickKey"
+                android:text="3"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="@dimen/dialerTargetSize" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" >
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:longClickable="false"
+                android:onClick="onClickKey"
+                android:text="4"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="@dimen/dialerTargetSize" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:longClickable="false"
+                android:onClick="onClickKey"
+                android:text="5"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="@dimen/dialerTargetSize" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:longClickable="false"
+                android:onClick="onClickKey"
+                android:text="6"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="@dimen/dialerTargetSize" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" >
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:longClickable="false"
+                android:onClick="onClickKey"
+                android:text="7"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="@dimen/dialerTargetSize" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:longClickable="false"
+                android:onClick="onClickKey"
+                android:text="8"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="@dimen/dialerTargetSize" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:longClickable="false"
+                android:onClick="onClickKey"
+                android:text="9"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="@dimen/dialerTargetSize" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" >
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:longClickable="false"
+                android:onClick="onClickKey"
+                android:text="*"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="@dimen/dialerTargetSize" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:longClickable="false"
+                android:onClick="onClickKey"
+                android:text="0"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="@dimen/dialerTargetSize" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:longClickable="false"
+                android:onClick="onClickKey"
+                android:text="#"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="@dimen/dialerTargetSize" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:id="@+id/imageReject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="@dimen/imageButtonMarginVertical"
+            android:layout_marginLeft="@dimen/imageButtonMarginHorizatal"
+            android:layout_marginRight="@dimen/imageButtonMarginHorizatal"
+            android:onClick="onClose"
+            android:paddingBottom="@dimen/imageButtonPaddingVertical"
+            android:paddingLeft="@dimen/imageButtonPaddingHorizatal"
+            android:paddingRight="@dimen/imageButtonPaddingHorizatal"
+            android:paddingTop="@dimen/imageButtonPaddingVertical"
+            android:src="@drawable/reject" />
+
+        <ImageView
+            android:id="@+id/imageBackspace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginBottom="@dimen/imageButtonMarginVertical"
+            android:layout_marginLeft="@dimen/imageButtonMarginHorizatal"
+            android:layout_marginRight="@dimen/imageButtonMarginHorizatal"
+            android:onClick="onBackspace"
+            android:paddingBottom="@dimen/imageButtonPaddingVertical"
+            android:paddingLeft="@dimen/imageButtonPaddingHorizatal"
+            android:paddingRight="@dimen/imageButtonPaddingHorizatal"
+            android:paddingTop="@dimen/imageButtonPaddingVertical"
+            android:src="@drawable/backspace" />
+
+        <ImageView
+            android:id="@+id/imageAccept"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="@dimen/imageButtonMarginVertical"
+            android:layout_marginLeft="@dimen/imageButtonMarginHorizatal"
+            android:layout_marginRight="@dimen/imageButtonMarginHorizatal"
+            android:onClick="onCall"
+            android:paddingBottom="@dimen/imageButtonPaddingVertical"
+            android:paddingLeft="@dimen/imageButtonPaddingHorizatal"
+            android:paddingRight="@dimen/imageButtonPaddingHorizatal"
+            android:paddingTop="@dimen/imageButtonPaddingVertical"
+            android:src="@drawable/accept" />
+
+    </RelativeLayout>
+
+</LinearLayout>

@@ -9,6 +9,10 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
+    <uses-permission android:name="android.permission.WRITE_CALL_LOG"/>
+    <uses-permission android:name="android.permission.READ_CALL_LOG"/>
 
     <application
         android:allowBackup="true"
@@ -44,14 +48,33 @@
 				  android:excludeFromRecents="true">
         </activity>
         <activity android:name=".ui.MultiDetailActivity" android:excludeFromRecents="true"></activity>
+        <activity android:name=".dialer.SecurityDialerActivity"
+            	  android:excludeFromRecents="true"
+            	  android:screenOrientation="portrait">
+            <intent-filter android:priority="100">
+                <action android:name="android.intent.action.CALL_BUTTON"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.DIAL"/>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="tel"/>
+            </intent-filter>
+        </activity>
+        
         <provider android:name="com.zsm.encryptIt.android.EncryptItContentProvider"
             	  android:authorities="@string/contentProviderUri">
         </provider>
-        <activity android:name=".ui.SecurityLogActivity" android:excludeFromRecents="true"></activity>
+        <activity android:name=".ui.SecurityLogActivity" android:excludeFromRecents="true">
+        </activity>
         <activity android:name=".ui.preferences.PreferencesActivity"></activity>
-        <activity android:name=".ui.preferences.SecurityAdvancedPreferencesActivity"></activity>
-        
-
+        <activity android:name=".ui.preferences.SecurityAdvancedPreferencesActivity">
+        </activity>
+        <service android:name=".dialer.SecurityCallingService"
+            android:enabled="true">
+        </service>
     </application>
 
 </manifest>

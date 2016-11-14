@@ -50,5 +50,6 @@
     <string name="prefAdvancedLogLevelDesc">The lowest level of the log to be recorded.</string>
     <string name="prefAdvancedLogChannels">Log channels</string>
     <string name="prefAdvancedLogChannelsDesc">Channels to which the logs will be sent. The Android channel will always opened, even it is not selected here. The change will take affect after the app restart.</string>
+    <string name="call">Security Call</string>
     
 </resources>

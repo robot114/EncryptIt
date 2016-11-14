@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="detailTimeMarginLeft">20dp</dimen>
+    <dimen name="dialerTargetSize">40dp</dimen>
+    <dimen name="imageButtonMarginHorizatal">20dp</dimen>
+    <dimen name="imageButtonMarginVertical">20dp</dimen>
+    <dimen name="imageButtonPaddingHorizatal">20dp</dimen>
+    <dimen name="imageButtonPaddingVertical">10dp</dimen>
 </resources>
