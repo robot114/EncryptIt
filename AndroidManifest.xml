@@ -4,7 +4,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="17"
+        android:minSdkVersion="19"
         android:targetSdkVersion="22" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -13,6 +13,10 @@
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
     <uses-permission android:name="android.permission.WRITE_CALL_LOG"/>
     <uses-permission android:name="android.permission.READ_CALL_LOG"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.READ_SMS"/>
+    <uses-permission android:name="android.permission.WRITE_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
 
     <application
         android:allowBackup="true"
@@ -48,9 +52,9 @@
 				  android:excludeFromRecents="true">
         </activity>
         <activity android:name=".ui.MultiDetailActivity" android:excludeFromRecents="true"></activity>
-        <activity android:name=".dialer.SecurityDialerActivity"
+        <activity android:name=".telephony.SecurityDialerActivity"
             	  android:excludeFromRecents="true"
-            	  android:screenOrientation="portrait">
+            	  android:launchMode="standard" android:showOnLockScreen="false">
             <intent-filter android:priority="100">
                 <action android:name="android.intent.action.CALL_BUTTON"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -72,9 +76,11 @@
         <activity android:name=".ui.preferences.PreferencesActivity"></activity>
         <activity android:name=".ui.preferences.SecurityAdvancedPreferencesActivity">
         </activity>
-        <service android:name=".dialer.SecurityCallingService"
-            android:enabled="true">
-        </service>
+        <service android:name=".telephony.SecurityTelephonyService"></service>
+        <activity android:name=".telephony.SecurityMessageActivity"
+            	  android:screenOrientation="portrait"
+            	  android:excludeFromRecents="true">
+        </activity>
     </application>
 
 </manifest>

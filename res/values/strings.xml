@@ -43,7 +43,7 @@
     <string name="prefAbout">About</string>
     <string name="prefAboutDesc">About this application</string>
     <string name="aboutInfo">Encrypt !t. Encrypt for you!!!</string>
-    <string name="aboutCopyrRight">by ZhengShangmin@yahoo.com</string>
+    <string name="aboutCopyRight">by ZhengShangmin@yahoo.com</string>
     <string name="prefAdvancedForDev">Advanced Settings</string>
     <string name="prefAdvancedForDevDesc">Advanced settings. It is only for the developers.</string>
     <string name="prefAdvancedLogLevel">Log Level</string>
@@ -51,5 +51,18 @@
     <string name="prefAdvancedLogChannels">Log channels</string>
     <string name="prefAdvancedLogChannelsDesc">Channels to which the logs will be sent. The Android channel will always opened, even it is not selected here. The change will take affect after the app restart.</string>
     <string name="call">Security Call</string>
+    <string name="promptNoMessageToSend">No message to send, nothing to do</string>
+    <string name="activityTitleDialerCall">Security Calling</string>
+    <string name="activityTitleDialer">Security Dialer</string>
+    <string name="activityTitleDialerMessage">Security Messager</string>
+    <string name="promptSendMessageFail">Send the %1$d/%2$d part of message failed!</string>
+    <string name="promptSendMessageOK">Send the %1$d/%2$d message OK</string>
+    <string name="promptDeliverMessage">The %1$d/%2$d message is received</string>
+    <string name="promptNoPhoneNumber">No phone number entered.</string>
+    <string name="hintSecurityMessagePassword">The password to encode the message. Tell the recipient the password by other way.</string>
+    <string name="hintSendMessage">Send the message. Encode it when the password is not empty.</string>
+    <string name="hintCancel">Cancel</string>
+    <string name="hintPhoneNumber">Enter the phone number</string>
+    <string name="labelReciptient">Reciptient: </string>
     
 </resources>

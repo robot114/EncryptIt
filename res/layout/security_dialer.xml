@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_margin="@dimen/notepad_margin"
-        android:gravity="center_horizontal"
+        android:gravity="bottom|center_horizontal"
         android:imeOptions="actionGo"
         android:inputType="phone"
         android:minLines="1"
@@ -164,14 +164,15 @@
                 android:textSize="@dimen/dialerTargetSize" />
 
             <Button
+                android:id="@+id/button0"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:longClickable="false"
+                android:longClickable="true"
                 android:onClick="onClickKey"
-                android:text="0"
-                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="0(+)"
+                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textSize="@dimen/dialerTargetSize" />
 
             <Button
@@ -231,7 +232,7 @@
             android:layout_marginBottom="@dimen/imageButtonMarginVertical"
             android:layout_marginLeft="@dimen/imageButtonMarginHorizatal"
             android:layout_marginRight="@dimen/imageButtonMarginHorizatal"
-            android:onClick="onCall"
+            android:onClick="onOK"
             android:paddingBottom="@dimen/imageButtonPaddingVertical"
             android:paddingLeft="@dimen/imageButtonPaddingHorizatal"
             android:paddingRight="@dimen/imageButtonPaddingHorizatal"

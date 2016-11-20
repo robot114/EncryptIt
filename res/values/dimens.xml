@@ -6,4 +6,5 @@
     <dimen name="imageButtonMarginVertical">20dp</dimen>
     <dimen name="imageButtonPaddingHorizatal">20dp</dimen>
     <dimen name="imageButtonPaddingVertical">10dp</dimen>
+    <dimen name="defaultPadding">10dp</dimen>
 </resources>

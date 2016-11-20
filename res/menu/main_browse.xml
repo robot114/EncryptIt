@@ -30,7 +30,7 @@
           android:titleCondensed="@string/app_name">
     </item>
     <item android:id="@+id/menuCall"
-          android:title="@string/aboutCopyrRight"
+          android:title="@string/aboutCopyRight"
           android:titleCondensed="@string/app_name"
           android:icon="@drawable/phone"
           android:menuCategory="system"

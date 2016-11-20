@@ -4,18 +4,23 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.app.Dialog;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.TextView.BufferType;
 import android.widget.Toast;
@@ -23,6 +28,9 @@ import android.widget.Toast;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.WhatToDoItem;
 import com.zsm.encryptIt.app.EncryptItApplication;
+import com.zsm.encryptIt.telephony.SecurityDialerActivity;
+import com.zsm.encryptIt.telephony.SecurityMessageActivity;
+import com.zsm.log.Log;
 
 public class DetailActivity extends ProtectedActivity {
 	
@@ -46,7 +54,6 @@ public class DetailActivity extends ProtectedActivity {
 	private TextView taskText;
 	private TextView detailText;
 
-	private AlertDialog.Builder cancelPromptDialogBuilder;
 	private MenuItem positiveMenuItem;
 	private String newTask;
 	private String newDetail;
@@ -83,6 +90,8 @@ public class DetailActivity extends ProtectedActivity {
 		detailText.setText( originalDetail, BufferType.SPANNABLE );
 		Linkify.addLinks(taskText, Linkify.ALL);
 		Linkify.addLinks(detailText, Linkify.ALL);
+		replacePhoneNumber(taskText.getEditableText());
+		replacePhoneNumber(detailText.getEditableText());
 		
 		taskText.addTextChangedListener(new LinksWatcher( taskText ));
 		detailText.addTextChangedListener(new LinksWatcher( detailText ));
@@ -95,16 +104,22 @@ public class DetailActivity extends ProtectedActivity {
 		return getIntent().getBooleanExtra( KEY_DETAIL_EDITABLE, false );
 	}
 
+	/**
+	 * The positive button clicked. The item is saved or deleted.
+	 * 
+	 * @return true, the detail activity should be closed; false, nothing need to
+	 * 			be done to the activity.
+	 */
 	private boolean doOK() {
 		if( shouldEditable() ) {
-			doEdit();
+			return doEdit();
 		} else {
-			Intent intent = new Intent( Intent.ACTION_PICK );
+			final Intent intent = new Intent( Intent.ACTION_PICK );
 			intent.putExtra( KEY_ROW_POSITION, position );
-			setResult(RESULT_OK, intent);
+			getPomptDialogBuilder( R.string.confirmDeleteSelected, intent ).show();
+			// The activity has been closed by the prompt dialog, if necessary.
+			return false;
 		}
-		
-		return true;
 	}
 
 	private  boolean doEdit() {
@@ -154,6 +169,7 @@ public class DetailActivity extends ProtectedActivity {
 		MenuItem negitiveItem = menu.add( android.R.string.cancel );
 		negitiveItem
 			.setShowAsActionFlags( MenuItem.SHOW_AS_ACTION_ALWAYS )
+			.setIcon( R.drawable.back )
 			.setOnMenuItemClickListener(new OnMenuItemClickListener(){
 				@Override
 				public boolean onMenuItemClick(MenuItem item) {
@@ -163,8 +179,22 @@ public class DetailActivity extends ProtectedActivity {
 			});
 		
 		if( shouldEditable() ) {
+			if( getPackageManager().hasSystemFeature( PackageManager.FEATURE_TELEPHONY ) ) {
+				menu.add( R.string.detailSendMessage )
+					.setIcon( R.drawable.message )
+					.setShowAsActionFlags( MenuItem.SHOW_AS_ACTION_ALWAYS )
+					.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+						@Override
+						public boolean onMenuItemClick(MenuItem item) {
+							// Must has telephony feature
+							doSecurityMessage();
+							return true;
+						}
+					});
+			}
 			MenuItem saveItem = menu.add( R.string.detailSave );
 			saveItem.setShowAsActionFlags( MenuItem.SHOW_AS_ACTION_ALWAYS )
+					.setIcon( R.drawable.save )
 					.setOnMenuItemClickListener( new OnMenuItemClickListener() {
 						@Override
 						public boolean onMenuItemClick(MenuItem item) {
@@ -178,6 +208,7 @@ public class DetailActivity extends ProtectedActivity {
 											android.R.string.ok ) );
 		positiveMenuItem
 			.setShowAsActionFlags( MenuItem.SHOW_AS_ACTION_ALWAYS )
+			.setIcon( shouldEditable() ? R.drawable.save_and_back : R.drawable.delete_white )
 			.setOnMenuItemClickListener( new OnMenuItemClickListener() {
 				@Override
 				public boolean onMenuItemClick(MenuItem item) {
@@ -192,37 +223,45 @@ public class DetailActivity extends ProtectedActivity {
 
 	private void doCancel() {
 		if( cancelNeedPrompt() ) {
-			initCancelPromptDialog().show();
+			getPomptDialogBuilder(R.string.detailPromptCancel, null).show();
 		} else {
 			super.onBackPressed();
 		}
 	}
 
-	private Dialog initCancelPromptDialog() {
-		if( cancelPromptDialogBuilder == null ) {
-			cancelPromptDialogBuilder = new Builder(this);
-			cancelPromptDialogBuilder
-				.setMessage(R.string.detailPromptCancel)
-				.setTitle(R.string.app_name)
-				.setPositiveButton( android.R.string.yes, 
-					   			   	new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick( DialogInterface dialog,
-										 int which) {
-						DetailActivity.super.onBackPressed();
-					}
-				} )
-				.setNegativeButton( android.R.string.no,
-					   			   	new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick( DialogInterface dialog,
-										 int which) {
-					}
-				} )
-				.setCancelable( false );
-		}	
-
-		return cancelPromptDialogBuilder.create();
+	private boolean doSecurityMessage() {
+		Intent intent = new Intent( this, SecurityMessageActivity.class );
+		updateTaskAndDetail();
+		String message
+			= ( newDetail == null || newDetail.length() == 0 ) ? newTask : newDetail;
+		intent.putExtra( SecurityMessageActivity.KEY_MESSAGE, message );
+		
+		startActivity( intent );
+		return true;
+	}
+	
+	private Builder getPomptDialogBuilder(int messageId, final Intent resultData ) {
+		Builder promptDialogBuilder = new Builder(this);
+		promptDialogBuilder
+			.setMessage(messageId)
+			.setTitle(R.string.app_name)
+			.setPositiveButton( android.R.string.yes, 
+				   			   	new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick( DialogInterface dialog, int which) {
+					setResult( RESULT_OK, resultData );
+					DetailActivity.super.onBackPressed();
+				}
+			} )
+			.setNegativeButton( android.R.string.no,
+				   			   	new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick( DialogInterface dialog, int which) {
+				}
+			} )
+			.setCancelable( false );
+		
+		return promptDialogBuilder;
 	}
 
 	private boolean cancelNeedPrompt() {
@@ -239,6 +278,46 @@ public class DetailActivity extends ProtectedActivity {
 		return true;
 	}
 
+	private void replacePhoneNumber(Editable current) {
+		URLSpan[] spans
+			= current.getSpans(0, current.length(), URLSpan.class);
+
+		for (URLSpan span : spans) {
+			Uri uri = Uri.parse( span.getURL() );
+			if( SecurityDialerActivity.TEL_SCHEME.equals( uri.getScheme() ) ) {
+				int start = current.getSpanStart(span);
+				int end = current.getSpanEnd(span);
+
+				current.removeSpan(span);
+				current.setSpan(new PhoneNumberSpan(uri), start, end, 0);
+			}
+		}
+	}
+	
+	private static class PhoneNumberSpan extends ClickableSpan {
+		private Uri mUri;
+
+		public PhoneNumberSpan(Uri uri) {
+			mUri = uri;
+		}
+
+		@Override
+		public void onClick(View widget) {
+			try {
+				Log.d( "Phone number is clicked" );
+				Context context = widget.getContext();
+				Intent intent
+					= new Intent( context, SecurityDialerActivity.class );
+				intent.setData(mUri);
+				intent.setAction( SecurityDialerActivity.ACTION_CALL );
+			
+				context.startActivity( intent );
+			} catch (ActivityNotFoundException e) {
+				Log.e( e, "SecurityDialerActivity not found!");
+			}
+		}
+	}
+	
 	final private class LinksWatcher implements TextWatcher {
 		private TextView view;
 		
@@ -258,7 +337,9 @@ public class DetailActivity extends ProtectedActivity {
 		@Override
 		public void afterTextChanged(Editable s) {
 			Linkify.addLinks(view, Linkify.ALL);
+			replacePhoneNumber(s);
 		}
+		
 	}
 
 }

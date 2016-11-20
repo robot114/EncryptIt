@@ -70,4 +70,5 @@
     <string name="detailSave">Save</string>
     <string name="deatilSaved">Change saved!</string>
     <string name="detailDeleteSelected">Delete the Selected Items</string>
+    <string name="detailSendMessage">Send with message</string>
 </resources>

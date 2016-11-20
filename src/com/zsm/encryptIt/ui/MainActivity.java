@@ -30,7 +30,7 @@ import com.zsm.encryptIt.android.action.AndroidItemListOperator;
 import com.zsm.encryptIt.android.action.AndroidKeyActor;
 import com.zsm.encryptIt.android.action.PasswordPromptParameter;
 import com.zsm.encryptIt.app.EncryptItApplication;
-import com.zsm.encryptIt.dialer.SecurityDialerActivity;
+import com.zsm.encryptIt.telephony.SecurityDialerActivity;
 import com.zsm.encryptIt.ui.preferences.Preferences;
 import com.zsm.encryptIt.ui.preferences.PreferencesActivity;
 import com.zsm.encryptIt.ui.preferences.SecurityAdvancedPreferencesActivity;
@@ -44,6 +44,7 @@ public class MainActivity extends ProtectedActivity
 	protected static final int SHOW_FOR_EDIT = 3;
 	protected static final int SHOW_FOR_DELETE = 4;
 	protected static final int SHOW_FOR_DELETE_SELECTED = 5;
+	protected static final int REQUEST_FOR_CALL = 6;
 	
 	public static final int ENCRYPT_IT_ID = 0;
 	
@@ -290,7 +291,9 @@ public class MainActivity extends ProtectedActivity
 	public boolean onSecurityCall(MenuItem item) {
 		Intent intent
 			= new Intent( this, SecurityDialerActivity.class );
-		MainActivity.this.startActivity( intent );
+		intent.setAction( SecurityDialerActivity.ACTION_CALL );
+		
+		startActivityForResult( intent, 0 );
 		return true;
 	}
 	
@@ -324,6 +327,8 @@ public class MainActivity extends ProtectedActivity
 				break;
 			case SHOW_FOR_DELETE_SELECTED:
 				doDeleteSelected( resultCode, data );
+				break;
+			case REQUEST_FOR_CALL:
 				break;
 		}
 	}

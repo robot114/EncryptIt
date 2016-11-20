@@ -28,8 +28,8 @@ import com.zsm.encryptIt.action.ItemListActor;
 import com.zsm.encryptIt.android.action.AndroidItemListOperator;
 import com.zsm.encryptIt.android.action.AndroidPasswordHandler;
 import com.zsm.encryptIt.android.action.PasswordPromptParameter;
-import com.zsm.encryptIt.dialer.CallBase;
-import com.zsm.encryptIt.dialer.SecurityCallingService;
+import com.zsm.encryptIt.telephony.SecurityTelephonyService;
+import com.zsm.encryptIt.telephony.TelephonyBase;
 import com.zsm.encryptIt.ui.ActivityOperator;
 import com.zsm.encryptIt.ui.MainActivity;
 import com.zsm.encryptIt.ui.preferences.Preferences;
@@ -40,7 +40,7 @@ import com.zsm.security.LengthPasswordPolicy;
 import com.zsm.security.PasswordHandler;
 import com.zsm.security.PasswordPolicy;
 
-public class EncryptItApplication extends Application implements CallBase {
+public class EncryptItApplication extends Application implements TelephonyBase {
 
 	private long maxActivityTransitionTimeMs = 5000;
     
@@ -59,9 +59,11 @@ public class EncryptItApplication extends Application implements CallBase {
 
 	private Activity mainActivity;
 
-	protected SecurityCallingService mService;
+	protected SecurityTelephonyService mService;
 
-	private String mOutgoingNumber;
+	private String mOutgoingCallNumber;
+
+	private String mOutgoingSmsNumber;
 
 	public EncryptItApplication() {
 		LogInstaller.installAndroidLog( "EncryptIt" );
@@ -92,8 +94,8 @@ public class EncryptItApplication extends Application implements CallBase {
 		    @Override
 		    public void onServiceConnected(ComponentName name, IBinder service) {
 		    	Log.d("Service connected", service);
-		    	SecurityCallingService.ServiceBinder binder
-		    		= (SecurityCallingService.ServiceBinder) service;
+		    	SecurityTelephonyService.ServiceBinder binder
+		    		= (SecurityTelephonyService.ServiceBinder) service;
 		    	mService = binder.getService();
 		    }
 		 
@@ -104,7 +106,7 @@ public class EncryptItApplication extends Application implements CallBase {
 
 		};
 		
-		Intent intent = new Intent(this, SecurityCallingService.class);
+		Intent intent = new Intent(this, SecurityTelephonyService.class);
 		bindService(intent, serviceConnection,
 					Context.BIND_AUTO_CREATE|Context.BIND_ABOVE_CLIENT);
 	}
@@ -270,11 +272,21 @@ public class EncryptItApplication extends Application implements CallBase {
 
 	@Override
 	public void setOutgoingCall(String number) {
-		mOutgoingNumber = number;
+		mOutgoingCallNumber = number;
 	}
 
 	@Override
 	public String getOutgoingCall() {
-		return mOutgoingNumber;
+		return mOutgoingCallNumber;
+	}
+
+	@Override
+	public void setOutgoingSms(String number) {
+		mOutgoingSmsNumber = number;
+	}
+
+	@Override
+	public String getOutgoingSms() {
+		return mOutgoingSmsNumber;
 	}
 }

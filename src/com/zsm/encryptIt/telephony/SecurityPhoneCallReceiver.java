@@ -1,4 +1,4 @@
-package com.zsm.encryptIt.dialer;
+package com.zsm.encryptIt.telephony;
 
 import java.util.Date;
 
@@ -33,7 +33,7 @@ public class SecurityPhoneCallReceiver extends AbstractPhoneCallReceiver {
 
 	@Override
 	protected void onOutgoingCallEnded(final Context ctx, final String number, Date start, Date end) {
-		CallBase app = (CallBase)ctx.getApplicationContext();
+		TelephonyBase app = (TelephonyBase)ctx.getApplicationContext();
 		
 		if( number != null && number.equals( app.getOutgoingCall() )) {
 			// Finish outgoing call first, then delete the log later. 
@@ -42,7 +42,7 @@ public class SecurityPhoneCallReceiver extends AbstractPhoneCallReceiver {
 			new Handler().postDelayed( new Runnable() {
 				@Override
 				public void run() {
-					CallLogUtilities.deleteLastOutgoingCall(ctx, number);
+					TelephonyLogUtilities.deleteLastOutgoingCall(ctx, number);
 				}
 			}, 200 );
 		}
