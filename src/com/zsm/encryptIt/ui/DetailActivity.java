@@ -231,6 +231,8 @@ public class DetailActivity extends ProtectedActivity {
 
 	private boolean doSecurityMessage() {
 		Intent intent = new Intent( this, SecurityMessageActivity.class );
+		intent.setAction( SecurityMessageActivity.ACTION_SEND_SMS );
+
 		updateTaskAndDetail();
 		String message
 			= ( newDetail == null || newDetail.length() == 0 ) ? newTask : newDetail;

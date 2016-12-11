@@ -63,6 +63,8 @@
     <string name="hintSendMessage">Send the message. Encode it when the password is not empty.</string>
     <string name="hintCancel">Cancel</string>
     <string name="hintPhoneNumber">Enter the phone number</string>
-    <string name="labelReciptient">Reciptient: </string>
+    <string name="promptEncodeMessageFailed">Encode the message failed. It will not be sent out.</string>
+    <string name="promptNoPasswordForMessage">No password to protect this message. Do you want to send it in plain text?</string>
+    <string name="hintReciption">Click for phone number</string>
     
 </resources>

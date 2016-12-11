@@ -81,6 +81,11 @@
             	  android:screenOrientation="portrait"
             	  android:excludeFromRecents="true">
         </activity>
+        <receiver android:name=".telephony.SecurityMessageReceiver" android:permission="android.permission.RECEIVE_SMS">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

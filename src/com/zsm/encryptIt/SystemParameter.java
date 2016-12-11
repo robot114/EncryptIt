@@ -9,6 +9,7 @@ import javax.crypto.NoSuchPaddingException;
 import com.zsm.log.Log;
 import com.zsm.persistence.KeyPasswordInOutDecorator;
 import com.zsm.persistence.InOutDecorator;
+import com.zsm.persistence.PasswordInOutDecorator;
 
 public class SystemParameter {
 
@@ -69,5 +70,12 @@ public class SystemParameter {
 	 */
 	static public InOutDecorator getEncryptInOutDecorator() {
 		return inOutDecorator;
+	}
+	
+	static public InOutDecorator getPasswordBasedInOutDecorator( char[] password )
+					throws NoSuchAlgorithmException, NoSuchPaddingException, 
+							InvalidKeySpecException {
+		
+		return new PasswordInOutDecorator( PBE_ALGORITHM, password, pbeSalts, 20 );
 	}
 }

@@ -1,13 +1,12 @@
 package com.zsm.encryptIt.telephony;
 
-import com.zsm.log.Log;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.provider.Telephony;
 import android.telephony.SmsMessage;
+
+import com.zsm.log.Log;
 
 public class SecurityMessageReceiver extends BroadcastReceiver {
 
@@ -22,14 +21,17 @@ public class SecurityMessageReceiver extends BroadcastReceiver {
 			Log.w( "No pdus", sms );
 			return;
 		}
+
+		StringBuffer buf = new StringBuffer();
+		for( int i = 0; i < sms.length; i++ ) {
+			buf.append( sms[i].getDisplayMessageBody() );
+		}
 		
-		Log.d( "Message number is ", sms.length );
-		// Only the first message will be handled
 		SmsMessage message = sms[0];
-		
 		Intent messageIntent = new Intent( context, SecurityMessageActivity.class );
+		messageIntent.setAction( SecurityMessageActivity.ACTION_RECEIVE_SMS );
 		messageIntent.putExtra( SecurityMessageActivity.KEY_MESSAGE,
-								message.getDisplayMessageBody() );
+								buf.toString() );
 		messageIntent.putExtra( SecurityMessageActivity.KEY_NUMBER, 
 								message.getOriginatingAddress() );
 		messageIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

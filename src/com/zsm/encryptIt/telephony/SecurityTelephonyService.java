@@ -39,6 +39,9 @@ public class SecurityTelephonyService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		
+		// Remove the call log by observer the call log content provider,
+		// instead of outgoing call state. As the outgoing call may end
+		// before the log added
 //		registerPhoneStateReceiver();
 		
 		mCallLogObserver
@@ -54,13 +57,6 @@ public class SecurityTelephonyService extends Service {
 		getContentResolver()
 			.registerContentObserver( Telephony.Sms.CONTENT_URI, true,
 									  mMessageObserver );
-		
-		IntentFilter intentFilter
-			= new IntentFilter( Telephony.Sms.Intents.SMS_RECEIVED_ACTION );
-		
-		mSmsReceiver = new SecurityMessageReceiver();
-		registerReceiver(mSmsReceiver, intentFilter,
-						 Manifest.permission.RECEIVE_SMS, null );
 		
 		Log.d( "Security telephony service created!" );
 	}

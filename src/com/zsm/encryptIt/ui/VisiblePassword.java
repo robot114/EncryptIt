@@ -97,6 +97,9 @@ public class VisiblePassword extends RelativeLayout {
 	        case R.styleable.VisiblePassword_labelText:
 	        	label.setText( a.getString(attr) );
 	            break;
+	        case R.styleable.VisiblePassword_hintText:
+	        	text.setHint( a.getString(attr) );
+	            break;
 	        //note that you are accessing standard attributes using your attrs identifier
 	        case R.styleable.VisiblePassword_android_imeOptions:
 	        	text.setImeOptions( a.getInt(attr, 0) );

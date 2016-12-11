@@ -13,8 +13,7 @@ public class PlainInOutDecorator implements InOutDecorator {
 	}
 
 	@Override
-	public DataOutputStream wrapOutputStream(OutputStream out)
-			throws IOException {
+	public DataOutputStream wrapOutputStream(OutputStream out) throws IOException {
 		if( out instanceof DataOutputStream ) {
 			return (DataOutputStream)out;
 		} else {

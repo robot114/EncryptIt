@@ -12,41 +12,21 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:ems="10" >
+        android:ems="10"
+        android:hint="@string/hintSendMessage" >
 
         <requestFocus />
     </EditText>
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/textViewReciptient"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0" >
-
-        <TextView
-            android:id="@+id/label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/labelReciptient"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <TextView
-            android:id="@+id/textViewReciptient"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:labelFor="@+id/textViewReciptient"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <ImageView
-            android:id="@+id/imageViewPickPhoneNumber"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:contentDescription="@string/hintPhoneNumber"
-            android:onClick="onNumber"
-            android:src="@drawable/phone" />
-
-    </LinearLayout>
+        android:layout_weight="0"
+        android:hint="@string/hintReciption"
+        android:labelFor="@+id/textViewReciptient"
+        android:onClick="onNumber"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <com.zsm.encryptIt.ui.VisiblePassword
         android:id="@+id/visiblePassword"
@@ -54,6 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="0"
         android:contentDescription="@string/hintSecurityMessagePassword"
+        custom:hintText="@string/hintSecurityMessagePassword"
         custom:labelText="@string/passwordLabel" >
 
     </com.zsm.encryptIt.ui.VisiblePassword>
