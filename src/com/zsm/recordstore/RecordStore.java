@@ -37,7 +37,7 @@ public abstract class RecordStore implements Closeable {
 	 * 
 	 * @throws RecordStoreException
 	 */
-	public void close() throws RecordStoreException {
+	synchronized public void close() throws RecordStoreException {
 		for( AbstractCursor c : cursorSet ) {
 			c.close();
 		}
@@ -190,7 +190,7 @@ public abstract class RecordStore implements Closeable {
 	 * 
 	 * @param cursor cursor to be closed.
 	 */
-	void closeCursor(AbstractCursor cursor) {
+	synchronized void closeCursor(AbstractCursor cursor) {
 		cursorSet.remove(cursor);
 	}
 	
@@ -198,7 +198,7 @@ public abstract class RecordStore implements Closeable {
 	 * The method is used to make the cursor managed. The method add and newCursor
 	 * of the subclass <b>MUST</b> invoke this method to make the new cursor managed.
 	 */
-	protected void manageCursor( AbstractCursor c ) {
+	synchronized protected void manageCursor( AbstractCursor c ) {
 		cursorSet.add( c );
 	}
 	
@@ -214,7 +214,7 @@ public abstract class RecordStore implements Closeable {
 	 * 				or no record is affected at all. When the affected record is not
 	 * 				sure, it will be null too.
 	 */
-	public void updateCursors( int op, RowId id ) {
+	synchronized public void updateCursors( int op, RowId id ) {
 		for( AbstractCursor c : cursorSet ) {
 			if( c.isKeepUpdated() ) {
 				c.updateCursor(op, id);

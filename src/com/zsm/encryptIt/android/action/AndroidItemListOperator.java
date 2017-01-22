@@ -26,6 +26,7 @@ import android.support.annotation.NonNull;
 import com.zsm.encryptIt.WhatToDoItem;
 import com.zsm.encryptIt.action.ItemList;
 import com.zsm.encryptIt.action.ItemListActor;
+import com.zsm.encryptIt.action.ItemOperator;
 import com.zsm.encryptIt.action.ItemStorageAdapter;
 import com.zsm.encryptIt.action.PersistenceStorageAdapter;
 import com.zsm.encryptIt.android.AndroidPersistence;
@@ -45,7 +46,7 @@ import com.zsm.util.FilterableList;
 import com.zsm.util.Matcher;
 
 public class AndroidItemListOperator
-				implements ItemList, LoaderCallbacks<Cursor> {
+				implements ItemList, ItemOperator, LoaderCallbacks<Cursor> {
 
 	final private FilterableList<WhatToDoListViewItem, String> list;
 	private String filtString = "";
@@ -244,6 +245,15 @@ public class AndroidItemListOperator
 		fragmentAdapter.notifyDataSetChanged();
 	}
 
+	@Override
+	public boolean doAdd(WhatToDoItem item) {
+		boolean res = getApp().getItemListActor().doAdd(item);
+		if( res ) {
+			refilter();
+		}
+		return res;
+	}
+
 	public boolean doAdd(String string) {
 		final boolean res = getApp().getItemListActor().doAdd(string);
 		if( res ) {
@@ -310,7 +320,8 @@ public class AndroidItemListOperator
 	}
 	
 	public List<WhatToDoListViewItem> getSelectedDataList() {
-		List<WhatToDoListViewItem> sl = new ArrayList<WhatToDoListViewItem>();
+		List<WhatToDoListViewItem> sl
+			= new ArrayList<WhatToDoListViewItem>(getSelectedCount());
 		
 		for( WhatToDoListViewItem item : list ) {
 			if( item.isSelected() ) {

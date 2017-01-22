@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.IBinder;
 import android.telephony.TelephonyManager;
 
@@ -256,10 +257,25 @@ public class EncryptItApplication extends Application implements TelephonyBase {
 		try {
 			PasswordPromptParameter passwordPromptParam
 				= new PasswordPromptParameter(
-						PasswordPromptParameter.PROMPT_PASSWORD,
+						PasswordPromptParameter.REQUEST_CODE_LOGIN,
 						getApplicationContext(), ao );
-			EncryptItApplication.getPasswordHandler()
-				.promptPassword( passwordPromptParam );
+			getPasswordHandler().promptPassword( passwordPromptParam );
+			
+			return true;
+		} catch (GeneralSecurityException e) {
+			// Any error makes the application quit
+			Log.e( e, "Show prompt password activity failed!" );
+			ao.finishAffinity();
+			return false;
+		}
+	}
+
+	public boolean promptPassword(ActivityOperator ao, int requestCode) {
+		try {
+			PasswordPromptParameter passwordPromptParam
+				= new PasswordPromptParameter(
+						requestCode, getApplicationContext(), ao );
+			getPasswordHandler().promptPassword( passwordPromptParam );
 			
 			return true;
 		} catch (GeneralSecurityException e) {
@@ -288,5 +304,11 @@ public class EncryptItApplication extends Application implements TelephonyBase {
 	@Override
 	public String getOutgoingSms() {
 		return mOutgoingSmsNumber;
+	}
+	
+	
+	public static boolean isSafSystem() {
+//		return false;
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 	}
 }

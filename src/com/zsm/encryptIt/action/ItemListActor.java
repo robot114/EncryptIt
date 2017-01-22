@@ -82,19 +82,32 @@ public class ItemListActor {
 	public boolean doAdd(String task) {
 		if( !task.trim().equals( "" ) ) {
 			WhatToDoItem item = new WhatToDoItem( task );
-			try {
-				RowId id = adapter.add(item);
-				item.setContext(id);
-				Log.d( "New item has just be added.", item );
-			} catch (IOException e) {
-				// Just log this event, and do not change the list
-				Log.e(e, "Add new task failed!" );
-				return false;
-			}
-			list.addItem( item );
+			doAdd( item );
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Add a new item to the list. The list could be the list of the UI
+	 * in which all the items displayed. It is the invoker's response to notify
+	 * the UI to update after this method.
+	 * 
+	 * @param item new WhatToDoItem item
+	 * @return true, added successfully; false, not added
+	 */
+	public boolean doAdd(WhatToDoItem item) {
+		try {
+			RowId id = adapter.add(item);
+			item.setContext(id);
+			Log.d( "New item has just be added.", item );
+		} catch (IOException e) {
+			// Just log this event, and do not change the list
+			Log.e(e, "Add new task failed!" );
+			return false;
+		}
+		list.addItem( item );
+		return true;
 	}
 
 	/**

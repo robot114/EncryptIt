@@ -59,6 +59,7 @@
     <string name="promptSendMessageOK">Send the %1$d/%2$d message OK</string>
     <string name="promptDeliverMessage">The %1$d/%2$d message is received</string>
     <string name="promptNoPhoneNumber">No phone number entered.</string>
+    <string name="promptNoItemSelected">No item selected!</string>
     <string name="hintSecurityMessagePassword">The password to encode the message. Tell the recipient the password by other way.</string>
     <string name="hintSendMessage">Send the message. Encode it when the password is not empty.</string>
     <string name="hintCancel">Cancel</string>
@@ -66,5 +67,17 @@
     <string name="promptEncodeMessageFailed">Encode the message failed. It will not be sent out.</string>
     <string name="promptNoPasswordForMessage">No password to protect this message. Do you want to send it in plain text?</string>
     <string name="hintReciption">Click for phone number</string>
+    <string name="menuBackupSecurity">Backup Security</string>
+    <string name="menuExport">Export</string>
+    <string name="promptExportResult">Export to %1$s %2$s!</string>
+    <string name="titleExportDlg">Exporting</string>
+    <string name="succeed">Succeed</string>
+    <string name="failed">Failed</string>
+    <string name="cancelled">Cancelled</string>
+    <string name="close">Close</string>
+    <string name="menuImport">Import</string>
+    <string name="promptImportResult">Import from %1$s %2$s!</string>
+    <string name="titleImportDlg">Importing</string>
+    <string name="promptParsingXml">Parsing line %1$d of the xml file&#8230;</string>
     
 </resources>

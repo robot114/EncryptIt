@@ -12,8 +12,12 @@ public class PasswordPromptParameter {
 	public static final int INITIALIZE_PASSWORD_FAILED = TOO_MUCH_TIMES_TO_TRY+2;
 	public static final int LOGIN_FAILED = TOO_MUCH_TIMES_TO_TRY+1;
 	
-	public static final int PROMPT_PASSWORD = 1;
-	public static final int CHANGE_PASSWORD = 2;
+	
+	public static final int REQUEST_CODE_LOGIN = 1;	// Login when the app start or brought
+													// to the front. Exit the app if failed
+	public static final int REQUEST_CODE_CHANGE_PASSWORD = 2;	// Change the password.
+													// Do not exit if cancel,
+													// exit if try too much time 
 	
 	private int requestCode;
 	private Context appContext;

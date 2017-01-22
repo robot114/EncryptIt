@@ -25,7 +25,6 @@ import com.zsm.security.PasswordPolicy;
 public class PasswordActivity extends SecurityActivity {
 
 	public static final String KEY_TYPE = "PASSWORD_ACTIVITY_TYPE";
-	public static final String KEY_PASSWORD = "PASSWORD";
 	public static final int TYPE_INIT = 1;
 	public static final int TYPE_CHANGE = 2;
 

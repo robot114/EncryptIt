@@ -7,8 +7,9 @@ import android.preference.PreferenceManager;
 
 public class Preferences {
 
-	private static final String LOCK_APP_TIME = "LOCK_APP_TIME";
-	private static final String MAIN_LIST_EXPANDABLE = "MAIN_LIST_EXPANDABLE";
+	private static final String KEY_LAST_BACKUP_PATH = "KEY_LAST_BACKUP_PATH";
+	private static final String KEY_LOCK_APP_TIME = "LOCK_APP_TIME";
+	private static final String KEY_MAIN_LIST_EXPANDABLE = "MAIN_LIST_EXPANDABLE";
 	
 	private static final String DEFAULT_LOCK_APP_TIME = "5";
 	
@@ -51,11 +52,24 @@ public class Preferences {
 	
 	public int getLockAppTimeInMs() {
 		return Integer.parseInt( 
-					preferences.getString( LOCK_APP_TIME,
+					preferences.getString( KEY_LOCK_APP_TIME,
 										   DEFAULT_LOCK_APP_TIME ) )*1000;
 	}
 
 	public boolean getMainListExpandable() {
-		return preferences.getBoolean( MAIN_LIST_EXPANDABLE, true );
+		return preferences.getBoolean( KEY_MAIN_LIST_EXPANDABLE, true );
+	}
+
+	public boolean exportAsXml() {
+		return true;
+//		return preferences.getBoolean( "KEY_EXPORT_XML", false);
+	}
+
+	public String getLastBackupPath() {
+		return preferences.getString( KEY_LAST_BACKUP_PATH, null);
+	}
+
+	public void setLastBackupPath(String filePath) {
+		preferences.edit().putString(KEY_LAST_BACKUP_PATH, filePath).commit();
 	}
 }

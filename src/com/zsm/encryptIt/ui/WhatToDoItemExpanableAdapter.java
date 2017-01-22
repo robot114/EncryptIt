@@ -58,7 +58,9 @@ class WhatToDoItemExpanableAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public long getGroupId(int groupPosition) {
-		return ((LongRowId)(getData(groupPosition).getContext())).getLongId();
+		WhatToDoItem data = getData(groupPosition);
+		Object c = data.getContext();
+		return ((LongRowId)c).getLongId();
 	}
 
 	@Override

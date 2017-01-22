@@ -1,5 +1,6 @@
 package com.zsm.encryptIt.ui;
 
+import java.io.File;
 import java.security.Key;
 
 import android.app.Activity;
@@ -8,9 +9,12 @@ import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.OpenableColumns;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -22,19 +26,27 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
 import com.zsm.android.ui.ClearableEditor;
+import com.zsm.android.ui.fileselector.FileOperation;
+import com.zsm.android.ui.fileselector.FileSelector;
+import com.zsm.android.ui.fileselector.OnHandleFileListener;
 import com.zsm.driver.android.log.LogActivity;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.android.action.AndroidItemListOperator;
 import com.zsm.encryptIt.android.action.AndroidKeyActor;
 import com.zsm.encryptIt.android.action.PasswordPromptParameter;
 import com.zsm.encryptIt.app.EncryptItApplication;
+import com.zsm.encryptIt.backup.BackupTask;
+import com.zsm.encryptIt.backup.ExportTask;
+import com.zsm.encryptIt.backup.ImportTask;
 import com.zsm.encryptIt.telephony.SecurityDialerActivity;
 import com.zsm.encryptIt.ui.preferences.Preferences;
 import com.zsm.encryptIt.ui.preferences.PreferencesActivity;
 import com.zsm.encryptIt.ui.preferences.SecurityAdvancedPreferencesActivity;
 import com.zsm.log.Log;
+import com.zsm.util.file.FileExtensionFilter;
 
 public class MainActivity extends ProtectedActivity
 				implements ModeKeeper, ActivityOperator {
@@ -44,10 +56,14 @@ public class MainActivity extends ProtectedActivity
 	protected static final int SHOW_FOR_EDIT = 3;
 	protected static final int SHOW_FOR_DELETE = 4;
 	protected static final int SHOW_FOR_DELETE_SELECTED = 5;
-	protected static final int REQUEST_FOR_CALL = 6;
+	
+	private static final int REQUEST_CODE_EXPORT_PWD = 100;
+	private static final int REQUEST_CODE_EXPORT = 101;
+	private static final int REQUEST_CODE_IMPORT_PWD = 110;
+	private static final int REQUEST_CODE_IMPORT = 111;
 	
 	public static final int ENCRYPT_IT_ID = 0;
-	
+
 	// The key manager and actor is global static, so this flag must be global static
 	static private boolean enviromentInitialized = false;
 	
@@ -297,6 +313,149 @@ public class MainActivity extends ProtectedActivity
 		return true;
 	}
 	
+	public boolean onBackupSecurity(MenuItem item) {
+
+		return true;
+	}
+	
+	public boolean onExport(MenuItem item) {
+		if( operator.getSelectedCount() == 0 ) {
+			Toast
+				.makeText( this, R.string.promptNoItemSelected, Toast.LENGTH_SHORT )
+				.show();
+			return true;
+		}
+		
+		getApp().promptPassword( this, REQUEST_CODE_EXPORT_PWD );
+		return true;
+	}
+	
+	private void exportByFileSelector() {
+		final OnHandleFileListener onHandleFileListener
+				= new OnHandleFileListener(){
+			
+			@Override
+			public void handleFile( FileOperation operation,
+									String filePath ) {
+				
+				Preferences.getInstance().setLastBackupPath(filePath);
+				ExportTask.doExport( MainActivity.this,
+								     operator.getSelectedDataList(),
+								     Uri.fromFile(new File(filePath) ) );
+				
+				Log.d( "Export to file successfully: ", filePath );
+			}
+		};
+		
+		FileExtensionFilter fef
+			= new FileExtensionFilter(BackupTask.getExportExtension(), "" );
+		
+		new FileSelector( this, FileOperation.SAVE,
+				Preferences.getInstance().getLastBackupPath(),
+				onHandleFileListener,
+				new FileExtensionFilter[]{fef},
+				true, true ).show();
+	}
+
+	private void exportBySAF() {
+		Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+		intent.setType( BackupTask.getExportMimeType() );
+		startActivityForResult(intent, REQUEST_CODE_EXPORT);
+	}
+
+	private void doExportBySAF( int resultCode, Intent data ) {
+		if( resultCode != RESULT_OK ) {
+			Log.d( "Export cancelled!" );
+			return;
+		}
+		
+		if( data == null || data.getData() == null) {
+			Log.w( "No uri as export\'s target", data );
+			return;
+		}
+		
+		Uri uri = data.getData();
+		ExportTask.doExport(
+			MainActivity.this, operator.getSelectedDataList(), uri );
+	}
+	
+	public boolean onImport(MenuItem item) {
+		getApp().promptPassword( this, REQUEST_CODE_IMPORT_PWD );
+		return true;
+	}
+	
+	private void importByFileSelector() {
+		final OnHandleFileListener onHandleFileListener
+				= new OnHandleFileListener(){
+			
+			@Override
+			public void handleFile( FileOperation operation,
+									String filePath ) {
+				
+				Preferences.getInstance().setLastBackupPath(filePath);
+				File file = new File(filePath);
+				ImportTask.doImport( MainActivity.this,
+								     operator,
+								     Uri.fromFile(file ), file.length() );
+				
+				Log.d( "Import from file successfully: ", filePath );
+			}
+		};
+		
+		FileExtensionFilter fef
+			= new FileExtensionFilter(BackupTask.getExportExtension(), "" );
+		
+		new FileSelector( this, FileOperation.LOAD,
+				Preferences.getInstance().getLastBackupPath(),
+				onHandleFileListener,
+				new FileExtensionFilter[]{fef},
+				true, true ).show();
+	}
+
+	private void importBySAF() {
+		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+		intent.setType( BackupTask.getExportMimeType() );
+		startActivityForResult(intent, REQUEST_CODE_IMPORT);
+	}
+
+	private void doImportBySAF( int resultCode, Intent data ) {
+		if( resultCode != RESULT_OK ) {
+			Log.d( "Export cancelled!" );
+			return;
+		}
+		
+		if( data == null || data.getData() == null) {
+			Log.w( "No uri as import\'s source", data );
+			return;
+		}
+		
+		Uri uri = data.getData();
+		ImportTask.doImport(
+			MainActivity.this, operator, uri,
+			getFileSize(uri) );
+	}
+	
+	private long getFileSize(Uri uri) {
+
+	    Cursor cursor
+	    	= getContentResolver()
+	    		.query( uri, new String[]{OpenableColumns.SIZE}, null, null,
+	    				null, null );
+
+        long size = -1;
+	    try {
+	        if (cursor != null && cursor.moveToFirst()) {
+	        	size = cursor.getLong(0);
+	        }
+	    } catch( Exception e ) {
+	    	Log.e( e, "Cannot get size: ", uri );
+	    }finally {
+	        cursor.close();
+	    }
+	    
+	    return size;
+	}
+
 	private void doAdd() {
 		if( operator.doAdd(clearableEditor.getText().toString()) ) {
 			clearableEditor.clearText();
@@ -315,9 +474,13 @@ public class MainActivity extends ProtectedActivity
 		if( checkLoginFailed( resultCode ) ) {
 			return;
 		}
+		if( resultCode == RESULT_CANCELED ) {
+			return;
+		}
+		
 		switch( requestCode ) {
-			case PasswordPromptParameter.PROMPT_PASSWORD:
-				doPassword(resultCode, data);
+			case PasswordPromptParameter.REQUEST_CODE_LOGIN:
+				doEncryptKey(resultCode, data);
 				break;
 			case SHOW_FOR_EDIT:
 				doEdit(resultCode, data);
@@ -328,16 +491,34 @@ public class MainActivity extends ProtectedActivity
 			case SHOW_FOR_DELETE_SELECTED:
 				doDeleteSelected( resultCode, data );
 				break;
-			case REQUEST_FOR_CALL:
+			case REQUEST_CODE_EXPORT_PWD:
+				if( EncryptItApplication.isSafSystem() ) {
+					exportBySAF();
+				} else {
+					exportByFileSelector();
+				}
+				break;
+			case REQUEST_CODE_EXPORT:
+				doExportBySAF( resultCode, data );
+				break;
+			case REQUEST_CODE_IMPORT_PWD:
+				if( EncryptItApplication.isSafSystem() ) {
+					importBySAF();
+				} else {
+					importByFileSelector();
+				}
+				break;
+			case REQUEST_CODE_IMPORT:
+				doImportBySAF( resultCode, data );
 				break;
 		}
 	}
 
 	private void doEdit(int resultCode, Intent data) {
 		// Modification saved in the detail activity when needed.
-		// Here the filter needed to be done event it is cancelled
-		// in the detail activity, because it is cancelled, the task
-		// may be changed and saved.
+		// Here the filter needed to be done even it is cancelled
+		// in the detail activity, because when it is cancelled, the task
+		// may also be changed and saved.
 		refilter();
 	}
 
@@ -369,12 +550,12 @@ public class MainActivity extends ProtectedActivity
 		}
 	}
 
-	private void doPassword(int resultCode, Intent intent) {
+	private void doEncryptKey(int resultCode, Intent intent) {
 		switch ( resultCode ) {
 			case Activity.RESULT_OK:
 				PasswordPromptParameter param
 					= new PasswordPromptParameter( 
-							PasswordPromptParameter.PROMPT_PASSWORD,
+							PasswordPromptParameter.REQUEST_CODE_LOGIN,
 							getApplicationContext(),
 							this );
 				param.setData( intent );

@@ -34,7 +34,7 @@ public class EncryptItPreferenceFragment extends PreferenceFragment
 				try {
 					PasswordPromptParameter passwordPromptParam
 						= new PasswordPromptParameter(
-								PasswordPromptParameter.CHANGE_PASSWORD,
+								PasswordPromptParameter.REQUEST_CODE_CHANGE_PASSWORD,
 								getActivity().getApplicationContext(),
 								EncryptItPreferenceFragment.this );
 					EncryptItApplication.getPasswordHandler()
@@ -55,7 +55,7 @@ public class EncryptItPreferenceFragment extends PreferenceFragment
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		switch( requestCode ) {
-			case PasswordPromptParameter.CHANGE_PASSWORD:
+			case PasswordPromptParameter.REQUEST_CODE_CHANGE_PASSWORD:
 				doChangePassword(resultCode, data);
 				break;
 			default:

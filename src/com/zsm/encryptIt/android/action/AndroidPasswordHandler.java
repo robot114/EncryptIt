@@ -21,6 +21,11 @@ public class AndroidPasswordHandler implements PasswordHandler {
 		Context appContext = param.getAppContext();
 		if( KeyAction.getInstance().keyExist() ) {
 			intent = new Intent( appContext, LoginActivity.class );
+			int type
+				= param.getRequestCode()
+						== PasswordPromptParameter.REQUEST_CODE_LOGIN ?
+					LoginActivity.TYPE_LOGIN : LoginActivity.TYPE_PROMPT;
+			intent.putExtra( LoginActivity.KEY_PASSWORD_TYPE, type);
 		} else {
 			intent = new Intent( appContext, PasswordActivity.class );
 			intent.putExtra(PasswordActivity.KEY_TYPE, PasswordActivity.TYPE_INIT);

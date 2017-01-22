@@ -1,8 +1,5 @@
 package com.zsm.encryptIt.telephony;
 
-import com.zsm.log.Log;
-
-import android.Manifest;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -12,6 +9,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.provider.CallLog;
 import android.provider.Telephony;
+
+import com.zsm.log.Log;
 
 public class SecurityTelephonyService extends Service {
 

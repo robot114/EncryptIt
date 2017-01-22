@@ -37,4 +37,18 @@
           android:showAsAction="always"
           android:onClick="onSecurityCall">
     </item>
+    <group android:id="@+id/groupBackup">
+        <item android:id="@+id/menuBackupSecurity"
+              android:title="@string/menuBackupSecurity"
+              android:onClick="onBackupSecurity">
+        </item>
+        <item android:id="@+id/menuExport"
+              android:title="@string/menuExport"
+              android:onClick="onExport">
+        </item>
+        <item android:id="@+id/menuImport"
+              android:title="@string/menuImport"
+              android:onClick="onImport">
+        </item>
+    </group>
 </menu>
