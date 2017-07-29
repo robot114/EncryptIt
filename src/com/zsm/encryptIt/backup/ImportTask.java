@@ -15,7 +15,6 @@ import android.net.Uri;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.WhatToDoItem;
 import com.zsm.encryptIt.action.ItemOperator;
-import com.zsm.encryptIt.ui.preferences.Preferences;
 import com.zsm.log.Log;
 
 public class ImportTask extends BackupTask {
@@ -57,7 +56,7 @@ public class ImportTask extends BackupTask {
 		mProgressDlg
 			= buildProgressDlg(
 					mContext, R.string.titleImportDlg, (int)mSourceSize, this);
-		if( mSourceSize >= 0 && !Preferences.getInstance().exportAsXml()) {
+		if( mSourceSize >= 0 && !asXml( mSourceUri.getLastPathSegment() ) ) {
 			mProgressDlg.setProgressStyle( ProgressDialog.STYLE_HORIZONTAL );
 		} else {
 			mProgressDlg.setProgressStyle( ProgressDialog.STYLE_SPINNER );
@@ -71,7 +70,7 @@ public class ImportTask extends BackupTask {
 		try ( InputStream in
 				= mContext.getContentResolver().openInputStream(mSourceUri); ) {
 			
-			if( Preferences.getInstance().exportAsXml() ) {
+			if( asXml( mSourceUri.getLastPathSegment() ) ) {
 				return importFromXml( mOperator, in );
 			} else {
 				return importFromText( mOperator, in );
@@ -103,6 +102,7 @@ public class ImportTask extends BackupTask {
 		int type;
 		String elementName;
 		boolean firtElement = true;
+		int count = 0;
 		while( ( type = parser.getEventType()) != XmlPullParser.END_DOCUMENT ) {
 			if( type == XmlPullParser.START_TAG ) {
 				elementName = parser.getName();
@@ -125,6 +125,11 @@ public class ImportTask extends BackupTask {
 					WhatToDoItem item = WhatToDoItem.fromXmlElement(parser, indicator);
 					while( item != null ) {
 						operator.doAdd(item);
+						count++;
+						if( isCancelled() ) {
+							Log.d( "Import cancelled at item ", count );
+							return RESULT.CANCELLED;
+						}
 						item = WhatToDoItem.fromXmlElement(parser, indicator);
 					}
 					
@@ -139,17 +144,19 @@ public class ImportTask extends BackupTask {
 			parser.next();
 		}
 		
+		Log.d( "Import successfully.", "uri", mSourceUri, "number", count );
 		return RESULT.OK;
 	}
 
 	private RESULT importFromText(ItemOperator operator, InputStream in)
 						throws IOException, ParseException {
 		
+		int count = 0;
 		try ( ReadableByteArrayOutputStream baos
 				= new ReadableByteArrayOutputStream( 4096 ) ) {
 			
 			int ch = -1;
-			int count = 0;
+			int bytes = 0;
 			do {
 				baos.reset();
 				for( ch = in.read(); ch >= 0 && ch != BackupTask.PAGE_BREAK;
@@ -163,15 +170,21 @@ public class ImportTask extends BackupTask {
 				
 				if( item != null ) {
 					operator.doAdd(item);
+					count++;
+					if( isCancelled() ) {
+						Log.d( "Import cancelled at item ", count );
+						return RESULT.CANCELLED;
+					}
 					
-					count += baos.size() + ( ch == BackupTask.PAGE_BREAK ? 1 : 0 );
-					publishProgress( count, IMPORT_FROM_TEXT );
+					bytes += baos.size() + ( ch == BackupTask.PAGE_BREAK ? 1 : 0 );
+					publishProgress( bytes, IMPORT_FROM_TEXT );
 				} else {
 					break;
 				}
 			} while( ch >= 0 );
 		}
 		
+		Log.d( "Import successfully.", "uri", mSourceUri, "number", count );
 		return RESULT.OK;
 	}
 

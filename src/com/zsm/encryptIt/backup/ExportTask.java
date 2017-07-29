@@ -27,7 +27,6 @@ import android.net.Uri;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.WhatToDoItem;
 import com.zsm.encryptIt.ui.WhatToDoListViewItem;
-import com.zsm.encryptIt.ui.preferences.Preferences;
 import com.zsm.log.Log;
 
 public class ExportTask extends BackupTask {
@@ -74,7 +73,7 @@ public class ExportTask extends BackupTask {
 		try ( OutputStream out
 				= mContext.getContentResolver().openOutputStream(mTargetUri); ) {
 			
-			if( Preferences.getInstance().exportAsXml() ) {
+			if( asXml( mTargetUri.getLastPathSegment() ) ) {
 				return exportToXml( mList, out );
 			} else {
 				return exportToText( mList, out );
@@ -102,6 +101,7 @@ public class ExportTask extends BackupTask {
 			publishProgress( current );
 			
 			if( isCancelled() ) {
+				Log.d( "Export cancelled at item ", current );
 				return RESULT.CANCELLED;
 			}
 			
@@ -122,6 +122,7 @@ public class ExportTask extends BackupTask {
 		StreamResult result = new StreamResult(out);
 		transformer.transform(domSource, result);
 		
+		Log.d( "Export successfully.", "uri", mTargetUri, "number", current );
 		return RESULT.OK;
 	}
 
@@ -130,14 +131,15 @@ public class ExportTask extends BackupTask {
 
 		OutputStreamWriter ow = new OutputStreamWriter( out );
 		BufferedWriter writer = new BufferedWriter( ow );
+		
+		int current = 0;
 		try {
-			
-			int current = 0;
 			for (WhatToDoListViewItem viewItem : list) {
 				current++;
 				publishProgress( current );
 				
 				if( isCancelled() ) {
+					Log.d( "Export cancelled at item ", current );
 					return RESULT.CANCELLED;
 				}
 				
@@ -150,6 +152,7 @@ public class ExportTask extends BackupTask {
 			ow.close();
 		}
 		
+		Log.d( "Export successfully.", "uri", mTargetUri, "number", current );
 		return RESULT.OK;
 	}
 

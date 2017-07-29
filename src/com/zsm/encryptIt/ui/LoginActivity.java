@@ -80,13 +80,13 @@ public class LoginActivity extends SecurityActivity {
 		passwordType = getIntent().getIntExtra( KEY_PASSWORD_TYPE, TYPE_LOGIN );
 		switch( passwordType ) {
 			case TYPE_PROMPT:
-				okButton.setText( R.string.login );
-				cancelButton.setText( R.string.quit );
+				okButton.setText( android.R.string.ok );
+				cancelButton.setText( android.R.string.cancel );
 				break;
 			case TYPE_LOGIN:
 			default:
-				okButton.setText( android.R.string.ok );
-				cancelButton.setText( android.R.string.cancel );
+				okButton.setText( R.string.login );
+				cancelButton.setText( R.string.quit );
 				break;
 		}
 	}

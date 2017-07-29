@@ -67,8 +67,10 @@
     <string name="promptEncodeMessageFailed">Encode the message failed. It will not be sent out.</string>
     <string name="promptNoPasswordForMessage">No password to protect this message. Do you want to send it in plain text?</string>
     <string name="hintReciption">Click for phone number</string>
+    <string name="menuBackup">Backup</string>
     <string name="menuBackupSecurity">Backup Security</string>
     <string name="menuExport">Export</string>
+    <string name="promptExport">The selected items will be exported in PLAIN text format. Any one, who can access the exported file, can read them.\nAre you sure to contine?</string>
     <string name="promptExportResult">Export to %1$s %2$s!</string>
     <string name="titleExportDlg">Exporting</string>
     <string name="succeed">Succeed</string>
@@ -79,5 +81,10 @@
     <string name="promptImportResult">Import from %1$s %2$s!</string>
     <string name="titleImportDlg">Importing</string>
     <string name="promptParsingXml">Parsing line %1$d of the xml file&#8230;</string>
+    <string name="prefTitleBackup">Backup</string>
+    <string name="prefSummaryBackup">Backup and restore the items</string>
+    <string name="prefSummaryBackXmlOn">Export items in XML format</string>
+    <string name="prefSummaryBackXmlOff">Export items in plain TEXT format</string>
+    <string name="prefTitleXml">Export the item in XML format</string>
     
 </resources>

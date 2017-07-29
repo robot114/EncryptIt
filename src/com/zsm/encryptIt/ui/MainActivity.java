@@ -4,6 +4,7 @@ import java.io.File;
 import java.security.Key;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
@@ -46,7 +47,6 @@ import com.zsm.encryptIt.ui.preferences.Preferences;
 import com.zsm.encryptIt.ui.preferences.PreferencesActivity;
 import com.zsm.encryptIt.ui.preferences.SecurityAdvancedPreferencesActivity;
 import com.zsm.log.Log;
-import com.zsm.util.file.FileExtensionFilter;
 
 public class MainActivity extends ProtectedActivity
 				implements ModeKeeper, ActivityOperator {
@@ -326,7 +326,21 @@ public class MainActivity extends ProtectedActivity
 			return true;
 		}
 		
-		getApp().promptPassword( this, REQUEST_CODE_EXPORT_PWD );
+		new AlertDialog.Builder( this )
+			.setMessage( R.string.promptExport )
+			.setIcon( android.R.drawable.ic_dialog_alert )
+			.setTitle( R.string.titleExportDlg )
+			.setPositiveButton( android.R.string.ok,
+					new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					getApp().promptPassword( MainActivity.this,
+											 REQUEST_CODE_EXPORT_PWD );
+				}
+			})
+			.setNegativeButton( android.R.string.cancel, null )
+			.show();
+		
 		return true;
 	}
 	
@@ -347,18 +361,16 @@ public class MainActivity extends ProtectedActivity
 			}
 		};
 		
-		FileExtensionFilter fef
-			= new FileExtensionFilter(BackupTask.getExportExtension(), "" );
-		
 		new FileSelector( this, FileOperation.SAVE,
-				Preferences.getInstance().getLastBackupPath(),
-				onHandleFileListener,
-				new FileExtensionFilter[]{fef},
-				true, true ).show();
+						  Preferences.getInstance().getLastBackupPath(),
+						  onHandleFileListener,
+						  BackupTask.getExportFileFilter(),
+						  true, true )
+				.show();
 	}
 
 	private void exportBySAF() {
-		Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+		Intent intent = new Intent( Intent.ACTION_CREATE_DOCUMENT );
 		intent.setType( BackupTask.getExportMimeType() );
 		startActivityForResult(intent, REQUEST_CODE_EXPORT);
 	}
@@ -402,20 +414,26 @@ public class MainActivity extends ProtectedActivity
 			}
 		};
 		
-		FileExtensionFilter fef
-			= new FileExtensionFilter(BackupTask.getExportExtension(), "" );
-		
 		new FileSelector( this, FileOperation.LOAD,
-				Preferences.getInstance().getLastBackupPath(),
-				onHandleFileListener,
-				new FileExtensionFilter[]{fef},
-				true, true ).show();
+						  Preferences.getInstance().getLastBackupPath(),
+						  onHandleFileListener,
+						  BackupTask.getExportFileFilter(),
+						  true, true )
+			.show();
 	}
 
 	private void importBySAF() {
-		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-		intent.setType( BackupTask.getExportMimeType() );
+		Intent intent = getImportIntent( Intent.ACTION_OPEN_DOCUMENT );
 		startActivityForResult(intent, REQUEST_CODE_IMPORT);
+	}
+
+	private Intent getImportIntent( String action ) {
+		Intent intent = new Intent(action);
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		intent.setType("*/*");
+		String[] mimetypes = {"text/xml", "text/plain"};
+		intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+		return intent;
 	}
 
 	private void doImportBySAF( int resultCode, Intent data ) {

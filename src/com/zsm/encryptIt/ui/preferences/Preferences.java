@@ -57,12 +57,12 @@ public class Preferences {
 	}
 
 	public boolean getMainListExpandable() {
+		// TODO: add ui
 		return preferences.getBoolean( KEY_MAIN_LIST_EXPANDABLE, true );
 	}
 
 	public boolean exportAsXml() {
-		return true;
-//		return preferences.getBoolean( "KEY_EXPORT_XML", false);
+		return preferences.getBoolean( "KEY_EXPORT_XML", false);
 	}
 
 	public String getLastBackupPath() {

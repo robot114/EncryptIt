@@ -17,6 +17,15 @@
             android:summary="@string/prefMainListExpandableDesc"/>
     </PreferenceScreen>
     
+    <PreferenceScreen
+        android:icon="@drawable/backup"
+        android:summary="@string/prefSummaryBackup"
+        android:title="@string/prefTitleBackup">
+        <CheckBoxPreference
+            android:summaryOn="@string/prefSummaryBackXmlOn"
+            android:summaryOff="@string/prefSummaryBackXmlOff"
+            android:key="KEY_EXPORT_XML" android:icon="@drawable/xml" android:title="@string/prefTitleXml"/>
+    </PreferenceScreen>
     <Preference
         android:title="ChangePassword"
         android:key="CHANGE_PASSWORD"
@@ -25,4 +34,5 @@
         android:title="@string/prefAbout"
         android:summary="@string/prefAboutDesc"
         android:icon="@drawable/encrypted" />
+    
 </PreferenceScreen>
