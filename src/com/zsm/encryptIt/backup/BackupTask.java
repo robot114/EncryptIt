@@ -1,127 +1,185 @@
 package com.zsm.encryptIt.backup;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
+import javax.crypto.NoSuchPaddingException;
+
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.zsm.encryptIt.R;
-import com.zsm.encryptIt.ui.preferences.Preferences;
-import com.zsm.util.file.FileExtensionFilter;
-import com.zsm.util.file.FilenameUtils;
+import com.zsm.log.Log;
 
-
-enum RESULT { OK, FAILED, CANCELLED }
-
-public abstract class BackupTask extends AsyncTask<Void, Integer, RESULT> {
-
-	protected static final String EXTENSION_TEXT = "txt";
-	protected static final String EXTENSION_XML = "xml";
-	protected Context mContext;
-	protected ProgressDialog mProgressDlg;
-	protected String mFileName;
-	public static final char PAGE_BREAK = (char) 12;
-	protected static final String ENCODING = "UTF-8";
-	protected static final String ELEMENT_NAME_ROOT = "tasks";
+public class BackupTask extends AsyncTask<BackupOperator, Object, RESULT> {
 	
-	private static final FileExtensionFilter[] EXPORT_FILTERS
-		= new FileExtensionFilter[]{
-			new FileExtensionFilter(
-				BackupTask.EXTENSION_TEXT + "|" + BackupTask.EXTENSION_XML, "" ) };
+	private static final int BUFFER_SIZE = 4096;
+	private Activity mActivity;
+	private ProgressDialog mProgressDlg;
+	
+	private BackupOperator[] mTasks;
+	private long mFinishedSize;
+	private BackupOperator mCurrentTask;
+	private byte[] mBuffer;
 
-	protected BackupTask(Context context, String fileName ) {
-		mContext = context;
-		mFileName = fileName;
+	public BackupTask(Activity activity) {
+		super();
+		mActivity = activity;
+		mBuffer = new byte[BUFFER_SIZE];
 	}
-
-	protected void showResult(int messageId, RESULT result) {
-		String message = getResultMessage(messageId, result);
-		mProgressDlg.setMessage( message );
-		mProgressDlg.getButton( DialogInterface.BUTTON_NEGATIVE )
-						.setText( R.string.close );
+	
+	protected Context getContext() {
+		return mActivity;
 	}
-
-	private String getResultMessage(int messageId, RESULT result) {
-		int resId;
-		switch( result ) {
-			case FAILED:
-				resId = R.string.failed;
-				break;
-			case CANCELLED:
-				resId = R.string.cancelled;
-				break;
-			case OK:
-			default:
-				resId = R.string.succeed;
-				break;
-		}
-		String message
-			= mContext.getString( messageId, mFileName, mContext.getString(resId) );
-		return message;
+	
+	@Override
+	protected void onPreExecute() {
+		mFinishedSize = 0;
+		mProgressDlg = buildProgressDlg();
+		mProgressDlg.show();
 	}
 
 	@Override
-	protected void onProgressUpdate(Integer... values) {
-		mProgressDlg.setProgress( values[0] );
+	protected RESULT doInBackground(BackupOperator... tasks) {
+		Log.d( "Backup tasks: ", (Object[])tasks );
+		mProgressDlg.setMax((int) getBackupSize( tasks ));
+		
+		mTasks = tasks;
+		
+		for( BackupOperator t : mTasks ) {
+			mCurrentTask = t;
+			try {
+				backupOne(t);
+				Log.d( "Backup successfully: ", t );
+			} catch ( NoSuchAlgorithmException
+					| NoSuchPaddingException | InvalidKeySpecException
+					| IOException e) {
+
+				Log.e( e, "Backup failed: ", t );
+				
+				return RESULT.FAILED;
+			}
+		}
+		
+		mCurrentTask = null;
+		return RESULT.OK;
+	}
+
+	private void backupOne(BackupOperator t)
+			throws FileNotFoundException, IOException,
+			NoSuchAlgorithmException, NoSuchPaddingException,
+			InvalidKeySpecException {
+		
+		String message
+			= mActivity.getString( R.string.promptBackup, t.displayName() );
+		publishProgress( message, 0 );
+		
+		try( 
+			OutputStream out = t.openOutputStream();
+			InputStream in = t.openBackupInputStream() ) {
+			
+				int count = 0;
+				while( ( count = in.read( mBuffer ) ) > 0 ) {
+					out.write(mBuffer, 0, count);
+					publishProgress( message, count );
+				}
+		}
+	}
+
+	@Override
+	protected void onProgressUpdate(Object... values) {
+		mFinishedSize += (int)values[1];
+		mProgressDlg.setMessage( (String)values[0] );
+		mProgressDlg.setProgress( (int)mFinishedSize );
+	}
+
+	@Override
+	protected void onPostExecute(RESULT result) {
+		showResult( result );
 	}
 
 	@Override
 	protected void onCancelled() {
 		mProgressDlg.dismiss();
+		mActivity.finish();
 		Toast
-			.makeText(mContext, getResultMessage( R.string.promptExportResult,
-												  RESULT.CANCELLED ),
+			.makeText(mActivity, getResultMessage( RESULT.CANCELLED ),
 					  Toast.LENGTH_SHORT)
 			.show();
 	}
 
-	public static String getExportMimeType() {
-		return Intent.normalizeMimeType(
-					Preferences.getInstance().exportAsXml()
-					? "text/xml" : "text/plain");
-	}
-	
-	public static String getExportExtension() {
-		return Preferences.getInstance().exportAsXml()
-					? EXTENSION_XML : EXTENSION_TEXT;
-	}
+	protected ProgressDialog buildProgressDlg( ) {
 
-	public static FileExtensionFilter[] getExportFileFilter() {
-		return EXPORT_FILTERS; 
-	}
-	
-	public static String getDefaultImExPortExt() {
-		return EXPORT_FILTERS[0].getDefaultExtension();
-	}
-
-	protected ProgressDialog buildProgressDlg( Context context, int titleId,
-						int max, final AsyncTask<Void, Integer, RESULT> task ) {
-		
-		ProgressDialog dlg = new ProgressDialog(context);
-		dlg.setTitle(titleId);
-		dlg.setMessage("");
-		dlg.setMax( max );
+		ProgressDialog dlg = new ProgressDialog(mActivity);
+		dlg.setTitle(R.string.app_name );
+		dlg.setMessage( "" );
 		dlg.setCancelable(false);
 		dlg.setIndeterminate(false);
-		dlg.setButton( DialogInterface.BUTTON_NEGATIVE,
-					   context.getText( android.R.string.cancel ),
-					   new DialogInterface.OnClickListener() {
-	
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				task.cancel(false);
-			}
-			
-		} );
-		
+		dlg.setProgressStyle( ProgressDialog.STYLE_HORIZONTAL );
+		dlg.setButton(DialogInterface.BUTTON_NEGATIVE,
+				mActivity.getText(android.R.string.cancel),
+				new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						cancel(false);
+					}
+
+				});
+
 		return dlg;
 	};
-	
-	protected boolean asXml( String fileName ) {
-		String ext = FilenameUtils.getExtension( fileName );
-		return EXTENSION_XML.equalsIgnoreCase(ext);
+
+	protected void showResult(RESULT result) {
+		mProgressDlg.setMessage( getResultMessage(result) );
+		Button button = mProgressDlg.getButton( DialogInterface.BUTTON_NEGATIVE );
+		button.setText( R.string.close );
+		button.setOnClickListener( new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mProgressDlg.dismiss();
+				mActivity.finish();
+			}
+		} );
 	}
-	
+
+	private String getResultMessage(RESULT result) {
+		switch( result ) {
+			case OK:
+				StringBuilder builder = new StringBuilder();
+				builder.append( mTasks[0].displayName() );
+				for( int i = 1; i < mTasks.length; i++ ) {
+					builder.append( "\r\n " );
+					builder.append( mTasks[i].displayName() );
+				}
+				return mActivity.getString( R.string.promptBackupOk,
+										    builder.toString() );
+			case FAILED:
+				return mActivity.getString(R.string.promptBackupFailed,
+							mCurrentTask.displayName() );
+			case CANCELLED:
+				return mActivity.getString( R.string.promptBackupCancelled );
+			default:
+				return "";
+		}
+	}
+
+	private long getBackupSize(BackupOperator[] tasks) {
+		long size = 0;
+		for( BackupOperator t :  tasks ) {
+			size += t.size();
+		}
+		return size;
+	}
 }

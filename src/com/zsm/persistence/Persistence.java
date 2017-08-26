@@ -3,6 +3,7 @@ package com.zsm.persistence;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,13 +14,17 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.StreamCorruptedException;
 import java.nio.ByteBuffer;
+import java.security.InvalidParameterException;
 import java.sql.RowId;
 import java.util.Arrays;
+
+import android.os.ParcelFileDescriptor;
 
 import com.zsm.log.Log;
 import com.zsm.recordstore.AbstractRawCursor;
 import com.zsm.recordstore.RawRecordStore;
 import com.zsm.recordstore.RecordStoreManager;
+import com.zsm.util.file.FileUtility;
 
 public class Persistence implements Closeable {
 
@@ -470,5 +475,41 @@ public class Persistence implements Closeable {
 			return inOutDecorator.wrapOutputStream(out);
 		}
 		return new DataOutputStream( out );
+	}
+
+	public void backup(String backupName) {
+		File bakFile = new File( backupName ).getAbsoluteFile();
+		if( bakFile.exists() ) {
+			bakFile.delete();
+		}
+		boolean renameOk = false;
+		try {
+			renameOk = renameTo( backupName );
+		} catch (FileNotFoundException e) {
+			Log.w( e, "Rename persistence failed, try to copy" );
+		}
+		if( !renameOk ) {
+			try {
+				FileUtility.copyFile( getFullPathName(), backupName );
+			} catch (Exception e) {
+				Log.w( e, "Cannot copy either, just over write it." );
+			}
+		}
+	}
+	
+	public ParcelFileDescriptor openForBackup(String mode)
+					throws FileNotFoundException {
+		
+		if( !"r".equals( mode ) && !"w".equals(mode) ) {
+			throw new InvalidParameterException(
+						"Invalid mode, only 'r' or 'w' supported" );
+		}
+		
+        int modeBits = ParcelFileDescriptor.parseMode(mode);
+		return ParcelFileDescriptor.open( new File( getFullPathName() ), modeBits );
+	}
+
+	public long getBackupSize() {
+		return new File( getFullPathName() ).length();
 	}
 }

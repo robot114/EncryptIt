@@ -89,7 +89,7 @@ public class SecurityMessageActivity extends ProtectedActivity {
 		String action = data.getAction();
 		mSendSms = ACTION_SEND_SMS.equals(action);
 		
-		mPasswordView = (VisiblePassword)findViewById( R.id.visiblePassword );
+		mPasswordView = (VisiblePassword)findViewById( R.id.backupPassword );
 		mPasswordView.addTextChangedListener( new PasswordChangeWatcher() );
 	}
 

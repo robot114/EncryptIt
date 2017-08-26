@@ -3,10 +3,12 @@ package com.zsm.encryptIt.ui.preferences;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 
 public class Preferences {
 
+	private static final String KEY_BACKUP_SECURITY_URI = "KEY_BACKUP_SECURITY_URI";
 	private static final String KEY_LAST_BACKUP_PATH = "KEY_LAST_BACKUP_PATH";
 	private static final String KEY_LOCK_APP_TIME = "LOCK_APP_TIME";
 	private static final String KEY_MAIN_LIST_EXPANDABLE = "MAIN_LIST_EXPANDABLE";
@@ -71,5 +73,19 @@ public class Preferences {
 
 	public void setLastBackupPath(String filePath) {
 		preferences.edit().putString(KEY_LAST_BACKUP_PATH, filePath).commit();
+	}
+
+	public Uri getBackupSecurityUri() {
+		String uriStr = preferences.getString( KEY_BACKUP_SECURITY_URI, null );
+		if( uriStr != null ) {
+			return Uri.parse(uriStr);
+		}
+		return null;
+	}
+
+	public void setSecurityBackupUri(Uri uri) {
+		preferences
+			.edit().putString(KEY_BACKUP_SECURITY_URI, uri.toString() )
+			.commit();
 	}
 }

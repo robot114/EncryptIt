@@ -86,5 +86,27 @@
     <string name="prefSummaryBackXmlOn">Export items in XML format</string>
     <string name="prefSummaryBackXmlOff">Export items in plain TEXT format</string>
     <string name="prefTitleXml">Export the item in XML format</string>
-    
+    <string name="promptBackup">Backuping to %1$s &#8230;</string>
+    <string name="promptBackupOk">Backup to the follows successfully: \r\n    %1$s</string>
+    <string name="promptBackupFailed">Backup %1$s failed!</string>
+    <string name="promptBackupCancelled">Backup is cancelled!</string>
+    <string name="hintBackup">Backup the key and the Database.</string>
+    <string name="hintBackupPassword">Password to protect the backuped</string>
+    <string name="titleBackupPassword">Password: </string>
+    <string name="titleBackupPasswordConfirm">Confirm: </string>
+    <string name="hintBackupName">File name, without the extension, to store the backups. The application will add the extension</string>
+    <string name="titleBackupName">File name: </string>
+    <string name="hintBackupPath">Path in which to store the backups</string>
+    <string name="titleBackupPath">Path: </string>
+    <string name="titleBackupChoosePath">Choose</string>
+    <string name="titleBackup">Backup</string>
+    <string name="promptBackupPathEmpty">No backup path is chosen!</string>
+    <string name="promptBackupNameEmpty">No backup file name is chosen!</string>
+    <string name="promptBackupExist">The followings exist: %1$s.</string>
+    <string name="overwrite">Overwrite</string>
+    <string name="promptRestore">Restoring from %1$s &#8230;</string>
+    <string name="promptRestoreOk">Restore from the follows successfully: \r\n    %1$s</string>
+    <string name="promptRestoreFailed">Restore %1$s failed!</string>
+    <string name="promptRestoreCancelled">Restore is cancelled!</string>
+    <string name="hintRestore">Restore the key and the Database.</string>
 </resources>

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.RowId;
 
 import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.backup.BackupInputAgent;
 import com.zsm.persistence.BadPersistenceFormatException;
 import com.zsm.recordstore.AbstractRawCursor;
 
@@ -24,5 +25,6 @@ public interface ItemStorageAdapter extends Closeable {
 	void update( RowId rowId, WhatToDoItem item ) throws IOException;
 
 	void close();
-
+	
+	BackupInputAgent getBackupInputAgent();
 }

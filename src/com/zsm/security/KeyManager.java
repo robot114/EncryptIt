@@ -2,6 +2,7 @@ package com.zsm.security;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,9 +18,10 @@ import java.security.cert.CertificateException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
+import com.zsm.encryptIt.backup.BackupInputAgent;
 import com.zsm.log.Log;
 
-public enum KeyManager {
+public enum KeyManager implements BackupInputAgent {
 
 	instance;		// Singleton of this class
 	
@@ -264,23 +266,26 @@ public enum KeyManager {
 	
 	/**
 	 * Backup the whole key store to the specified file.
-	 * @param file the target file
+	 * @param output outputstream to output the keystore
 	 * @throws IOException error occurred when copying
 	 */
-	public void backupKeyStore( File file ) throws IOException {
-		InputStream input = null;
-		OutputStream output = null;
-		try {
-			input = new FileInputStream(ksFile);
-			output = new FileOutputStream(file);
+	public void backupKeyStore( OutputStream output ) throws IOException {
+		try( InputStream input = new FileInputStream(ksFile) ) {
 			byte[] buf = new byte[1024];
 			int bytesRead;
 			while ((bytesRead = input.read(buf)) > 0) {
 				output.write(buf, 0, bytesRead);
 			}
-		} finally {
-			input.close();
-			output.close();
 		}
+	}
+	
+	@Override
+	public InputStream openBackupInputStream() throws FileNotFoundException {
+		return new FileInputStream( ksFile );
+	}
+
+	@Override
+	public long size() {
+		return ksFile.length();
 	}
 }

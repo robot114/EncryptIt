@@ -25,9 +25,8 @@ import android.support.annotation.NonNull;
 
 import com.zsm.encryptIt.WhatToDoItem;
 import com.zsm.encryptIt.action.ItemList;
-import com.zsm.encryptIt.action.ItemListActor;
+import com.zsm.encryptIt.action.ItemListController;
 import com.zsm.encryptIt.action.ItemOperator;
-import com.zsm.encryptIt.action.ItemStorageAdapter;
 import com.zsm.encryptIt.action.PersistenceStorageAdapter;
 import com.zsm.encryptIt.android.AndroidPersistence;
 import com.zsm.encryptIt.android.AndroidWrappedRawCursor;
@@ -54,8 +53,6 @@ public class AndroidItemListOperator
 	private Context context;
 	private LoaderManager loaderManager;
 
-	private ItemStorageAdapter storageAdapter;
-	
 	private int selectedCount;
 	private SelectObserver selectionObserver;
 	private ListFragmentAdapter fragmentAdapter;
@@ -74,15 +71,7 @@ public class AndroidItemListOperator
 		fragmentAdapter.setDataListToAdapter(list);
 	}
 	
-	public void closeStorage() {
-		if( storageAdapter != null ) {
-			storageAdapter.close();
-			storageAdapter = null;
-		}
-	}
-	
 	public boolean initList( Key key, Handler handler ) {
-		getApp().setItemListActor( new ItemListActor() );
 		return forContentProvider( key, handler );
 //		return forAndroidPersistence(key, handler);
 	}
@@ -98,10 +87,8 @@ public class AndroidItemListOperator
 			Log.d( e, "Initialize encrypt setting failed!" );
 		}
 		
-		storageAdapter = new ProviderStorageAdapter( app );
-		if( !getApp().getItemListActor().initialize(this, storageAdapter) ) {
-			return false;
-		}
+		ProviderStorageAdapter storageAdapter = new ProviderStorageAdapter( app );
+		getApp().setItemListActor( new ItemListController( this, storageAdapter ) );
 		handler.post( new Runnable() {
 			@Override
 			public void run() {
@@ -116,6 +103,10 @@ public class AndroidItemListOperator
 		return true;
 	}
 	
+	// It may be prefer to put this method in the ItemListController.
+	// But ItemListController is designed to hide the OS, and 
+	// {@link forContentProvider} has to expose the OS is android.
+	// So these two methods is in here
 	private boolean forAndroidPersistence(Key key, Handler handler) {
 		EncryptItApplication context
 			= getApp();
@@ -133,16 +124,14 @@ public class AndroidItemListOperator
 			return false;
 		}
 		
-		storageAdapter = new PersistenceStorageAdapter( persistence );
-		if( !getApp().getItemListActor().initialize( this, storageAdapter ) ) {
-			// Initialize failed, quit.
-			return false;
-		}
+		PersistenceStorageAdapter storageAdapter
+			= new PersistenceStorageAdapter( persistence );
+		getApp().setItemListActor( new ItemListController( this, storageAdapter ) );
 		
 		handler.post( new Runnable() {
 			@Override
 			public void run() {
-				getApp().getItemListActor().initList();
+				getApp().getItemListController().initList();
 				notifyDataSetChanged();
 			}
 		});
@@ -164,6 +153,10 @@ public class AndroidItemListOperator
 
 	}
 
+	// It may be prefer to make ItemListController implements LoaderCallbacks.
+	// But ItemListController is designed to hide the OS, and 
+	// {@link LoaderCallbacks} has to expose the OS is android.
+	// So LoaderCallbacks is implemented by this
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		return new CursorLoader( context,
@@ -185,16 +178,13 @@ public class AndroidItemListOperator
 			rrsc = new RawWrappedAndroidCursor( c );
 		}
 		selectedCount = 0;
-		getApp().getItemListActor().initList( rrsc );
+		getApp().getItemListController().initList( rrsc );
 		refilter();
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		if( storageAdapter != null ) {
-			storageAdapter.close();
-			storageAdapter = null;
-		}
+		getApp().getItemListController().clearList();
 	}
 
 	private EncryptItApplication getApp() {
@@ -247,7 +237,7 @@ public class AndroidItemListOperator
 
 	@Override
 	public boolean doAdd(WhatToDoItem item) {
-		boolean res = getApp().getItemListActor().doAdd(item);
+		boolean res = getApp().getItemListController().doAdd(item);
 		if( res ) {
 			refilter();
 		}
@@ -255,7 +245,7 @@ public class AndroidItemListOperator
 	}
 
 	public boolean doAdd(String string) {
-		final boolean res = getApp().getItemListActor().doAdd(string);
+		final boolean res = getApp().getItemListController().doAdd(string);
 		if( res ) {
 			filter( "" );
 		}
@@ -263,7 +253,7 @@ public class AndroidItemListOperator
 	}
 
 	public boolean doEdit(int position, String task, String detail ) {
-		boolean res = getApp().getItemListActor().doEdit(position, task, detail);
+		boolean res = getApp().getItemListController().doEdit(position, task, detail);
 		if( res ) {
 			refilter();
 		}
@@ -271,7 +261,7 @@ public class AndroidItemListOperator
 	}
 
 	public boolean doDelete(int position) {
-		boolean res = getApp().getItemListActor().doDelete(position);
+		boolean res = getApp().getItemListController().doDelete(position);
 		if( res ) {
 			refilter();
 		}
@@ -280,7 +270,7 @@ public class AndroidItemListOperator
 	
 	public boolean doDeleteSelected() {
 		List<WhatToDoListViewItem> sl = getSelectedDataList();
-		ItemListActor actor = getApp().getItemListActor();
+		ItemListController actor = getApp().getItemListController();
 		boolean res = false;
 		for( WhatToDoListViewItem item : sl ) {
 			res |= actor.doDelete(item.getData());

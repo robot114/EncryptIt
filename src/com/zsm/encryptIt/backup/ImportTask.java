@@ -17,7 +17,7 @@ import com.zsm.encryptIt.WhatToDoItem;
 import com.zsm.encryptIt.action.ItemOperator;
 import com.zsm.log.Log;
 
-public class ImportTask extends BackupTask {
+public class ImportTask extends ExportImportTask {
 
 	private static final int IMPORT_FROM_TEXT = 0;
 	private static final int IMPORT_FROM_XML = 1;
@@ -55,7 +55,7 @@ public class ImportTask extends BackupTask {
 	protected void onPreExecute() {
 		mProgressDlg
 			= buildProgressDlg(
-					mContext, R.string.titleImportDlg, (int)mSourceSize, this);
+					mContext, R.string.titleImportDlg, (int)mSourceSize);
 		if( mSourceSize >= 0 && !asXml( mSourceUri.getLastPathSegment() ) ) {
 			mProgressDlg.setProgressStyle( ProgressDialog.STYLE_HORIZONTAL );
 		} else {
@@ -159,7 +159,7 @@ public class ImportTask extends BackupTask {
 			int bytes = 0;
 			do {
 				baos.reset();
-				for( ch = in.read(); ch >= 0 && ch != BackupTask.PAGE_BREAK;
+				for( ch = in.read(); ch >= 0 && ch != ExportImportTask.PAGE_BREAK;
 					 ch = in.read() ) {
 					
 					baos.write(ch);
@@ -176,7 +176,7 @@ public class ImportTask extends BackupTask {
 						return RESULT.CANCELLED;
 					}
 					
-					bytes += baos.size() + ( ch == BackupTask.PAGE_BREAK ? 1 : 0 );
+					bytes += baos.size() + ( ch == ExportImportTask.PAGE_BREAK ? 1 : 0 );
 					publishProgress( bytes, IMPORT_FROM_TEXT );
 				} else {
 					break;
@@ -190,9 +190,9 @@ public class ImportTask extends BackupTask {
 
 	@Override
 	protected void onProgressUpdate(Integer... values) {
-		if( values[1] == IMPORT_FROM_XML ) {
+		if( (int)values[1] == IMPORT_FROM_XML ) {
 			String message
-				= mContext.getString( R.string.promptParsingXml, values[0] );
+				= mContext.getString( R.string.promptParsingXml, (int)values[0] );
 			mProgressDlg.setMessage( message );
 		} else {
 			super.onProgressUpdate(values);

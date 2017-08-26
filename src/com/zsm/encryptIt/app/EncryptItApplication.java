@@ -25,7 +25,7 @@ import com.zsm.driver.android.log.LogInstaller;
 import com.zsm.driver.android.log.LogPreferences;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.SystemParameter;
-import com.zsm.encryptIt.action.ItemListActor;
+import com.zsm.encryptIt.action.ItemListController;
 import com.zsm.encryptIt.android.action.AndroidItemListOperator;
 import com.zsm.encryptIt.android.action.AndroidPasswordHandler;
 import com.zsm.encryptIt.android.action.PasswordPromptParameter;
@@ -54,7 +54,7 @@ public class EncryptItApplication extends Application implements TelephonyBase {
 	private Semaphore promptPasswordSemaphore = new Semaphore(0);
 	private Key key;
 	private Thread threadForKey;
-	private ItemListActor itemActioner;
+	private ItemListController itemActioner;
 
 	private AndroidItemListOperator uiListOperator;
 
@@ -174,11 +174,11 @@ public class EncryptItApplication extends Application implements TelephonyBase {
 		return passwordPolicy;
 	}
 
-	public ItemListActor getItemListActor() {
+	public ItemListController getItemListController() {
 		return itemActioner;
 	}
 	
-	public void setItemListActor(ItemListActor itemListActor) {
+	public void setItemListActor(ItemListController itemListActor) {
 		itemActioner = itemListActor;
 	}
 	

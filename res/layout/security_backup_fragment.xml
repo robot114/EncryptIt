@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" xmlns:app="http://schemas.android.com/apk/res/com.zsm.encryptIt">
+
+       <LinearLayout
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content" >
+
+           <ImageView
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_gravity="center_vertical"
+               android:src="@drawable/backup" />
+
+           <TextView
+               android:id="@+id/textViewBackupHint"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:text="@string/hintBackup"
+               android:textAppearance="?android:attr/textAppearanceLarge" />
+       </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight=".3"
+            android:labelFor="@+id/textViewPath"
+            android:text="@string/titleBackupPath"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".7" >
+
+            <TextView
+                android:id="@+id/textViewPath"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:lines="3"
+                android:maxLines="3"
+                android:minLines="3"
+                android:text=""
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Button
+                android:id="@+id/buttonBackupPath"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0"
+                android:text=">>" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".3"
+            android:text="@string/titleBackupName"
+            android:labelFor="@+id/editTextFileName"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <EditText
+            android:id="@+id/editTextFileName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".7"
+            android:ems="10"
+            android:lines="1"
+            android:maxLines="1"
+            android:minLines="1" >
+
+            <requestFocus />
+        </EditText>
+
+    </LinearLayout>
+
+    <com.zsm.encryptIt.ui.VisiblePassword
+        android:id="@+id/backupPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:hintText="@string/hintBackupPassword"
+        app:labelText="@string/titleBackupPassword" >
+
+    </com.zsm.encryptIt.ui.VisiblePassword>
+
+    <com.zsm.encryptIt.ui.VisiblePassword
+        android:id="@+id/backupPasswordConfirm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:hintText="@string/hintBackupPassword"
+        app:labelText="@string/titleBackupPasswordConfirm" >
+
+    </com.zsm.encryptIt.ui.VisiblePassword>
+
+    <TextView
+        android:id="@+id/textViewBackupCheckResult"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text=""
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/promptPasswordHint" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/buttonCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@android:string/cancel" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" >
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonBackup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/titleBackup" />
+
+    </LinearLayout>
+
+</LinearLayout>

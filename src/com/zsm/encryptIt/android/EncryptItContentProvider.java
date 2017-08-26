@@ -1,5 +1,6 @@
 package com.zsm.encryptIt.android;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -10,7 +11,10 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.provider.OpenableColumns;
 
 import com.zsm.encryptIt.EncryptItPersistence;
 import com.zsm.encryptIt.R;
@@ -22,6 +26,8 @@ import com.zsm.recordstore.LongRowId;
 
 public class EncryptItContentProvider extends ContentProvider {
 
+	private static final String PATH_BACKUP = "backup";
+
 	public static final String KEY_DATA = "DATA";
 	
 	private static final String ITEMS = "todoitems";
@@ -30,13 +36,20 @@ public class EncryptItContentProvider extends ContentProvider {
 				= ContentResolver.CURSOR_DIR_BASE_TYPE+ITEM_TYPE;
 	private static final String ITEM_TYPE_SINGLE 
 				= ContentResolver.CURSOR_ITEM_BASE_TYPE+ITEM_TYPE;
+	private static final String TYPE_BACKUP 
+		= ContentResolver.CURSOR_ITEM_BASE_TYPE+"/backup";
 
-	private static final int ALL = 1;
-
-	private static final int SINGLE = 2;
+	private static final int CODE_ALL = 1;
+	private static final int CODE_SINGLE = 2;
+	private static final int CODE_BACKUP = 3;
+	
+	private static final String[] OPENABLE_COLUMNS = new String[] {
+		OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE
+	};
 	
 	private static UriMatcher uriMatcher;
 	private static Uri contentUri;
+	private static Uri backupUri;
 	
 	private Persistence persistence;
 
@@ -46,10 +59,12 @@ public class EncryptItContentProvider extends ContentProvider {
 	public boolean onCreate() {
 		if( uriMatcher == null ) {
 			uriMatcher = new UriMatcher( UriMatcher.NO_MATCH );
-			uriMatcher.addURI( getUri(), ITEMS, ALL );
-			uriMatcher.addURI( getUri(), ITEMS+"/#", SINGLE );
+			uriMatcher.addURI( getUri(), ITEMS, CODE_ALL );
+			uriMatcher.addURI( getUri(), ITEMS+"/#", CODE_SINGLE );
+			uriMatcher.addURI( getUri(), PATH_BACKUP, CODE_BACKUP );
 			
 			contentUri = Uri.parse( "content://" + getUri() + "/" + ITEMS );
+			backupUri = Uri.parse( "content://" + getUri() + "/" + PATH_BACKUP );
 		}
 		return true;
 	}
@@ -76,7 +91,13 @@ public class EncryptItContentProvider extends ContentProvider {
 		}
 		
         RowId id = null;
-        if((uriMatcher.match(uri)) == SINGLE){
+        int matchCode = uriMatcher.match(uri);
+        if( matchCode == CODE_BACKUP ) {
+        	return queryFile(matchCode, uri, projection, selection,
+        					 selectionArgs, sortOrder);
+        }
+        
+		if(matchCode == CODE_SINGLE){
             id = getIdFromUri(uri);
         }
 
@@ -104,13 +125,45 @@ public class EncryptItContentProvider extends ContentProvider {
 		return true;
 	}
 	
+	private Cursor queryFile(int matchCode, Uri uri, String[] projection,
+							 String selection, String[] selectionArgs,
+							 String sortOrder) {
+		
+		String[] columns = projection == null ? OPENABLE_COLUMNS : projection;
+		
+		MatrixCursor cursor = new MatrixCursor( columns, 1 );
+		switch( matchCode ) {
+			case CODE_BACKUP:
+				cursor.newRow()
+					.add( OpenableColumns.DISPLAY_NAME, "Backup for Database")
+					.add( OpenableColumns.SIZE, persistence.getBackupSize() );
+				break;
+			default:
+				throw new IllegalArgumentException( "Unsupport file uri: " + uri );
+		}
+		
+		return cursor;
+	}
+	
+	@Override
+	public ParcelFileDescriptor openFile(Uri uri, String mode)
+			throws FileNotFoundException {
+		
+		if( uriMatcher.match(uri) != CODE_BACKUP ) {
+			throw new IllegalArgumentException( "Unsupport file uri: " + uri );
+		}
+		return persistence.openForBackup(mode);
+	}
+
 	@Override
 	public String getType(Uri uri) {
 		switch( uriMatcher.match(uri) ) {
-			case ALL:
+			case CODE_ALL:
 				return ITEM_TYPE_ALL;
-			case SINGLE:
+			case CODE_SINGLE:
 				return ITEM_TYPE_SINGLE;
+			case CODE_BACKUP:
+				return TYPE_BACKUP;
 			default:
 				throw new IllegalArgumentException( "Unsupport uri: " + uri );
 		}
@@ -119,11 +172,11 @@ public class EncryptItContentProvider extends ContentProvider {
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
 		switch(uriMatcher.match(uri)){
-			case SINGLE:
-			case ALL:
+			case CODE_SINGLE:
+			case CODE_ALL:
 				break;
 			default:
-				throw new IllegalArgumentException( "Unsupport uri: " + uri );
+				throw new IllegalArgumentException( "Unsupport insert uri: " + uri );
 		}
 		
 		byte[] data = values.getAsByteArray( KEY_DATA );
@@ -147,14 +200,14 @@ public class EncryptItContentProvider extends ContentProvider {
 		int count = -1;
 		
 		switch( uriMatcher.match(uri) ) {
-			case SINGLE:
+			case CODE_SINGLE:
 				count = persistence.remove(getIdFromUri(uri));
 				break;
-			case ALL:
+			case CODE_ALL:
 				persistence.clear();
 				break;
 			default:
-				throw new IllegalArgumentException( "Unsupport uri: " + uri );
+				throw new IllegalArgumentException( "Unsupport delete uri: " + uri );
 				
 		}
 		
@@ -168,7 +221,7 @@ public class EncryptItContentProvider extends ContentProvider {
 		
 		Log.d( "To update. ", "uri", uri, "data", values );
 		switch( uriMatcher.match(uri) ) {
-			case SINGLE:
+			case CODE_SINGLE:
 				LongRowId id = getIdFromUri(uri);
 				byte[] data = values.getAsByteArray( KEY_DATA );
 				try {
@@ -179,9 +232,9 @@ public class EncryptItContentProvider extends ContentProvider {
 				}
 				notifyResolverChange(uri);
 				return 1;
-			case ALL:
+			case CODE_ALL:
 			default:
-				throw new IllegalArgumentException( "Unsupport uri: " + uri );
+				throw new IllegalArgumentException( "Unsupport update uri: " + uri );
 				
 		}
 	}
@@ -198,4 +251,7 @@ public class EncryptItContentProvider extends ContentProvider {
 		return contentUri;
 	}
 
+	public static Uri getBackupUri() {
+		return backupUri;
+	}
 }

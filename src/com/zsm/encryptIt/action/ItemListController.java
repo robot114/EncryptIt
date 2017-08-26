@@ -5,17 +5,24 @@ import java.sql.RowId;
 import java.util.Date;
 
 import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.backup.BackupInputAgent;
 import com.zsm.log.Log;
 import com.zsm.persistence.BadPersistenceFormatException;
 import com.zsm.recordstore.AbstractRawCursor;
 
-public class ItemListActor {
+/**
+ * Combine the View( {@link ItemList} ) and the Module( {@link ItemStorageAdapter} ).
+ * 
+ * @author zsm
+ *
+ */
+public class ItemListController {
 
 	private ItemList list;
 	private ItemStorageAdapter adapter;
 
 	/**
-	 * Initialize the Action, NOT including open the persistence in which
+	 * Construct the Action, NOT including open the persistence in which
 	 * the data stored and filling the list.
 	 * 
 	 * @param list in which the items are stored in the memory. It may be the model
@@ -24,12 +31,11 @@ public class ItemListActor {
 	 * 			storage. It may be adapter of a persistence or a content provider.
 	 * @return true, initialized successfully; false, otherwise
 	 */
-	public boolean initialize(ItemList list, ItemStorageAdapter adapter) {
+	public ItemListController(ItemList list, ItemStorageAdapter adapter) {
 		this.list = list;
 		this.adapter = adapter;
-		return true;
 	}
-	
+
 	/**
 	 * Clear the current contents in the list view and fill it with all the items
 	 * from the storage adapter.
@@ -68,6 +74,10 @@ public class ItemListActor {
 			}
 			hasItem = cursor.moveToNext();
 		}
+	}
+
+	public void clearList() {
+		list.clear();
 	}
 
 	/**
@@ -201,5 +211,16 @@ public class ItemListActor {
 			return false;
 		}
 		return list.removeItem( item );
+	}
+
+	public void closeStorageAdapter() {
+		if( adapter != null ) {
+			adapter.close();
+			adapter = null;
+		}
+	}
+	
+	public BackupInputAgent getBackupInputAgent() {
+		return adapter.getBackupInputAgent();
 	}
 }

@@ -17,6 +17,8 @@ import android.net.Uri;
 import com.zsm.encryptIt.SystemParameter;
 import com.zsm.encryptIt.WhatToDoItem;
 import com.zsm.encryptIt.action.ItemStorageAdapter;
+import com.zsm.encryptIt.backup.BackupInputAgent;
+import com.zsm.encryptIt.backup.UriInputAgent;
 import com.zsm.log.Log;
 import com.zsm.persistence.BadPersistenceFormatException;
 import com.zsm.persistence.InOutDecorator;
@@ -122,6 +124,12 @@ public class ProviderStorageAdapter implements ItemStorageAdapter {
 
 	@Override
 	public void close() {
+	}
+
+	@Override
+	public BackupInputAgent getBackupInputAgent() {
+		return new UriInputAgent( contentSolver,
+								  EncryptItContentProvider.getBackupUri() );
 	}
 
 }

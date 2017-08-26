@@ -133,7 +133,7 @@ public class PasswordActivity extends SecurityActivity {
 		PasswordPolicy.Result res
 			= EncryptItApplication.getPasswordPolicy().check( password );
 				
-		if(  res != PasswordPolicy.GoodResult.GOOD ) {
+		if( res != PasswordPolicy.GoodResult.GOOD ) {
 			int strId
 				= (int)EncryptItApplication.getPasswordPolicy()
 						.getResult(res);

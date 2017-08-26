@@ -29,10 +29,11 @@ import com.zsm.encryptIt.WhatToDoItem;
 import com.zsm.encryptIt.ui.WhatToDoListViewItem;
 import com.zsm.log.Log;
 
-public class ExportTask extends BackupTask {
+public class ExportTask extends ExportImportTask {
 
 	private Uri mTargetUri;
 	private List<WhatToDoListViewItem> mList;
+	
 	/**
 	 * Export the items in the list in an AsyncTask. So the exporting progress
 	 * is to be done in a thread.
@@ -61,7 +62,7 @@ public class ExportTask extends BackupTask {
 	protected void onPreExecute() {
 		mProgressDlg
 			= buildProgressDlg(
-					mContext, R.string.titleExportDlg, mList.size(), this);
+					mContext, R.string.titleExportDlg, mList.size() );
 		mProgressDlg.setProgressStyle( ProgressDialog.STYLE_HORIZONTAL );
 		
 		mProgressDlg.show();
@@ -145,7 +146,7 @@ public class ExportTask extends BackupTask {
 				
 				WhatToDoItem data = viewItem.getData();
 				data.toReadableText(writer);
-				writer.append(BackupTask.PAGE_BREAK);
+				writer.append(ExportImportTask.PAGE_BREAK);
 			}
 		} finally {
 			writer.close();

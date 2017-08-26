@@ -1,9 +1,13 @@
 package com.zsm.encryptIt.action;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.RowId;
 
 import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.backup.BackupInputAgent;
 import com.zsm.persistence.BadPersistenceFormatException;
 import com.zsm.persistence.Persistence;
 import com.zsm.recordstore.AbstractRawCursor;
@@ -52,6 +56,24 @@ public class PersistenceStorageAdapter implements ItemStorageAdapter {
 	@Override
 	public void close() {
 		persistence.close();
+	}
+
+	@Override
+	public BackupInputAgent getBackupInputAgent() {
+		return new BackupInputAgent() {
+			@Override
+			public InputStream openBackupInputStream()
+									throws FileNotFoundException {
+				
+				return new FileInputStream( persistence.getFullPathName() );
+			}
+
+			@Override
+			public long size() {
+				return persistence.getBackupSize();
+			}
+			
+		};
 	}
 
 }

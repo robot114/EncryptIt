@@ -138,7 +138,7 @@ public class DetailActivity extends ProtectedActivity {
 			return true;
 		}
 
-		if( getApp().getItemListActor().doEdit(position, newTask, newDetail) ) {
+		if( getApp().getItemListController().doEdit(position, newTask, newDetail) ) {
 			originalTask = newTask;
 			originalDetail = newDetail;
 			Toast.makeText(this, R.string.deatilSaved, Toast.LENGTH_SHORT )

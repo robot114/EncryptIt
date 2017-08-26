@@ -1,13 +1,10 @@
 package com.zsm.encryptIt;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import com.zsm.log.Log;
 import com.zsm.persistence.BadPersistenceFormatException;
 import com.zsm.persistence.Persistence;
-import com.zsm.util.file.FileUtility;
 
 /**
  * Although, the data of this application in the persistence is encrypted, but
@@ -52,22 +49,6 @@ public class EncryptItPersistence extends Persistence {
 	
 	private void backup() {
 		String backupName = getFullPathName() + ".bak";
-		File bakFile = new File( backupName ).getAbsoluteFile();
-		if( bakFile.exists() ) {
-			bakFile.delete();
-		}
-		boolean renameOk = false;
-		try {
-			renameOk = renameTo( backupName );
-		} catch (FileNotFoundException e) {
-			Log.w( e, "Rename persistence failed, try to copy" );
-		}
-		if( !renameOk ) {
-			try {
-				FileUtility.copyFile( getFullPathName(), backupName );
-			} catch (Exception e) {
-				Log.w( e, "Cannot copy either, just over write it." );
-			}
-		}
+		backup(backupName);
 	}
 }
