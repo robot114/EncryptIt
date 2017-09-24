@@ -43,6 +43,10 @@
 	              android:title="@string/menuBackupSecurity"
 	              android:onClick="onBackupSecurity">
 	        </item>
+	        <item android:id="@+id/itemRestoreSecurity"
+	              android:title="@string/menuRestoreSecurity"
+   	              android:onClick="onRestoreSecurity">
+	        </item>
 	        <item android:id="@+id/menuExport"
 	              android:title="@string/menuExport"
 	              android:onClick="onExport">
@@ -51,6 +55,7 @@
 	              android:title="@string/menuImport"
 	              android:onClick="onImport">
 	        </item>
+	        
         </menu>
     </item>
 </menu>

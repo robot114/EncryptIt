@@ -2,14 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" xmlns:app="http://schemas.android.com/apk/res/com.zsm.encryptIt">
+    android:orientation="vertical"
+     xmlns:app="http://schemas.android.com/apk/res/com.zsm.encryptIt">
 
     <TextView
         android:id="@+id/textViewRestoreHint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawableLeft="@drawable/backup"
-        android:text="@string/hintBackup"
+        android:text="@string/hintRestore"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <LinearLayout
@@ -91,15 +92,6 @@
 
     </com.zsm.encryptIt.ui.VisiblePassword>
 
-    <com.zsm.encryptIt.ui.VisiblePassword
-        android:id="@+id/backupPasswordConfirm"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:hintText="@string/hintBackupPassword"
-        app:labelText="@string/titleBackupPasswordConfirm" >
-
-    </com.zsm.encryptIt.ui.VisiblePassword>
-
     <TextView
         android:id="@+id/textViewCheckResult"
         android:layout_width="match_parent"
@@ -130,7 +122,7 @@
             android:id="@+id/buttonRestore"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/titleBackup" />
+            android:text="@string/titleRestore" />
 
     </LinearLayout>
 

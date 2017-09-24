@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OptionalDataException;
+import java.io.OutputStream;
 import java.sql.RowId;
 
 import android.content.ContentResolver;
@@ -17,13 +18,12 @@ import android.net.Uri;
 import com.zsm.encryptIt.SystemParameter;
 import com.zsm.encryptIt.WhatToDoItem;
 import com.zsm.encryptIt.action.ItemStorageAdapter;
-import com.zsm.encryptIt.backup.BackupInputAgent;
-import com.zsm.encryptIt.backup.UriInputAgent;
 import com.zsm.log.Log;
 import com.zsm.persistence.BadPersistenceFormatException;
 import com.zsm.persistence.InOutDecorator;
 import com.zsm.recordstore.AbstractRawCursor;
 import com.zsm.recordstore.LongRowId;
+import com.zsm.util.file.FileUtilities;
 
 public class ProviderStorageAdapter implements ItemStorageAdapter {
 
@@ -127,9 +127,42 @@ public class ProviderStorageAdapter implements ItemStorageAdapter {
 	}
 
 	@Override
-	public BackupInputAgent getBackupInputAgent() {
-		return new UriInputAgent( contentSolver,
-								  EncryptItContentProvider.getBackupUri() );
+	public InputStream openBackupSrcInputStream() throws IOException {
+		return contentSolver.openInputStream( 
+					EncryptItContentProvider.getBackupUri() );
+	}
+
+	@Override
+	public OutputStream openRestoreTargetOutputStream() throws IOException {
+		return contentSolver.openOutputStream(
+					EncryptItContentProvider.getBackupUri() );
+	}
+
+	@Override
+	public String displayName() {
+		return "Database";
+	}
+
+	@Override
+	public long size() {
+		return FileUtilities.sizeFromUri( contentSolver,
+				  	EncryptItContentProvider.getBackupUri() );
+	}
+
+	@Override
+	public boolean backupToLocal() {
+		int count
+			= contentSolver.update( EncryptItContentProvider.getBackupToLocalUri(),
+									null, null, null );
+		return count == 1;
+	}
+
+	@Override
+	public boolean restoreFromLocalBackup() {
+		int count
+			= contentSolver.update( EncryptItContentProvider.getRestoreFromLocalUri(),
+									null, null, null );
+		return count == 1;
 	}
 
 }

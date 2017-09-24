@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.zsm.recordstore.Driver;
 import com.zsm.recordstore.RawRecordStore;
 import com.zsm.recordstore.RecordStore;
-import com.zsm.util.file.FileUtility;
+import com.zsm.util.file.FileUtilities;
 
 public class SQLiteDriver implements Driver {
 
@@ -42,7 +42,7 @@ public class SQLiteDriver implements Driver {
 			throws FileNotFoundException, IOException {
 		
 		File src = getRecordStoreFile(name);
-		FileUtility.copyFile( src.getPath() + src.getName(), target );
+		FileUtilities.copyFile( src.getPath() + src.getName(), target );
 	}
 	
 	@Override

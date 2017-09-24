@@ -1,9 +1,12 @@
 package com.zsm.encryptIt.backup;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.Vector;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -18,18 +21,18 @@ import android.widget.Toast;
 import com.zsm.encryptIt.R;
 import com.zsm.log.Log;
 
-public class BackupTask extends AsyncTask<BackupOperator, Object, RESULT> {
+public class RestoreTask extends AsyncTask<RestoreOperator, Object, RESULT> {
 	
 	private static final int BUFFER_SIZE = 4096;
 	private Activity mActivity;
 	private ProgressDialog mProgressDlg;
 	
-	private BackupOperator[] mTasks;
+	private RestoreOperator[] mTasks;
 	private long mFinishedSize;
-	private BackupOperator mCurrentTask;
+	private RestoreOperator mCurrentTask;
 	private byte[] mBuffer;
 
-	public BackupTask(Activity activity ) {
+	public RestoreTask(Activity activity ) {
 		super();
 		mActivity = activity;
 		mBuffer = new byte[BUFFER_SIZE];
@@ -47,35 +50,85 @@ public class BackupTask extends AsyncTask<BackupOperator, Object, RESULT> {
 	}
 
 	@Override
-	protected RESULT doInBackground(BackupOperator... tasks) {
+	protected RESULT doInBackground(RestoreOperator... tasks) {
 		Log.d( "Backup tasks: ", (Object[])tasks );
-		mProgressDlg.setMax((int) getBackupSize( tasks ));
+		mProgressDlg.setMax((int) getTotalSize( tasks ));
 		
 		mTasks = tasks;
 		
-		for( BackupOperator t : mTasks ) {
+		Vector<RestoreOperator> v = protectCurrent(tasks);
+		if( v.size() < tasks.length ) {
+			Log.w( "Rename to backup current used failed. "+
+					"The followings are renamed successfully:", v );
+			restoreCurrent( v );
+			return RESULT.FAILED;
+		}
+		
+		RESULT res = doRestore(tasks, v);
+		if( res != RESULT.OK  ) {
+			restoreCurrent(v);
+			return res;
+		}
+		mCurrentTask = null;
+		return RESULT.OK;
+	}
+	
+	private RESULT doRestore( RestoreOperator[] tasks, Vector<RestoreOperator> v ) {
+		for( RestoreOperator t : mTasks ) {
 			mCurrentTask = t;
 			try {
-				RESULT r = backupOne(t);
+				RESULT r = restoreOne(t);
 				if( r != RESULT.OK ) {
 					return r;
 				}
 				Log.d( "Backup successfully: ", t );
 			} catch ( GeneralSecurityException | IOException e) {
-				Log.e( e, "Backup failed: ", t );
+				Log.e( e, "Restore failed: ", t );
 				return RESULT.FAILED;
 			}
 		}
 		
 		mCurrentTask = null;
+		v.clear();
+		
 		return RESULT.OK;
 	}
+	
+	private Vector<RestoreOperator> protectCurrent( RestoreOperator[] tasks ) {
+		Vector<RestoreOperator> v = new Vector<RestoreOperator>(tasks.length);
+		for( RestoreOperator t : tasks ) {
+			boolean res = false;
+			try {
+				res = t.renameForRestore();
+			} catch (IOException e) {
+				Log.w( e, "Rename for restore to local failed!", t );
+			}
+			if( res ) {
+				v.add(t);
+			} else {
+				Log.w( "Rename for restore to local return false!", t );
+				break;
+			}
+		}
+		
+		return v;
+	}
+	
+	private void restoreCurrent( Iterable<RestoreOperator> tasks ) {
+		for( RestoreOperator t : tasks ) {
+			try {
+				t.restoreFromRename();
+			} catch (IOException e) {
+				Log.w( e, "Restore from local failed!", t );
+			}
+		}
+	}
 
-	private RESULT backupOne(BackupOperator t)
-			throws IOException, GeneralSecurityException {
+	private RESULT restoreOne(RestoreOperator t)
+			throws FileNotFoundException, IOException, GeneralSecurityException {
 		
 		String message
-			= mActivity.getString( R.string.promptBackup, t.displayName() );
+			= mActivity.getString( R.string.promptRestore, t.displayName() );
 		publishProgress( message, 0 );
 		
 		try( 
@@ -85,6 +138,7 @@ public class BackupTask extends AsyncTask<BackupOperator, Object, RESULT> {
 			int count = 0;
 			while( ( count = in.read( mBuffer ) ) > 0 ) {
 				if( isCancelled() ) {
+					restoreCurrent(Arrays.asList(mTasks));
 					return RESULT.CANCELLED;
 				}
 				out.write(mBuffer, 0, count);
@@ -161,21 +215,23 @@ public class BackupTask extends AsyncTask<BackupOperator, Object, RESULT> {
 					builder.append( "\r\n " );
 					builder.append( mTasks[i].displayName() );
 				}
-				return mActivity.getString( R.string.promptBackupOk,
+				return mActivity.getString( R.string.promptRestoreOk,
 										    builder.toString() );
 			case FAILED:
-				return mActivity.getString(R.string.promptBackupFailed,
-							mCurrentTask.displayName() );
+			final String displayName
+				= mCurrentTask == null ? "" : mCurrentTask.displayName();
+			return mActivity.getString(R.string.promptRestoreFailed,
+							displayName );
 			case CANCELLED:
-				return mActivity.getString( R.string.promptBackupCancelled);
+				return mActivity.getString( R.string.promptRestoreCancelled);
 			default:
 				return "";
 		}
 	}
 
-	private long getBackupSize(BackupOperator[] tasks) {
+	private long getTotalSize(RestoreOperator[] tasks) {
 		long size = 0;
-		for( BackupOperator t :  tasks ) {
+		for( RestoreOperator t :  tasks ) {
 			size += t.size();
 		}
 		return size;

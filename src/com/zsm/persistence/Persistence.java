@@ -24,7 +24,6 @@ import com.zsm.log.Log;
 import com.zsm.recordstore.AbstractRawCursor;
 import com.zsm.recordstore.RawRecordStore;
 import com.zsm.recordstore.RecordStoreManager;
-import com.zsm.util.file.FileUtility;
 
 public class Persistence implements Closeable {
 
@@ -221,11 +220,17 @@ public class Persistence implements Closeable {
 		return RecordStoreManager.getInstance().getFullPathName( name );
 	}
 
-	public boolean renameTo(String newFullPathName)
-						throws FileNotFoundException {
-		
+	public boolean renameTo(String newFullPathName) throws FileNotFoundException {
 		close();
 		return RecordStoreManager.getInstance().rename( name, newFullPathName);
+	}
+
+	public boolean backupToLocal() throws FileNotFoundException {
+		return renameTo( getFullBackupName() );
+	}
+
+	private String getFullBackupName() {
+		return getFullPathName() + ".bak";
 	}
 
 	/**
@@ -477,25 +482,46 @@ public class Persistence implements Closeable {
 		return new DataOutputStream( out );
 	}
 
-	public void backup(String backupName) {
+	private boolean restoreFromLocal(String backupName)
+						throws FileNotFoundException {
+		
 		File bakFile = new File( backupName ).getAbsoluteFile();
-		if( bakFile.exists() ) {
-			bakFile.delete();
+		if( !bakFile.exists() ) {
+			throw new FileNotFoundException( 
+					"The backup file(" + bakFile.getAbsolutePath()
+					+ ") is not found!" );
 		}
-		boolean renameOk = false;
+		
+		String backupName2 = backupName + ".bak2";
+		if( !renameTo( backupName2 ) ) {
+			return false;
+		}
+		
+		// The the file with "name" is the local backup file
 		try {
-			renameOk = renameTo( backupName );
-		} catch (FileNotFoundException e) {
-			Log.w( e, "Rename persistence failed, try to copy" );
-		}
-		if( !renameOk ) {
-			try {
-				FileUtility.copyFile( getFullPathName(), backupName );
-			} catch (Exception e) {
-				Log.w( e, "Cannot copy either, just over write it." );
+			if( !RecordStoreManager.getInstance().rename( backupName, name ) ) {
+				restoreForRestore(backupName2);
+				return false;
 			}
+		} catch ( FileNotFoundException e ) {
+			restoreForRestore(backupName2);
+			return false;
 		}
+		
+		return true;
 	}
+
+	private void restoreForRestore(String backupName)
+			throws FileNotFoundException {
+		// Delete the local backup file
+		new File( getFullPathName() ).delete();
+		RecordStoreManager.getInstance().rename( backupName, name );
+	}
+	
+	public boolean restoreFromLocal() throws FileNotFoundException {
+		return restoreFromLocal( getFullBackupName() );
+	}
+
 	
 	public ParcelFileDescriptor openForBackup(String mode)
 					throws FileNotFoundException {

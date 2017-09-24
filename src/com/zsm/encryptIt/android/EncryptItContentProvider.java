@@ -27,6 +27,8 @@ import com.zsm.recordstore.LongRowId;
 public class EncryptItContentProvider extends ContentProvider {
 
 	private static final String PATH_BACKUP = "backup";
+	private static final String PATH_FROM_LOCAL = PATH_BACKUP+"/fromlocal";
+	private static final String PATH_TO_LOCAL = PATH_BACKUP+"/tolocal";
 
 	public static final String KEY_DATA = "DATA";
 	
@@ -41,15 +43,19 @@ public class EncryptItContentProvider extends ContentProvider {
 
 	private static final int CODE_ALL = 1;
 	private static final int CODE_SINGLE = 2;
-	private static final int CODE_BACKUP = 3;
+	private static final int CODE_BACKUP = 10;
+	private static final int CODE_BACKUP_TO_LOCAL = 11;
+	private static final int CODE_RESTORE_FROM_LOCAL = 12;
 	
 	private static final String[] OPENABLE_COLUMNS = new String[] {
 		OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE
 	};
-	
+
 	private static UriMatcher uriMatcher;
 	private static Uri contentUri;
 	private static Uri backupUri;
+	private static Uri backupToLocalUri;
+	private static Uri restoreFromLocalUri;
 	
 	private Persistence persistence;
 
@@ -61,10 +67,14 @@ public class EncryptItContentProvider extends ContentProvider {
 			uriMatcher = new UriMatcher( UriMatcher.NO_MATCH );
 			uriMatcher.addURI( getUri(), ITEMS, CODE_ALL );
 			uriMatcher.addURI( getUri(), ITEMS+"/#", CODE_SINGLE );
+			uriMatcher.addURI( getUri(), PATH_TO_LOCAL, CODE_BACKUP_TO_LOCAL );
+			uriMatcher.addURI( getUri(), PATH_FROM_LOCAL, CODE_RESTORE_FROM_LOCAL );
 			uriMatcher.addURI( getUri(), PATH_BACKUP, CODE_BACKUP );
 			
 			contentUri = Uri.parse( "content://" + getUri() + "/" + ITEMS );
 			backupUri = Uri.parse( "content://" + getUri() + "/" + PATH_BACKUP );
+			backupToLocalUri = Uri.parse( "content://" + getUri() + "/" + PATH_TO_LOCAL );
+			restoreFromLocalUri = Uri.parse( "content://" + getUri() + "/" + PATH_FROM_LOCAL );
 		}
 		return true;
 	}
@@ -232,6 +242,22 @@ public class EncryptItContentProvider extends ContentProvider {
 				}
 				notifyResolverChange(uri);
 				return 1;
+			case CODE_BACKUP_TO_LOCAL:
+				try {
+					persistence.backupToLocal();
+				} catch (FileNotFoundException e) {
+					Log.e( "Backup to local failed!" );
+					return 0;
+				}
+				return 1;
+			case CODE_RESTORE_FROM_LOCAL:
+				try {
+					persistence.restoreFromLocal( );
+				} catch (FileNotFoundException e) {
+					Log.e( "Restore from local failed!" );
+					return 0;
+				}
+				return 1;
 			case CODE_ALL:
 			default:
 				throw new IllegalArgumentException( "Unsupport update uri: " + uri );
@@ -253,5 +279,13 @@ public class EncryptItContentProvider extends ContentProvider {
 
 	public static Uri getBackupUri() {
 		return backupUri;
+	}
+
+	public static Uri getBackupToLocalUri() {
+		return backupToLocalUri;
+	}
+
+	public static Uri getRestoreFromLocalUri() {
+		return restoreFromLocalUri;
 	}
 }

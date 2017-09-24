@@ -1,5 +1,6 @@
 package com.zsm.encryptIt;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import com.zsm.log.Log;
@@ -48,7 +49,10 @@ public class EncryptItPersistence extends Persistence {
 	}
 	
 	private void backup() {
-		String backupName = getFullPathName() + ".bak";
-		backup(backupName);
+		try {
+			backupToLocal();
+		} catch (FileNotFoundException e) {
+			Log.e( e, "Rename failed!" );
+		}
 	}
 }

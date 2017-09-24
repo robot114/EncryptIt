@@ -1,40 +1,32 @@
 package com.zsm.encryptIt.backup;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-
-import javax.crypto.NoSuchPaddingException;
-
-import com.zsm.encryptIt.SystemParameter;
+import java.security.GeneralSecurityException;
 
 import android.content.ContentResolver;
 import android.net.Uri;
 
+import com.zsm.encryptIt.SystemParameter;
+
 public class PasswordBackupOperator extends BackupOperator {
 	
-	final private BackupInputAgent mInputAgent;
-	final private char[] mPassword;
-	private UriOutputAgent mOutputAgent;
-	
-	public PasswordBackupOperator( ContentResolver cr, BackupInputAgent agent,
-								   Uri targetUri, char[] password ) {
+	protected final char[] mPassword;
+
+	public PasswordBackupOperator( ContentResolver cr, Backupable source,
+								   Uri target, char[] password ) {
 		
-		mInputAgent = agent;
-		mOutputAgent = new UriOutputAgent(cr, targetUri);
+		super( source, new UriBackupTarget(cr, target) );
 		mPassword = password;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append( "Backup task ---- Agent: " )
-				.append( mInputAgent )
+		builder.append( "Backup task ---- Source: " )
+				.append( mSource )
 				.append( ", Target: " )
-				.append( mOutputAgent.displayName() );
+				.append( mTarget.displayName() );
 		if( hasPassword() ) {
 			builder.append( ", Without Password" );
 		} else {
@@ -44,37 +36,21 @@ public class PasswordBackupOperator extends BackupOperator {
 		return builder.toString();
 	}
 
+	@Override
+	public OutputStream openOutputStream() 
+				throws IOException, GeneralSecurityException {
+		
+		if( hasPassword() ) {
+			return SystemParameter.getPasswordBasedInOutDecorator(
+					mPassword ).wrapOutputStream(mTarget.openOutputStream());
+		} else {
+			return mTarget.openOutputStream();
+		}
+	}
+	
+
 	private boolean hasPassword() {
 		return mPassword == null || mPassword.length == 0;
 	}
 
-	@Override
-	public InputStream openBackupInputStream() throws FileNotFoundException {
-		return mInputAgent.openBackupInputStream();
-	}
-
-	@Override
-	public long size() {
-		return mInputAgent.size();
-	}
-
-	@Override
-	public OutputStream openOutputStream() 
-				throws NoSuchAlgorithmException, NoSuchPaddingException,
-					   InvalidKeySpecException, IOException {
-		
-		if( hasPassword() ) {
-			return SystemParameter.getPasswordBasedInOutDecorator(
-					mPassword ).wrapOutputStream(mOutputAgent.openOutputStream());
-		} else {
-			return mOutputAgent.openOutputStream();
-		}
-	}
-
-	@Override
-	public String displayName() {
-		return mOutputAgent.displayName();
-	}
-	
-	
 }

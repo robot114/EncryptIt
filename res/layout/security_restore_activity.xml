@@ -6,10 +6,10 @@
     android:orientation="vertical" >
 
     <fragment
-        android:id="@+id/fragmentBackup"
-        android:name="com.zsm.encryptIt.ui.SecurityBackupFragment"
+        android:id="@+id/fragmentRestore"
+        android:name="com.zsm.encryptIt.ui.SecurityRestoreFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:layout="@layout/security_backup_fragment" />
+        tools:layout="@layout/security_restore_fragment" />
 
 </LinearLayout>

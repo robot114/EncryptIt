@@ -35,6 +35,7 @@ import com.zsm.android.ui.fileselector.FileSelector;
 import com.zsm.android.ui.fileselector.OnHandleFileListener;
 import com.zsm.driver.android.log.LogActivity;
 import com.zsm.encryptIt.R;
+import com.zsm.encryptIt.action.ItemListController;
 import com.zsm.encryptIt.android.action.AndroidItemListOperator;
 import com.zsm.encryptIt.android.action.AndroidKeyActor;
 import com.zsm.encryptIt.android.action.PasswordPromptParameter;
@@ -263,7 +264,10 @@ public class MainActivity extends ProtectedActivity
 			listFragment.unregisterListDataSetObserver( listDataObserver );
 			listDataObserver = null;
 		}
-		getApp().getItemListController().closeStorageAdapter();
+		ItemListController itemListController = getApp().getItemListController();
+		if( itemListController != null ) {
+			itemListController.closeStorageAdapter();
+		}
 		getApp().setUIListOperator(null);
 		super.onDestroy();
 	}
@@ -315,6 +319,16 @@ public class MainActivity extends ProtectedActivity
 	
 	public boolean onBackupSecurity(MenuItem item) {
 		Intent intent = new Intent( this, SecurityBackupActivity.class );
+		intent.putExtra( SecurityBackupActivity.DATA_LAYOUT,
+						 R.layout.security_backup_activity );
+		startActivity(intent);
+		return true;
+	}
+	
+	public boolean onRestoreSecurity(MenuItem item) {
+		Intent intent = new Intent( this, SecurityBackupActivity.class );
+		intent.putExtra( SecurityBackupActivity.DATA_LAYOUT,
+				 		 R.layout.security_restore_activity );
 		startActivity(intent);
 		return true;
 	}
@@ -372,6 +386,7 @@ public class MainActivity extends ProtectedActivity
 
 	private void exportBySAF() {
 		Intent intent = new Intent( Intent.ACTION_CREATE_DOCUMENT );
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
 		intent.setType( ExportImportTask.getExportMimeType() );
 		startActivityForResult(intent, REQUEST_CODE_EXPORT);
 	}

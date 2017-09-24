@@ -2,7 +2,6 @@ package com.zsm.security;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,10 +17,11 @@ import java.security.cert.CertificateException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
-import com.zsm.encryptIt.backup.BackupInputAgent;
+import com.zsm.encryptIt.backup.Backupable;
 import com.zsm.log.Log;
+import com.zsm.util.file.FileUtilities;
 
-public enum KeyManager implements BackupInputAgent {
+public enum KeyManager implements Backupable {
 
 	instance;		// Singleton of this class
 	
@@ -29,6 +29,7 @@ public enum KeyManager implements BackupInputAgent {
 	private static final String KEY_ALGORITHM = "AES";
 	private static final String KEYSTORE_YTPE = KeyStore.getDefaultType();
 	private static final String KEYSTORE_FILE_NAME = "293178926451020105";
+	private static final String KEY_STORE_BACKUP_FILE_NAME = KEYSTORE_FILE_NAME + ".bak";
 	private static final String KEY_FOR_PRIMARYKEY = "primary_key";
 	private static final String KEY_FOR_SECONDARYKEY = "secondary_key";
 	
@@ -69,10 +70,14 @@ public enum KeyManager implements BackupInputAgent {
 			throw new IllegalStateException( "KeyStore has been initialized!" );
 		}
 		path = ksPath;
-		ksFile = new File( path + "/" + KEYSTORE_FILE_NAME );
+		ksFile = new File( makeFullName(KEYSTORE_FILE_NAME) );
 		
 		this.ksPassword = ksPassword;
 		loadKeys();
+	}
+
+	private String makeFullName(String fileName) {
+		return path + "/" + fileName;
 	}
 	
 	private void loadKeys()
@@ -85,19 +90,10 @@ public enum KeyManager implements BackupInputAgent {
 		keystore = KeyStore.getInstance( KEYSTORE_YTPE );
 		Log.d( "Type of keystore. ", KEYSTORE_YTPE );
 		
-		InputStream is = null;
-		try {
-			is = new FileInputStream( ksFile );
+		try(InputStream is = new FileInputStream( ksFile ) ) {
+			keystore.load( is, ksPassword );
 		} catch ( IOException e ) {
 			Log.d( "KeyStore file not found, an empty inputstream will be used." );
-		}
-		try {
-			keystore.load( is, ksPassword );
-		} finally {
-			if( is != null ) {
-				is.close();
-				is = null;
-			}
 		}
 	}
 
@@ -239,21 +235,11 @@ public enum KeyManager implements BackupInputAgent {
 					throws KeyStoreException, NoSuchAlgorithmException,
 							CertificateException, IOException {
 		
-		OutputStream os = null;
-		try {
-			os = new FileOutputStream( ksFile );
+		try( OutputStream os = new FileOutputStream( ksFile ) ) {
+			keystore.store( os, ksPassword );
 		} catch ( IOException e ) {
 			Log.e( e, "KeyStore file cannot be written." );
 			throw new KeyStoreException( e );
-		}
-		
-		try {
-			keystore.store( os, ksPassword );
-		} finally {
-			if( os != null ) {
-				os.close();
-				os = null;
-			}
 		}
 	}
 
@@ -264,28 +250,50 @@ public enum KeyManager implements BackupInputAgent {
 		ksFile.delete();
 	}
 	
-	/**
-	 * Backup the whole key store to the specified file.
-	 * @param output outputstream to output the keystore
-	 * @throws IOException error occurred when copying
-	 */
-	public void backupKeyStore( OutputStream output ) throws IOException {
-		try( InputStream input = new FileInputStream(ksFile) ) {
-			byte[] buf = new byte[1024];
-			int bytesRead;
-			while ((bytesRead = input.read(buf)) > 0) {
-				output.write(buf, 0, bytesRead);
-			}
-		}
-	}
-	
 	@Override
-	public InputStream openBackupInputStream() throws FileNotFoundException {
+	public InputStream openBackupSrcInputStream() throws IOException {
 		return new FileInputStream( ksFile );
+	}
+
+	@Override
+	public OutputStream openRestoreTargetOutputStream() throws IOException {
+		return new FileOutputStream( ksFile );
 	}
 
 	@Override
 	public long size() {
 		return ksFile.length();
+	}
+
+	@Override
+	public String displayName() {
+		return "key";
+	}
+
+	@Override
+	public boolean backupToLocal() {
+		return FileUtilities.checkAndRenameTo( 
+				ksFile, new File( makeFullName( KEY_STORE_BACKUP_FILE_NAME ) ),
+				true );
+	}
+
+	@Override
+	public boolean restoreFromLocalBackup() {
+		String backupName = makeFullName( KEY_STORE_BACKUP_FILE_NAME );
+		File backup2 = new File( backupName + "bak2" );
+		boolean backupOk
+			= FileUtilities.checkAndRenameTo( ksFile, backup2, true );
+		if( !backupOk ) {
+			return false;
+		}
+		
+		if( !FileUtilities.checkAndRenameTo( new File( backupName ), ksFile, 
+											 true ) ) {
+			
+			FileUtilities.checkAndRenameTo( backup2, ksFile, true );
+			return false;
+		}
+		
+		return true;
 	}
 }
