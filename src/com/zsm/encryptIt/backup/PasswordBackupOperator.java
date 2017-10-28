@@ -28,9 +28,9 @@ public class PasswordBackupOperator extends BackupOperator {
 				.append( ", Target: " )
 				.append( mTarget.displayName() );
 		if( hasPassword() ) {
-			builder.append( ", Without Password" );
-		} else {
 			builder.append( ", With Password" );
+		} else {
+			builder.append( ", Without Password" );
 		}
 		
 		return builder.toString();
@@ -50,7 +50,7 @@ public class PasswordBackupOperator extends BackupOperator {
 	
 
 	private boolean hasPassword() {
-		return mPassword == null || mPassword.length == 0;
+		return mPassword != null && mPassword.length > 0;
 	}
 
 }

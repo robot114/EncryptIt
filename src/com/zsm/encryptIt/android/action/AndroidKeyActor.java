@@ -55,12 +55,20 @@ public class AndroidKeyActor extends KeyAction {
 	}
 	
 	@Override
-	public boolean keyExist() throws GeneralSecurityException {
+	public void reinitialize( )
+					throws KeyStoreException, CertificateException,
+						   NoSuchAlgorithmException, IOException {
+		
+		KeyManager.getInstance().reopen();
+	}
+	
+	@Override
+	public boolean keyExist() {
 		try {
 			return KeyManager.getInstance().primaryKeyExists();
 		} catch (KeyStoreException e) {
-			Log.e( e, "Cannot know if the key exists!" );
-			throw e;
+			Log.w( e, "Cannot know if the key exists. The key will be done as no existed!" );
+			return false;
 		}
 	}
 

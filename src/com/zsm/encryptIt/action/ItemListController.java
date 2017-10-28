@@ -5,7 +5,6 @@ import java.sql.RowId;
 import java.util.Date;
 
 import com.zsm.encryptIt.WhatToDoItem;
-import com.zsm.encryptIt.backup.Backupable;
 import com.zsm.log.Log;
 import com.zsm.persistence.BadPersistenceFormatException;
 import com.zsm.recordstore.AbstractRawCursor;
@@ -220,7 +219,7 @@ public class ItemListController {
 		}
 	}
 	
-	public Backupable getBackupable() {
+	public ItemStorageAdapter getItemStorageAdapter() {
 		return adapter;
 	}
 }

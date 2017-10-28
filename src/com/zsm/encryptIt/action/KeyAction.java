@@ -3,6 +3,9 @@ package com.zsm.encryptIt.action;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.Key;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
 public abstract class KeyAction {
 	
@@ -30,13 +33,25 @@ public abstract class KeyAction {
 			throws GeneralSecurityException, IOException;
 	
 	/**
+	 * Reinitialize the actor. It will be invoked when the key store is replaced.
+	 * The context passed when the method {@link initialize} invoked, will be
+	 * reused, and need not to pass here.
+	 * @throws IOException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws CertificateException 
+	 * @throws KeyStoreException 
+	 */
+	abstract public void reinitialize()
+				throws KeyStoreException, CertificateException,
+					   NoSuchAlgorithmException, IOException;
+	
+	/**
 	 * Check if the key exists. If it does not exist, the invoker should prompt
 	 * the user set password.
 	 * 
 	 * @return true, if the key exists; false, otherwise
-	 * @throws GeneralSecurityException when cannot know if the key exist
 	 */
-	abstract public boolean keyExist() throws GeneralSecurityException;
+	abstract public boolean keyExist();
 	
 	/**
 	 * Get the key from key store. It may prompt the user inputing or initializing
@@ -57,4 +72,5 @@ public abstract class KeyAction {
 	 */
 	abstract public boolean changePassword( char[] oldKeyPassword,
 											char[] newKeyPassword );
+
 }

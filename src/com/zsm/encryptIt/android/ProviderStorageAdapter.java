@@ -28,24 +28,23 @@ import com.zsm.util.file.FileUtilities;
 public class ProviderStorageAdapter implements ItemStorageAdapter {
 
 	private ContentResolver contentSolver;
-	private Uri contentUri;
+	final static private Uri CONTENT_URI = EncryptItContentProvider.getContentUri();
 	private InOutDecorator decorator;
 
 	public ProviderStorageAdapter( Context context ) {
 		contentSolver = context.getContentResolver();
-		contentUri = EncryptItContentProvider.getContentUri();
 		decorator = SystemParameter.getEncryptInOutDecorator();
 	}
 	
 	@Override
 	public void clear() {
-		contentSolver.delete(contentUri, null, null);
+		contentSolver.delete(CONTENT_URI, null, null);
 	}
 
 	@Override
 	public AbstractRawCursor query() {
 		return (AbstractRawCursor)contentSolver.query(
-									contentUri, null, null, null, null);
+									CONTENT_URI, null, null, null, null);
 	}
 
 	@Override
@@ -75,7 +74,7 @@ public class ProviderStorageAdapter implements ItemStorageAdapter {
 
 	@Override
 	public void remove(RowId rowId) {
-		Uri uriWithId = Uri.withAppendedPath(contentUri, rowId.toString());
+		Uri uriWithId = Uri.withAppendedPath(CONTENT_URI, rowId.toString());
 		contentSolver.delete(uriWithId, null, null);
 	}
 
@@ -84,7 +83,7 @@ public class ProviderStorageAdapter implements ItemStorageAdapter {
 		Log.d( "The following is the data to be added: ", item );
 		RowId id = null;
 		ContentValues values = putItemIntoContent( item );
-		Uri uri = contentSolver.insert(contentUri, values );
+		Uri uri = contentSolver.insert(CONTENT_URI, values );
 		id = new LongRowId( Long.parseLong( uri.getLastPathSegment() ) );
 		Log.d( "Data added to the content provider as a byte array!" );
 		
@@ -95,7 +94,7 @@ public class ProviderStorageAdapter implements ItemStorageAdapter {
 	public void update(RowId rowId, WhatToDoItem item) throws IOException {
 		Log.d( "The following is the data to be updated: ", item );
 		ContentValues values = putItemIntoContent( item );
-		Uri uriWithId = Uri.withAppendedPath(contentUri, rowId.toString());
+		Uri uriWithId = Uri.withAppendedPath(CONTENT_URI, rowId.toString());
 		contentSolver.update(uriWithId, values, null, null);
 	}
 	
@@ -163,6 +162,12 @@ public class ProviderStorageAdapter implements ItemStorageAdapter {
 			= contentSolver.update( EncryptItContentProvider.getRestoreFromLocalUri(),
 									null, null, null );
 		return count == 1;
+	}
+
+	@Override
+	public void reopen() {
+		contentSolver
+			.update( EncryptItContentProvider.getReopenUri(), null, null, null );
 	}
 
 }

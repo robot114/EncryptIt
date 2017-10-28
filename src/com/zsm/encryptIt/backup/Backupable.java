@@ -17,4 +17,6 @@ public interface Backupable {
 	boolean backupToLocal() throws IOException;
 	
 	boolean restoreFromLocalBackup() throws IOException;
+
+	void reopen() throws Exception;
 }

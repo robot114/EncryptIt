@@ -7,6 +7,8 @@ import java.security.GeneralSecurityException;
 public interface Target {
 	
 	OutputStream openOutputStream() throws GeneralSecurityException, IOException;
+	
+	void outputHeader( OutputStream out ) throws IOException;
 
 	String displayName();
 	

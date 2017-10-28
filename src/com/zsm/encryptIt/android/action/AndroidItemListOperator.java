@@ -60,9 +60,7 @@ public class AndroidItemListOperator
 	public AndroidItemListOperator( Context context, LoaderManager lm,
 									ListFragmentAdapter adapter ) {
 		
-		list
-			= new FilterableList<WhatToDoListViewItem, String>(
-					new StringMatcher() );
+		list = new FilterableList<WhatToDoListViewItem, String>( new StringMatcher() );
 		
 		this.context = context;
 		loaderManager = lm;
@@ -92,8 +90,8 @@ public class AndroidItemListOperator
 		handler.post( new Runnable() {
 			@Override
 			public void run() {
-				loaderManager.initLoader(MainActivity.ENCRYPT_IT_ID, null,
-										 AndroidItemListOperator.this);
+				loaderManager.restartLoader(MainActivity.ENCRYPT_IT_ID, null,
+										    AndroidItemListOperator.this);
 			}
 		});
 		// For the content provider, it does not need to initialize the list
@@ -108,9 +106,7 @@ public class AndroidItemListOperator
 	// {@link forContentProvider} has to expose the OS is android.
 	// So these two methods is in here
 	private boolean forAndroidPersistence(Key key, Handler handler) {
-		EncryptItApplication context
-			= getApp();
-
+		EncryptItApplication context = getApp();
 		AndroidPersistence persistence = null;
 		try {
 			persistence = new AndroidPersistence( context, key );
@@ -120,7 +116,12 @@ public class AndroidItemListOperator
 			Log.e( e, "Cannot initialize the persistence!" );
 			return false;
 		}
-		if( !openPersistence( persistence ) ) {
+		try {
+			if( !openPersistence( persistence ) ) {
+				return false;
+			}
+		} catch (BadPersistenceFormatException e) {
+			Log.e( "Invalid persistence format!" );
 			return false;
 		}
 		
@@ -139,11 +140,11 @@ public class AndroidItemListOperator
 		return true;
 	}
 
-	private boolean openPersistence(Persistence persistence ) {
+	private boolean openPersistence(Persistence persistence )
+						throws BadPersistenceFormatException {
+		
 		try {
 			persistence.open();
-		} catch (BadPersistenceFormatException e) {
-			Log.d( e, "This should not happen!" );
 		} catch (IOException e) {
 			Log.e( e, "Cannot read from or write to the persistence!" );
 			return false;

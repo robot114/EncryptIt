@@ -6,9 +6,8 @@ import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.NoSuchPaddingException;
 
-import com.zsm.log.Log;
-import com.zsm.persistence.KeyPasswordInOutDecorator;
 import com.zsm.persistence.InOutDecorator;
+import com.zsm.persistence.KeyPasswordInOutDecorator;
 import com.zsm.persistence.PasswordInOutDecorator;
 
 public class SystemParameter {
@@ -48,12 +47,6 @@ public class SystemParameter {
 					throws NoSuchAlgorithmException, NoSuchPaddingException,
 							InvalidKeySpecException {
 		
-		if( inOutDecorator != null ) {
-			Log.w( "The InOutDecorator has been initialized!"
-				   + " The old one will be used!");
-			
-			return;
-		}
 		inOutDecorator
 			= new KeyPasswordInOutDecorator( SYMMETRIC_ALGORITHM,
 											 PBE_ALGORITHM,

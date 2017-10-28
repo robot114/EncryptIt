@@ -8,7 +8,7 @@ import android.net.Uri;
 
 import com.zsm.util.file.FileUtilities;
 
-public class UriRestoreSource implements Source {
+public class UriRestoreSource extends MagicHeader implements Source {
 
 	private ContentResolver mContentResolver;
 	private Uri mUri;

@@ -8,7 +8,6 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Vector;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -23,23 +22,29 @@ import com.zsm.log.Log;
 
 public class RestoreTask extends AsyncTask<RestoreOperator, Object, RESULT> {
 	
+	public interface ResultCallback {
+		void onFinished( RESULT res );
+	}
+	
 	private static final int BUFFER_SIZE = 4096;
-	private Activity mActivity;
+	private Context mContext;
 	private ProgressDialog mProgressDlg;
 	
 	private RestoreOperator[] mTasks;
 	private long mFinishedSize;
 	private RestoreOperator mCurrentTask;
 	private byte[] mBuffer;
+	private ResultCallback mResultCallback;
 
-	public RestoreTask(Activity activity ) {
+	public RestoreTask(Context activity, ResultCallback resultCallback ) {
 		super();
-		mActivity = activity;
+		mContext = activity;
 		mBuffer = new byte[BUFFER_SIZE];
+		mResultCallback = resultCallback;
 	}
 	
 	protected Context getContext() {
-		return mActivity;
+		return mContext;
 	}
 	
 	@Override
@@ -55,6 +60,10 @@ public class RestoreTask extends AsyncTask<RestoreOperator, Object, RESULT> {
 		mProgressDlg.setMax((int) getTotalSize( tasks ));
 		
 		mTasks = tasks;
+		
+		if( !verifySources(tasks) ) {
+			return RESULT.FAILED;
+		}
 		
 		Vector<RestoreOperator> v = protectCurrent(tasks);
 		if( v.size() < tasks.length ) {
@@ -72,6 +81,22 @@ public class RestoreTask extends AsyncTask<RestoreOperator, Object, RESULT> {
 		mCurrentTask = null;
 		return RESULT.OK;
 	}
+
+	private boolean verifySources(RestoreOperator... tasks) {
+		for( RestoreOperator t : tasks ) {
+			try( InputStream in = t.openInputStream() ) {
+				if( !t.checkHeader(in) ) {
+					Log.d( "Check header of the backed failed: ", t );
+					return false;
+				}
+			} catch (Exception e) {
+				Log.w(e, "Check backuped source failed", t);
+				return false;
+			}
+		}
+		
+		return true;
+	}
 	
 	private RESULT doRestore( RestoreOperator[] tasks, Vector<RestoreOperator> v ) {
 		for( RestoreOperator t : mTasks ) {
@@ -81,7 +106,7 @@ public class RestoreTask extends AsyncTask<RestoreOperator, Object, RESULT> {
 				if( r != RESULT.OK ) {
 					return r;
 				}
-				Log.d( "Backup successfully: ", t );
+				Log.d( "Restore successfully: ", t );
 			} catch ( GeneralSecurityException | IOException e) {
 				Log.e( e, "Restore failed: ", t );
 				return RESULT.FAILED;
@@ -128,16 +153,18 @@ public class RestoreTask extends AsyncTask<RestoreOperator, Object, RESULT> {
 			throws FileNotFoundException, IOException, GeneralSecurityException {
 		
 		String message
-			= mActivity.getString( R.string.promptRestore, t.displayName() );
+			= mContext.getString( R.string.promptRestore, t.displayName() );
 		publishProgress( message, 0 );
 		
 		try( 
 			OutputStream out = t.openOutputStream();
 			InputStream in = t.openInputStream() ) {
 			
+			t.checkHeader(in);
 			int count = 0;
 			while( ( count = in.read( mBuffer ) ) > 0 ) {
 				if( isCancelled() ) {
+					Log.d( "Restore cancelled: ", t );
 					restoreCurrent(Arrays.asList(mTasks));
 					return RESULT.CANCELLED;
 				}
@@ -164,36 +191,36 @@ public class RestoreTask extends AsyncTask<RestoreOperator, Object, RESULT> {
 	@Override
 	protected void onCancelled() {
 		mProgressDlg.dismiss();
-		mActivity.finish();
 		Toast
-			.makeText(mActivity, getResultMessage( RESULT.CANCELLED ),
+			.makeText(mContext, getResultMessage( RESULT.CANCELLED ),
 					  Toast.LENGTH_SHORT)
 			.show();
+		
+		mResultCallback.onFinished( RESULT.CANCELLED );
 	}
 
 	protected ProgressDialog buildProgressDlg( ) {
 
-		ProgressDialog dlg = new ProgressDialog(mActivity);
+		ProgressDialog dlg = new ProgressDialog(mContext);
 		dlg.setTitle(R.string.app_name );
 		dlg.setMessage( "" );
 		dlg.setCancelable(false);
 		dlg.setIndeterminate(false);
 		dlg.setProgressStyle( ProgressDialog.STYLE_HORIZONTAL );
 		dlg.setButton(DialogInterface.BUTTON_NEGATIVE,
-				mActivity.getText(android.R.string.cancel),
-				new DialogInterface.OnClickListener() {
+			mContext.getText(android.R.string.cancel),
+			new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					cancel(false);
+				}
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						cancel(false);
-					}
-
-				});
+			});
 
 		return dlg;
 	};
 
-	protected void showResult(RESULT result) {
+	protected void showResult(final RESULT result) {
 		mProgressDlg.setMessage( getResultMessage(result) );
 		Button button = mProgressDlg.getButton( DialogInterface.BUTTON_NEGATIVE );
 		button.setText( R.string.close );
@@ -201,7 +228,7 @@ public class RestoreTask extends AsyncTask<RestoreOperator, Object, RESULT> {
 			@Override
 			public void onClick(View v) {
 				mProgressDlg.dismiss();
-				mActivity.finish();
+				mResultCallback.onFinished(result);
 			}
 		} );
 	}
@@ -215,15 +242,15 @@ public class RestoreTask extends AsyncTask<RestoreOperator, Object, RESULT> {
 					builder.append( "\r\n " );
 					builder.append( mTasks[i].displayName() );
 				}
-				return mActivity.getString( R.string.promptRestoreOk,
+				return mContext.getString( R.string.promptRestoreOk,
 										    builder.toString() );
 			case FAILED:
 			final String displayName
 				= mCurrentTask == null ? "" : mCurrentTask.displayName();
-			return mActivity.getString(R.string.promptRestoreFailed,
+			return mContext.getString(R.string.promptRestoreFailed,
 							displayName );
 			case CANCELLED:
-				return mActivity.getString( R.string.promptRestoreCancelled);
+				return mContext.getString( R.string.promptRestoreCancelled);
 			default:
 				return "";
 		}

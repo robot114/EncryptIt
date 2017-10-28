@@ -112,10 +112,16 @@ public class Persistence implements Closeable {
 	 * <p>When the existed persistence instance is opened, this method will check
 	 * the validation.  
 	 * 
+	 * If the persistence is opened already, no thing will be done.
+	 * 
 	 * @throws BadPersistenceFormatException Check validation fails.
 	 * @throws IOException Read or write the persistence fails.
 	 */
 	public void open() throws BadPersistenceFormatException, IOException {
+		if( opened ) {
+			Log.d( "The persistence has been already opened, nothing will be done." );
+			return;
+		}
 		boolean rsExist = RecordStoreManager.getInstance().recordStoreExist(name);
 		recordStore
 			= RecordStoreManager.getInstance().openRawRecordStore(name);
@@ -199,10 +205,7 @@ public class Persistence implements Closeable {
 		}
 		opened = false;
 		
-		if( recordStore != null ) {
-			recordStore.close();
-			Log.d( "DB closed.", recordStore );
-		}
+		RecordStoreManager.getInstance().closeRawRecordStore( recordStore );
 	}
 	
 	/**
@@ -222,7 +225,7 @@ public class Persistence implements Closeable {
 
 	public boolean renameTo(String newFullPathName) throws FileNotFoundException {
 		close();
-		return RecordStoreManager.getInstance().rename( name, newFullPathName);
+		return RecordStoreManager.getInstance().rename( getFullPathName(), newFullPathName);
 	}
 
 	public boolean backupToLocal() throws FileNotFoundException {
@@ -241,29 +244,16 @@ public class Persistence implements Closeable {
 	 * @throws IOException if IO exception happens
 	 */
 	public RowId add( Serializable data ) throws IOException {
-		
 		Log.d( "The following is the data to be added: ", data );
-		ByteArrayOutputStream aos = new ByteArrayOutputStream();
-		ObjectOutputStream serOut = null;
-		RowId id = null;
-		try {
-			serOut = new ObjectOutputStream( wrapOutputStream( aos ) );
+		try( ByteArrayOutputStream aos = new ByteArrayOutputStream();
+			 ObjectOutputStream serOut
+			 	= new ObjectOutputStream( wrapOutputStream( aos ) )
+		) {
 			serOut.writeObject( data );
 			serOut.close();		// flush
-			serOut = null;
 			
-			AbstractRawCursor c = recordStore.add( aos.toByteArray() );
-			id = c.currentId();
-			Log.d( "Data added to the db as a byte array!" );
-			c.close();
-		} finally {
-			if( serOut != null ) {
-				serOut.close();
-			}
-			aos.close();
+			return add( aos.toByteArray() );
 		}
-		
-		return id;
 	}
 
 	/**
@@ -274,7 +264,7 @@ public class Persistence implements Closeable {
 	 * @throws IOException if IO exception happens
 	 */
 	public RowId add( byte[] data ) throws IOException {
-		
+		checkOpened();
 		Log.d( "The following byte buffer is to be added: ", data );
 		RowId id = null;
 		AbstractRawCursor c = recordStore.add( getInOutDecorator().encode(data) );
@@ -283,6 +273,12 @@ public class Persistence implements Closeable {
 		c.close();
 		
 		return id;
+	}
+
+	private void checkOpened() throws IOException {
+		if( !opened ) {
+			throw new IOException( "Persistence is not opened!" );
+		}
 	}
 
 	/**
@@ -305,6 +301,7 @@ public class Persistence implements Closeable {
 	public Object read(AbstractRawCursor cursor)
 			throws BadPersistenceFormatException, ClassNotFoundException, IOException {
 		
+		checkOpened();
 		InputStream in = getInputStream(cursor);
 		ObjectInputStream serIn = null;
 		Object obj = null;
@@ -346,6 +343,8 @@ public class Persistence implements Closeable {
 	 * @throws IOException if IO exception happens
 	 */
 	public void update( RowId id, Serializable data ) throws IOException {
+		checkOpened();
+
 		OutputStream out = getOutputStream( id );
 		ObjectOutputStream serOut = null;
 		try {
@@ -379,6 +378,7 @@ public class Persistence implements Closeable {
 	 * @throws IOException if IO exception happens
 	 */
 	public void update( RowId id, byte[] data ) throws IOException {
+		checkOpened();
 		recordStore.update(id, getInOutDecorator().encode(data));
 	}
 
@@ -388,7 +388,8 @@ public class Persistence implements Closeable {
 	 * @param id remove a record by id
 	 * @return count of records removed. It should be 0 or 1 here.
 	 */
-	public int remove( RowId id ) {
+	public int remove( RowId id ) throws IOException {
+		checkOpened();
 		int num = recordStore.remove(id);
 		return num;
 	}
@@ -398,8 +399,10 @@ public class Persistence implements Closeable {
 	 * 
 	 * @return count of records removed. It should be 0 or 1 here.
 	 * @param cursor record at where to be removed
+	 * @throws IOException 
 	 */
-	public int remove(AbstractRawCursor cursor) {
+	public int remove(AbstractRawCursor cursor) throws IOException {
+		checkOpened();
 		int num = recordStore.remove(cursor);
 		return num;
 	}
@@ -412,6 +415,7 @@ public class Persistence implements Closeable {
 	 * @throws IOException IO error occurred
 	 */
 	public InputStream getInputStream(AbstractRawCursor cursor) throws IOException {
+		checkOpened();
 		return wrapInputStream( recordStore.getInputStream(cursor) );
 	}
 	
@@ -423,6 +427,7 @@ public class Persistence implements Closeable {
 	 * @throws IOException IO error occurred
 	 */
 	public InputStream getInputStream( RowId id ) throws IOException {
+		checkOpened();
 		return wrapInputStream( recordStore.getInputStream(id) );
 	}
 	
@@ -436,6 +441,7 @@ public class Persistence implements Closeable {
 	public DataOutputStream getOutputStream(AbstractRawCursor cursor)
 				throws IOException {
 		
+		checkOpened();
 		return wrapOutputStream( recordStore.getOutputStream(cursor) );
 	}
 
@@ -447,6 +453,7 @@ public class Persistence implements Closeable {
 	 * @throws IOException IO error occurred
 	 */
 	public DataOutputStream getOutputStream( RowId id ) throws IOException {
+		checkOpened();
 		return wrapOutputStream( recordStore.getOutputStream(id) );
 	}
 
@@ -494,28 +501,40 @@ public class Persistence implements Closeable {
 		
 		String backupName2 = backupName + ".bak2";
 		if( !renameTo( backupName2 ) ) {
+			Log.w( "Rename the current db to backup2 failed, to file:",
+				   backupName2);
+			
 			return false;
 		}
+		
+		String fullpathName = getFullPathName();
 		
 		// The the file with "name" is the local backup file
 		try {
-			if( !RecordStoreManager.getInstance().rename( backupName, name ) ) {
-				restoreForRestore(backupName2);
+			if( !RecordStoreManager.getInstance().rename( backupName, fullpathName ) ) {
+				boolean res = restoreForRestore(backupName2);
+				Log.w( "Rename from the local backuped failed.",  "from file",
+					   backupName, "result of restore from backup2", res );
 				return false;
 			}
 		} catch ( FileNotFoundException e ) {
-			restoreForRestore(backupName2);
+			boolean res = restoreForRestore(backupName2);
+			Log.w( "The local backuped does not found.",  "from file",
+				   backupName, "result of restore from backup2", res );
 			return false;
 		}
 		
+		new File( backupName2).delete();
+		Log.d( "Restore from the local backuped file successfully!" );
 		return true;
 	}
 
-	private void restoreForRestore(String backupName)
+	private boolean restoreForRestore(String backupName)
 			throws FileNotFoundException {
 		// Delete the local backup file
-		new File( getFullPathName() ).delete();
-		RecordStoreManager.getInstance().rename( backupName, name );
+		String fullPathName = getFullPathName();
+		new File( fullPathName ).delete();
+		return RecordStoreManager.getInstance().rename( backupName, fullPathName );
 	}
 	
 	public boolean restoreFromLocal() throws FileNotFoundException {
@@ -523,7 +542,7 @@ public class Persistence implements Closeable {
 	}
 
 	
-	public ParcelFileDescriptor openForBackup(String mode)
+	public ParcelFileDescriptor openFileDescriptorForBackup(String mode)
 					throws FileNotFoundException {
 		
 		if( !"r".equals( mode ) && !"w".equals(mode) ) {

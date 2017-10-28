@@ -40,15 +40,15 @@ public class PasswordRestoreOperator extends RestoreOperator {
 				.append( ", Source: " )
 				.append( mSource );
 		if( hasPassword() ) {
-			builder.append( ", Without Password" );
-		} else {
 			builder.append( ", With Password" );
+		} else {
+			builder.append( ", Without Password" );
 		}
 		
 		return builder.toString();
 	}
 
 	private boolean hasPassword() {
-		return mPassword == null || mPassword.length == 0;
+		return mPassword != null && mPassword.length > 0;
 	}
 }

@@ -38,8 +38,9 @@ public abstract class RecordStore implements Closeable {
 	 * @throws RecordStoreException
 	 */
 	synchronized public void close() throws RecordStoreException {
-		for( AbstractCursor c : cursorSet ) {
-			c.close();
+		int size = cursorSet.size();
+		for( int i = size - 1; i >= 0; i-- ) {
+			cursorSet.get(i).close();
 		}
 	}
 

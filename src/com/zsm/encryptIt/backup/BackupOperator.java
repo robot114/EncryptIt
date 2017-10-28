@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 
-public class BackupOperator {
+public class BackupOperator implements Target {
 
 	protected final Backupable mSource;
 	protected final Target mTarget;
@@ -19,16 +19,23 @@ public class BackupOperator {
 		return mSource.openBackupSrcInputStream();
 	}
 	
-	OutputStream openOutputStream()
+	@Override
+	public OutputStream openOutputStream()
 					throws GeneralSecurityException, IOException {
 		
 		return mTarget.openOutputStream();
 	}
 
-	String displayName() {
+	@Override
+	public String displayName() {
 		return mTarget.displayName();
 	}
 	
+	@Override
+	public void outputHeader(OutputStream out) throws IOException {
+		mTarget.outputHeader(out);
+	}
+
 	long size() {
 		return mSource.size();
 	}

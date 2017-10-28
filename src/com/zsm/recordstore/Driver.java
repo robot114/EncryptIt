@@ -67,6 +67,13 @@ public interface Driver {
 								boolean readOnly );
 
 	/**
+	 * Close a normal database. 
+	 * 
+	 * @param rs the recordstore to be closed
+	 */
+	void closeRecordStore(RecordStore rs);
+
+	/**
 	 * Open a raw database. A raw data base is the one that each row has tow columns,
 	 * one is the id, the other one is a byte[] type raw data. The structure and the
 	 * meaning of the raw data is defined by the caller. 
@@ -80,4 +87,12 @@ public interface Driver {
 	 */
 	RawRecordStore openRawRecordStore(String name, boolean createIfNecessary,
 			   						  boolean readOnly);
+	
+	/**
+	 * Close a raw database.
+	 * 
+	 * @param rs the recordstore to be closed
+	 */
+	void closeRawRecordStore(RawRecordStore rs);
+
 }

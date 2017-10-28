@@ -9,7 +9,7 @@ import java.io.OutputStream;
 import java.sql.RowId;
 
 import com.zsm.encryptIt.WhatToDoItem;
-import com.zsm.encryptIt.backup.Source;
+import com.zsm.log.Log;
 import com.zsm.persistence.BadPersistenceFormatException;
 import com.zsm.persistence.Persistence;
 import com.zsm.recordstore.AbstractRawCursor;
@@ -42,7 +42,11 @@ public class PersistenceStorageAdapter implements ItemStorageAdapter {
 
 	@Override
 	public void remove(RowId rowId) {
-		persistence.remove(rowId);
+		try {
+			persistence.remove(rowId);
+		} catch (IOException e) {
+			Log.e( e, "Remove a row failed! rowId: ", rowId );
+		}
 	}
 
 	@Override
@@ -88,6 +92,12 @@ public class PersistenceStorageAdapter implements ItemStorageAdapter {
 	@Override
 	public boolean restoreFromLocalBackup() throws FileNotFoundException {
 		return persistence.restoreFromLocal( );
+	}
+
+	@Override
+	public void reopen() throws Exception {
+		persistence.close();
+		persistence.open();
 	}
 
 }

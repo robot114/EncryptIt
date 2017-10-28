@@ -61,4 +61,9 @@ public class RecordStoreManager {
 	public RawRecordStore openRawRecordStore( String name ) {
 		return openRawRecordStore( name, true );
 	}
+
+	public void closeRawRecordStore(RawRecordStore recordStore) {
+		checkDefaultDriver();
+		defaultDriver.closeRawRecordStore(recordStore);
+	}
 }

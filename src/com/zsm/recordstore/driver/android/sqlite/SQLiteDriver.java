@@ -7,6 +7,7 @@ import java.io.IOException;
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.zsm.log.Log;
 import com.zsm.recordstore.Driver;
 import com.zsm.recordstore.RawRecordStore;
 import com.zsm.recordstore.RecordStore;
@@ -54,6 +55,8 @@ public class SQLiteDriver implements Driver {
 		}
 		File old = getRecordStoreFile(name);
 		File target = new File( newPathName );
+		target.delete();
+		
 		return old.renameTo(target);
 	}
 	
@@ -75,6 +78,7 @@ public class SQLiteDriver implements Driver {
 										   readOnly );
 		}
 		
+		Log.d( "RecordStore opened: ", rs, "name", name );
 		return rs;
 	}
 
@@ -87,6 +91,20 @@ public class SQLiteDriver implements Driver {
 
 	private File getRecordStoreFile(String name) {
 		return context.getDatabasePath(name).getAbsoluteFile();
+	}
+
+	@Override
+	public void closeRecordStore(RecordStore rs) {
+		// TODO Auto-generated method stub
+		rs.close();
+		Log.d( "RecordStore closed: ", rs );
+	}
+
+	@Override
+	public void closeRawRecordStore(RawRecordStore rs) {
+		// TODO Auto-generated method stub
+		rs.close();
+		Log.d( "RecordStore closed: ", rs );
 	}
 
 }

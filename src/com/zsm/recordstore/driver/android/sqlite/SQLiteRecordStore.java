@@ -63,6 +63,10 @@ public class SQLiteRecordStore extends RecordStore {
 			  				 			String orderBy, Object parameter )
 			throws RecordStoreNotOpenException {
 		
+		if( !isOpen() ) {
+			throw new RecordStoreNotOpenException( "RecordStore is not opened!" );
+		}
+		
 		RecordStoreCursor c
 			= new SQLiteDriverCursor( this, tables, columns,
 									  selection, selectionArgs, groupBy,

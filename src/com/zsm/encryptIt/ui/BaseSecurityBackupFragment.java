@@ -3,13 +3,6 @@ package com.zsm.encryptIt.ui;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import com.zsm.encryptIt.R;
-import com.zsm.encryptIt.app.EncryptItApplication;
-import com.zsm.encryptIt.backup.Backupable;
-import com.zsm.encryptIt.ui.preferences.Preferences;
-import com.zsm.log.Log;
-import com.zsm.security.KeyManager;
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
@@ -24,10 +17,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.zsm.encryptIt.R;
+import com.zsm.encryptIt.app.EncryptItApplication;
+import com.zsm.encryptIt.backup.Backupable;
+import com.zsm.encryptIt.ui.preferences.Preferences;
+import com.zsm.log.Log;
+import com.zsm.security.KeyManager;
+
 public abstract class BaseSecurityBackupFragment extends Fragment {
 
 	protected static final String MIME_TYPE = "application/octet-stream";
 	protected static final int REQUEST_CODE_BACKUP_PATH = 201;
+	protected static final int REQUEST_CODE_SUBCLASS = 300;
+	
 	private static final String[] BACKUP_EXT = { ".key", ".db" };
 	private static Hashtable<String, Backupable> BACKUPABLES;
 							
@@ -119,7 +121,8 @@ public abstract class BaseSecurityBackupFragment extends Fragment {
 		if( BACKUPABLES == null ) {
 			BACKUPABLES = new Hashtable<String, Backupable>( BACKUP_EXT.length );
 			BACKUPABLES.put( ".key", KeyManager.getInstance() );
-			BACKUPABLES.put( ".db", getApp().getItemListController().getBackupable() );
+			BACKUPABLES.put(
+				".db", getApp().getItemListController().getItemStorageAdapter() );
 		}
 
 		return BACKUPABLES;
@@ -189,9 +192,8 @@ public abstract class BaseSecurityBackupFragment extends Fragment {
 		return files;
 	}
 
-	protected Vector<DocumentFile> getMissedBackupFilesInBackupDir() {
-		final Vector<DocumentFile> files
-			= new Vector<DocumentFile>( BACKUP_EXT.length );
+	protected Vector<String> getMissedBackupFilesInBackupDir() {
+		final Vector<String> files = new Vector<String>( BACKUP_EXT.length );
 		
 		String nameStr = mNameView.getText().toString();
 		DocumentFile dir = DocumentFile.fromTreeUri(getApp(), mPathUri);
@@ -199,7 +201,7 @@ public abstract class BaseSecurityBackupFragment extends Fragment {
 			final String fn = nameStr + ext;
 			final DocumentFile file = dir.findFile( fn );
 			if( file == null || file.isDirectory() ) {
-				files.add(file);
+				files.add(fn);
 			}
 		}
 		return files;

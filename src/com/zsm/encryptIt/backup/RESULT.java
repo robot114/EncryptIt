@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.zsm.encryptIt.R;
 
-enum RESULT { OK, FAILED, CANCELLED;
+public enum RESULT { OK, FAILED, CANCELLED;
 
 	String getString( Context context ) {
 		int resId;

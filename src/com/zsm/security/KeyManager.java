@@ -18,6 +18,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
 import com.zsm.encryptIt.backup.Backupable;
+import com.zsm.encryptIt.ui.preferences.Preferences;
 import com.zsm.log.Log;
 import com.zsm.util.file.FileUtilities;
 
@@ -34,10 +35,8 @@ public enum KeyManager implements Backupable {
 	private static final String KEY_FOR_SECONDARYKEY = "secondary_key";
 	
 	private String path;
-
 	private File ksFile;
-
-	private KeyStore keystore;
+	private KeyStore keystore;	// password to protect the WHOLE key store
 	private char[] ksPassword;
 	
 	private KeyManager() {
@@ -56,7 +55,7 @@ public enum KeyManager implements Backupable {
 	 * that passed in. A key manager can only be initialized once.
 	 * 
 	 * @param ksPath key store path
-	 * @param ksPassword password to protect the key store.
+	 * @param ksPassword password to protect the WHOLE key store.
 	 * @throws IOException if a problem occurred while reading from the stream
 	 * @throws KeyStoreException if the key store type were not supported
 	 * @throws CertificateException if the key store password is invalid
@@ -64,7 +63,7 @@ public enum KeyManager implements Backupable {
 	 * 									 available when read the key store 
 	 */
 	public void initialize( String ksPath, char[] ksPassword )
-					throws IOException, KeyStoreException, CertificateException,
+					throws KeyStoreException, CertificateException,
 							NoSuchAlgorithmException {
 		if( path != null ) {
 			throw new IllegalStateException( "KeyStore has been initialized!" );
@@ -72,29 +71,61 @@ public enum KeyManager implements Backupable {
 		path = ksPath;
 		ksFile = new File( makeFullName(KEYSTORE_FILE_NAME) );
 		
+		if( keystore != null ) {
+			Log.d( "Key Store existed!" );
+			return;
+		}
+		keystore = KeyStore.getInstance( KEYSTORE_YTPE );
+		Log.d( "Type of keystore. ", KEYSTORE_YTPE );
+		
 		this.ksPassword = ksPassword;
-		loadKeys();
+		try {
+			loadKeys( );
+		} catch (IOException e) {
+			Log.e( e, "Load from keystore failed!" );
+			// Load key failed, rename the key store file and retry
+			renanmeKeyStoreToTempFile();
+			try {
+				loadKeys( );
+			} catch (IOException ee) {
+				Log.e( ee, "Retrye to load from keystore failed!" );
+			}
+		}
 	}
 
 	private String makeFullName(String fileName) {
 		return path + "/" + fileName;
 	}
 	
-	private void loadKeys()
-			throws KeyStoreException, CertificateException, IOException, 
-					NoSuchAlgorithmException {
+	private void loadKeys( )
+					throws NoSuchAlgorithmException, CertificateException,
+						   IOException {
 		
-		if( keystore != null ) {
-			return;
-		}
-		keystore = KeyStore.getInstance( KEYSTORE_YTPE );
-		Log.d( "Type of keystore. ", KEYSTORE_YTPE );
-		
-		try(InputStream is = new FileInputStream( ksFile ) ) {
-			keystore.load( is, ksPassword );
+		InputStream is = null;
+		try {
+			is = new FileInputStream( ksFile );
 		} catch ( IOException e ) {
-			Log.d( "KeyStore file not found, an empty inputstream will be used." );
+			Log.d( "Keystore file does not exist, en empty inputstream will be used!" );
 		}
+		
+		try {
+			keystore.load( is, ksPassword );
+		} finally {
+			if( is != null ) {
+				is.close();
+			}
+		}
+	}
+	
+	private void renanmeKeyStoreToTempFile() {
+		int num = Preferences.getInstance().getLastTempKeyStoreFileNumber()+1;
+		num = num % Preferences.getInstance().getTempKeyStoreFileMaxNumber();
+		File tempFile = new File( makeFullName(KEYSTORE_FILE_NAME + ".tmp" + num) );
+		tempFile.delete();
+		ksFile.renameTo(tempFile);
+		Log.d( "Current keystore file renamed to: ", tempFile );
+		Preferences.getInstance().setLastTempKeyStoreFileNumber(num);
+		ksFile = new File( makeFullName(KEYSTORE_FILE_NAME) );
 	}
 
 	/**
@@ -280,7 +311,7 @@ public enum KeyManager implements Backupable {
 	@Override
 	public boolean restoreFromLocalBackup() {
 		String backupName = makeFullName( KEY_STORE_BACKUP_FILE_NAME );
-		File backup2 = new File( backupName + "bak2" );
+		File backup2 = new File( backupName + ".bak2" );
 		boolean backupOk
 			= FileUtilities.checkAndRenameTo( ksFile, backup2, true );
 		if( !backupOk ) {
@@ -295,5 +326,12 @@ public enum KeyManager implements Backupable {
 		}
 		
 		return true;
+	}
+
+	@Override
+	public void reopen()
+		throws NoSuchAlgorithmException, CertificateException, IOException {
+		
+		loadKeys( );
 	}
 }

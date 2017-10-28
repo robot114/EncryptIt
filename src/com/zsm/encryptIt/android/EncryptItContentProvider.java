@@ -29,6 +29,10 @@ public class EncryptItContentProvider extends ContentProvider {
 	private static final String PATH_BACKUP = "backup";
 	private static final String PATH_FROM_LOCAL = PATH_BACKUP+"/fromlocal";
 	private static final String PATH_TO_LOCAL = PATH_BACKUP+"/tolocal";
+	
+	private static final String PATH_DB_OPERATION = "database";
+	private static final String PATH_REOPEN_DATABASE = PATH_DB_OPERATION+"/reopen";
+	private static final String PATH_CLOSE_DATABASE = PATH_DB_OPERATION+"/close";
 
 	public static final String KEY_DATA = "DATA";
 	
@@ -46,6 +50,8 @@ public class EncryptItContentProvider extends ContentProvider {
 	private static final int CODE_BACKUP = 10;
 	private static final int CODE_BACKUP_TO_LOCAL = 11;
 	private static final int CODE_RESTORE_FROM_LOCAL = 12;
+	private static final int CODE_CLOSE_DATABASE = 13;
+	private static final int CODE_REOPEN_DATABASE = 14;
 	
 	private static final String[] OPENABLE_COLUMNS = new String[] {
 		OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE
@@ -56,6 +62,8 @@ public class EncryptItContentProvider extends ContentProvider {
 	private static Uri backupUri;
 	private static Uri backupToLocalUri;
 	private static Uri restoreFromLocalUri;
+	private static Uri closeUri;
+	private static Uri reopenUri;
 	
 	private Persistence persistence;
 
@@ -70,11 +78,15 @@ public class EncryptItContentProvider extends ContentProvider {
 			uriMatcher.addURI( getUri(), PATH_TO_LOCAL, CODE_BACKUP_TO_LOCAL );
 			uriMatcher.addURI( getUri(), PATH_FROM_LOCAL, CODE_RESTORE_FROM_LOCAL );
 			uriMatcher.addURI( getUri(), PATH_BACKUP, CODE_BACKUP );
+			uriMatcher.addURI( getUri(), PATH_CLOSE_DATABASE, CODE_CLOSE_DATABASE );
+			uriMatcher.addURI( getUri(), PATH_REOPEN_DATABASE, CODE_REOPEN_DATABASE );
 			
 			contentUri = Uri.parse( "content://" + getUri() + "/" + ITEMS );
 			backupUri = Uri.parse( "content://" + getUri() + "/" + PATH_BACKUP );
 			backupToLocalUri = Uri.parse( "content://" + getUri() + "/" + PATH_TO_LOCAL );
 			restoreFromLocalUri = Uri.parse( "content://" + getUri() + "/" + PATH_FROM_LOCAL );
+			reopenUri = Uri.parse( "content://" + getUri() + "/" + PATH_REOPEN_DATABASE );
+			closeUri = Uri.parse( "content://" + getUri() + "/" + PATH_CLOSE_DATABASE );
 		}
 		return true;
 	}
@@ -162,7 +174,7 @@ public class EncryptItContentProvider extends ContentProvider {
 		if( uriMatcher.match(uri) != CODE_BACKUP ) {
 			throw new IllegalArgumentException( "Unsupport file uri: " + uri );
 		}
-		return persistence.openForBackup(mode);
+		return persistence.openFileDescriptorForBackup(mode);
 	}
 
 	@Override
@@ -211,7 +223,11 @@ public class EncryptItContentProvider extends ContentProvider {
 		
 		switch( uriMatcher.match(uri) ) {
 			case CODE_SINGLE:
-				count = persistence.remove(getIdFromUri(uri));
+				try {
+					count = persistence.remove(getIdFromUri(uri));
+				} catch (IOException e) {
+					Log.e( e, "Remove item failed: ", uri );
+				}
 				break;
 			case CODE_ALL:
 				persistence.clear();
@@ -232,37 +248,74 @@ public class EncryptItContentProvider extends ContentProvider {
 		Log.d( "To update. ", "uri", uri, "data", values );
 		switch( uriMatcher.match(uri) ) {
 			case CODE_SINGLE:
-				LongRowId id = getIdFromUri(uri);
-				byte[] data = values.getAsByteArray( KEY_DATA );
-				try {
-					persistence.update(id, data);
-				} catch ( Exception e ) {
-					Log.e( e, "Update record at id failed!", "id", id, "data", data );
-					return 0;
-				}
-				notifyResolverChange(uri);
-				return 1;
+				return updateSingle(uri, values);
 			case CODE_BACKUP_TO_LOCAL:
-				try {
-					persistence.backupToLocal();
-				} catch (FileNotFoundException e) {
-					Log.e( "Backup to local failed!" );
-					return 0;
-				}
-				return 1;
+				return backupToLocal();
 			case CODE_RESTORE_FROM_LOCAL:
-				try {
-					persistence.restoreFromLocal( );
-				} catch (FileNotFoundException e) {
-					Log.e( "Restore from local failed!" );
-					return 0;
-				}
-				return 1;
+				return restoreFromLocal();
+			case CODE_CLOSE_DATABASE:
+				return closeDatabase();
+			case CODE_REOPEN_DATABASE:
+				return reopenDatabase();
 			case CODE_ALL:
 			default:
 				throw new IllegalArgumentException( "Unsupport update uri: " + uri );
 				
 		}
+	}
+
+	private int closeDatabase() {
+		persistence.close();
+		initialized = false;
+		notifyResolverChange( getCloseUri() );
+		return 1;
+	}
+
+	private int reopenDatabase() {
+		persistence.close();
+		initialized = false;
+		try {
+			persistence.open();
+			notifyResolverChange( getReopenUri() );
+		} catch (BadPersistenceFormatException | IOException e) {
+			Log.e( e, "Reopen persistence failed!" );
+			return 0;
+		}
+		initialized = true;
+		return 1;
+	}
+
+	private int restoreFromLocal() {
+		try {
+			persistence.restoreFromLocal( );
+		} catch (FileNotFoundException e) {
+			Log.e( "Restore from local failed!" );
+			return 0;
+		}
+		return 1;
+	}
+
+	private int backupToLocal() {
+		try {
+			persistence.backupToLocal();
+		} catch (FileNotFoundException e) {
+			Log.e( "Backup to local failed!" );
+			return 0;
+		}
+		return 1;
+	}
+
+	private int updateSingle(Uri uri, ContentValues values) {
+		LongRowId id = getIdFromUri(uri);
+		byte[] data = values.getAsByteArray( KEY_DATA );
+		try {
+			persistence.update(id, data);
+		} catch ( Exception e ) {
+			Log.e( e, "Update record at id failed!", "id", id, "data", data );
+			return 0;
+		}
+		notifyResolverChange(uri);
+		return 1;
 	}
 
 	private LongRowId getIdFromUri(Uri uri) {
@@ -287,5 +340,13 @@ public class EncryptItContentProvider extends ContentProvider {
 
 	public static Uri getRestoreFromLocalUri() {
 		return restoreFromLocalUri;
+	}
+
+	public static Uri getCloseUri() {
+		return closeUri;
+	}
+
+	public static Uri getReopenUri() {
+		return reopenUri;
 	}
 }

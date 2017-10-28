@@ -179,6 +179,7 @@ public class EncryptItApplication extends Application implements TelephonyBase {
 	}
 	
 	public void setItemListActor(ItemListController itemListActor) {
+		Log.d( "Item List Actor is set: ", itemListActor );
 		itemActioner = itemListActor;
 	}
 	

@@ -78,10 +78,10 @@ public class BackupTask extends AsyncTask<BackupOperator, Object, RESULT> {
 			= mActivity.getString( R.string.promptBackup, t.displayName() );
 		publishProgress( message, 0 );
 		
-		try( 
-			OutputStream out = t.openOutputStream();
-			InputStream in = t.openInputStream() ) {
+		try( OutputStream out = t.openOutputStream();
+			 InputStream in = t.openInputStream() ) {
 			
+			t.outputHeader(out);
 			int count = 0;
 			while( ( count = in.read( mBuffer ) ) > 0 ) {
 				if( isCancelled() ) {
