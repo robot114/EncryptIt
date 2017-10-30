@@ -28,7 +28,7 @@
         android:onClick="onNumber"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <com.zsm.encryptIt.ui.VisiblePassword
+    <com.zsm.android.ui.VisiblePassword
         android:id="@+id/backupPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
         custom:hintText="@string/hintSecurityMessagePassword"
         custom:labelText="@string/passwordLabel" >
 
-    </com.zsm.encryptIt.ui.VisiblePassword>
+    </com.zsm.android.ui.VisiblePassword>
 
     <LinearLayout
         android:layout_width="match_parent"

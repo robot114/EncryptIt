@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.zsm.android.ui.VisiblePassword;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.app.EncryptItApplication;
 import com.zsm.encryptIt.backup.Backupable;

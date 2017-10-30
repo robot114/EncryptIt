@@ -91,7 +91,7 @@
 
     </LinearLayout>
 
-    <com.zsm.encryptIt.ui.VisiblePassword
+    <com.zsm.android.ui.VisiblePassword
         android:id="@+id/backupPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -99,9 +99,9 @@
         custom:hintText="@string/hintBackupPassword"
         custom:labelText="@string/titleBackupPassword" >
 
-    </com.zsm.encryptIt.ui.VisiblePassword>
+    </com.zsm.android.ui.VisiblePassword>
 
-    <com.zsm.encryptIt.ui.VisiblePassword
+    <com.zsm.android.ui.VisiblePassword
         android:id="@+id/backupPasswordConfirm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -109,7 +109,7 @@
         custom:hintText="@string/hintBackupPassword"
         custom:labelText="@string/titleBackupPasswordConfirm" >
 
-    </com.zsm.encryptIt.ui.VisiblePassword>
+    </com.zsm.android.ui.VisiblePassword>
 
     <TextView
         android:id="@+id/textViewCheckResult"

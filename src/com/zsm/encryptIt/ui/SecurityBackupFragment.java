@@ -17,6 +17,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 import com.zsm.android.ui.Utility;
+import com.zsm.android.ui.VisiblePassword;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.app.EncryptItApplication;
 import com.zsm.encryptIt.backup.BackupOperator;

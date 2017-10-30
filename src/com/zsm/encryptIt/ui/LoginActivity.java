@@ -14,6 +14,7 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.zsm.android.ui.VisiblePassword;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.android.action.PasswordPromptParameter;
 import com.zsm.encryptIt.app.EncryptItApplication;

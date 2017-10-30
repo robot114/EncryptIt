@@ -53,7 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/loginButtonLayout" >
 
-        <com.zsm.encryptIt.ui.VisiblePassword
+        <com.zsm.android.ui.VisiblePassword
             android:id="@+id/loginPassword"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
@@ -61,7 +61,7 @@
             android:imeOptions="actionGo"
             custom:labelText="@string/passwordLabel" >
 
-        </com.zsm.encryptIt.ui.VisiblePassword>
+        </com.zsm.android.ui.VisiblePassword>
     </RelativeLayout>
 
 </RelativeLayout>

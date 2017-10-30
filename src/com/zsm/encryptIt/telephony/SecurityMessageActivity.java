@@ -14,10 +14,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.zsm.android.ui.VisiblePassword;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.telephony.SecurityMessager.SmsResultReceiver;
 import com.zsm.encryptIt.ui.ProtectedActivity;
-import com.zsm.encryptIt.ui.VisiblePassword;
 import com.zsm.log.Log;
 
 public class SecurityMessageActivity extends ProtectedActivity {
