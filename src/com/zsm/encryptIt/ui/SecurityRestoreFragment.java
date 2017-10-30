@@ -51,7 +51,7 @@ public class SecurityRestoreFragment extends BaseSecurityBackupFragment
 	
 	@Override
 	protected void afterInitViews(TextWatcher tw) {
-		mBackupButton.setOnClickListener( new OnClickListener() {
+		mActionButton.setOnClickListener( new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				AlertDialog.Builder builder
@@ -73,6 +73,10 @@ public class SecurityRestoreFragment extends BaseSecurityBackupFragment
 		} );
 	}
 	
+	@Override
+	protected void alignLabels() {
+	}
+
 	private void doRestore() {
 		final Vector<String> missedFiles = getMissedBackupFilesInBackupDir();
 		if( missedFiles.size() > 0 ) {

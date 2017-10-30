@@ -59,7 +59,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int hintText=0x7f010007;
+        public static final int hintText=0x7f010008;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -68,6 +68,14 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int labelText=0x7f010006;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int labelWeight=0x7f010007;
     }
     public static final class color {
         public static final int AliceBlue=0x7f06002d;
@@ -288,12 +296,11 @@ containing a value of this type.
         public static final int ToDoListFragment=0x7f080038;
         public static final int aboutText=0x7f080007;
         public static final int auto=0x7f080003;
-        public static final int backupPassword=0x7f080047;
-        public static final int backupPasswordConfirm=0x7f080048;
-        public static final int button0=0x7f08004d;
-        public static final int buttonBackupPath=0x7f080045;
-        public static final int buttonCancel=0x7f08004a;
-        public static final int buttonRestore=0x7f08004b;
+        public static final int backupPassword=0x7f08004b;
+        public static final int backupPasswordConfirm=0x7f08004c;
+        public static final int button0=0x7f080050;
+        public static final int buttonAction=0x7f08004e;
+        public static final int buttonBackupPath=0x7f080047;
         public static final int clearButton=0x7f08000f;
         public static final int clearableEditor=0x7f080037;
         public static final int detailCreateTime=0x7f080013;
@@ -304,13 +311,13 @@ containing a value of this type.
         public static final int detailTime=0x7f080011;
         public static final int detailTimeLayout=0x7f080018;
         public static final int editText=0x7f080010;
-        public static final int editTextFileName=0x7f080046;
-        public static final int editTextMessage=0x7f080051;
+        public static final int editTextFileName=0x7f08004a;
+        public static final int editTextMessage=0x7f080054;
         public static final int editorLayout=0x7f080035;
-        public static final int expanableSubItemDetail=0x7f08005c;
-        public static final int expandableSubItemDetailTime=0x7f08005a;
-        public static final int expandableSubItemSeparator=0x7f08005b;
-        public static final int expandableTodoList=0x7f08005d;
+        public static final int expanableSubItemDetail=0x7f08005f;
+        public static final int expandableSubItemDetailTime=0x7f08005d;
+        public static final int expandableSubItemSeparator=0x7f08005e;
+        public static final int expandableTodoList=0x7f080060;
         public static final int fileCancel=0x7f080025;
         public static final int fileDialogLayout=0x7f08001e;
         public static final int fileFilter=0x7f08002a;
@@ -325,22 +332,25 @@ containing a value of this type.
         public static final int fileTextView=0x7f080021;
         public static final int fragmentBackup=0x7f080042;
         public static final int fragmentLog=0x7f08002e;
-        public static final int fragmentRestore=0x7f080055;
+        public static final int fragmentRestore=0x7f080058;
         public static final int fragmentStdPreferences=0x7f080009;
         public static final int horizontal=0x7f080004;
-        public static final int imageAccept=0x7f080050;
-        public static final int imageBackspace=0x7f08004f;
-        public static final int imageReject=0x7f08004e;
+        public static final int imageAccept=0x7f080053;
+        public static final int imageBackspace=0x7f080052;
+        public static final int imageReject=0x7f080051;
         public static final int imageView=0x7f080006;
-        public static final int imageViewCancel=0x7f080053;
+        public static final int imageViewCancel=0x7f080056;
         public static final int imageViewExpand=0x7f08001a;
-        public static final int imageViewOK=0x7f080054;
+        public static final int imageViewOK=0x7f080057;
         public static final int imageViewSearchLogsBackward=0x7f08002d;
         public static final int imageViewSearchLogsForward=0x7f08002c;
-        public static final int itemBackup=0x7f080070;
-        public static final int itemRestoreSecurity=0x7f080072;
+        public static final int itemBackup=0x7f080073;
+        public static final int itemRestoreSecurity=0x7f080075;
         public static final int layoutGroup=0x7f08000c;
-        public static final int layoutProgress=0x7f080056;
+        public static final int layoutMain=0x7f080043;
+        public static final int layoutName=0x7f080048;
+        public static final int layoutPath=0x7f080045;
+        public static final int layoutProgress=0x7f080059;
         public static final int libCheckBox=0x7f08000d;
         public static final int libTextView=0x7f08000e;
         public static final int loginButtonLayout=0x7f08002f;
@@ -349,24 +359,24 @@ containing a value of this type.
         public static final int loginOkButton=0x7f080030;
         public static final int loginPassword=0x7f080034;
         public static final int loginPasswordLayout=0x7f080033;
-        public static final int menuAdvancedSetting=0x7f080068;
-        public static final int menuBackupSecurity=0x7f080071;
-        public static final int menuCall=0x7f08006f;
-        public static final int menuDeleteSelected=0x7f080075;
-        public static final int menuExport=0x7f080073;
-        public static final int menuGroupSelect=0x7f080069;
-        public static final int menuImport=0x7f080074;
-        public static final int menuLogClear=0x7f080067;
-        public static final int menuLogCurrent=0x7f080065;
-        public static final int menuLogShow=0x7f080066;
-        public static final int menuMainEditDone=0x7f080076;
-        public static final int menuMainEditMode=0x7f08006c;
-        public static final int menuMultiDetailNegative=0x7f080063;
-        public static final int menuMultiDetailPositive=0x7f080064;
-        public static final int menuPreferences=0x7f08006e;
-        public static final int menuSelectAll=0x7f08006a;
-        public static final int menuSelectReverse=0x7f08006d;
-        public static final int menuSelectedCount=0x7f08006b;
+        public static final int menuAdvancedSetting=0x7f08006b;
+        public static final int menuBackupSecurity=0x7f080074;
+        public static final int menuCall=0x7f080072;
+        public static final int menuDeleteSelected=0x7f080078;
+        public static final int menuExport=0x7f080076;
+        public static final int menuGroupSelect=0x7f08006c;
+        public static final int menuImport=0x7f080077;
+        public static final int menuLogClear=0x7f08006a;
+        public static final int menuLogCurrent=0x7f080068;
+        public static final int menuLogShow=0x7f080069;
+        public static final int menuMainEditDone=0x7f080079;
+        public static final int menuMainEditMode=0x7f08006f;
+        public static final int menuMultiDetailNegative=0x7f080066;
+        public static final int menuMultiDetailPositive=0x7f080067;
+        public static final int menuPreferences=0x7f080071;
+        public static final int menuSelectAll=0x7f08006d;
+        public static final int menuSelectReverse=0x7f080070;
+        public static final int menuSelectedCount=0x7f08006e;
         public static final int newFolder=0x7f080026;
         public static final int newItemButton=0x7f080036;
         public static final int promptCancelButton=0x7f08003a;
@@ -380,27 +390,28 @@ containing a value of this type.
         public static final int promptPasswordLayout=0x7f08003c;
         public static final int row=0x7f08001c;
         public static final int rowCheck=0x7f08001b;
-        public static final int rowDate=0x7f08005f;
+        public static final int rowDate=0x7f080062;
         public static final int rowDelete=0x7f08001d;
-        public static final int seekBarProgress=0x7f080058;
+        public static final int seekBarProgress=0x7f08005b;
         public static final int textCopyRight=0x7f080008;
-        public static final int textPhoneNumber=0x7f08004c;
-        public static final int textViewCheckResult=0x7f080049;
+        public static final int textPhoneNumber=0x7f08004f;
+        public static final int textViewCheckResult=0x7f08004d;
         public static final int textViewContent=0x7f08000b;
         public static final int textViewLabel=0x7f08000a;
-        public static final int textViewPath=0x7f080044;
-        public static final int textViewReciptient=0x7f080052;
-        public static final int textViewRestoreHint=0x7f080043;
+        public static final int textViewNameLabel=0x7f080049;
+        public static final int textViewPath=0x7f080046;
+        public static final int textViewReciptient=0x7f080055;
+        public static final int textViewRestoreHint=0x7f080044;
         public static final int textViewSearchLogs=0x7f08002b;
-        public static final int textViewTimeEllapsed=0x7f080057;
-        public static final int textViewTimeRemain=0x7f080059;
+        public static final int textViewTimeEllapsed=0x7f08005a;
+        public static final int textViewTimeRemain=0x7f08005c;
         public static final int titleText=0x7f080016;
-        public static final int todoList=0x7f08005e;
+        public static final int todoList=0x7f080061;
         public static final int todoListItem=0x7f080019;
         public static final int vertical=0x7f080005;
-        public static final int visiblePasswordButton=0x7f080062;
-        public static final int visiblePasswordLabel=0x7f080060;
-        public static final int visiblePasswordText=0x7f080061;
+        public static final int visiblePasswordButton=0x7f080065;
+        public static final int visiblePasswordLabel=0x7f080063;
+        public static final int visiblePasswordText=0x7f080064;
     }
     public static final class layout {
         public static final int about=0x7f030000;
@@ -806,13 +817,15 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
            <tr><td><code>{@link #VisiblePassword_android_imeOptions android:imeOptions}</code></td><td></td></tr>
            <tr><td><code>{@link #VisiblePassword_hintText com.zsm.encryptIt:hintText}</code></td><td></td></tr>
            <tr><td><code>{@link #VisiblePassword_labelText com.zsm.encryptIt:labelText}</code></td><td></td></tr>
+           <tr><td><code>{@link #VisiblePassword_labelWeight com.zsm.encryptIt:labelWeight}</code></td><td></td></tr>
            </table>
            @see #VisiblePassword_android_imeOptions
            @see #VisiblePassword_hintText
            @see #VisiblePassword_labelText
+           @see #VisiblePassword_labelWeight
          */
         public static final int[] VisiblePassword = {
-            0x01010264, 0x7f010006, 0x7f010007
+            0x01010264, 0x7f010006, 0x7f010007, 0x7f010008
         };
         /**
           <p>This symbol is the offset where the {@link android.R.attr#imeOptions}
@@ -833,7 +846,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.zsm.encryptIt:hintText
         */
-        public static final int VisiblePassword_hintText = 2;
+        public static final int VisiblePassword_hintText = 3;
         /**
           <p>This symbol is the offset where the {@link com.zsm.encryptIt.R.attr#labelText}
           attribute's value can be found in the {@link #VisiblePassword} array.
@@ -848,5 +861,19 @@ containing a value of this type.
           @attr name com.zsm.encryptIt:labelText
         */
         public static final int VisiblePassword_labelText = 1;
+        /**
+          <p>This symbol is the offset where the {@link com.zsm.encryptIt.R.attr#labelWeight}
+          attribute's value can be found in the {@link #VisiblePassword} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.zsm.encryptIt:labelWeight
+        */
+        public static final int VisiblePassword_labelWeight = 2;
     };
 }

@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
+import com.zsm.android.ui.Utility;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.app.EncryptItApplication;
 import com.zsm.encryptIt.backup.BackupOperator;
@@ -43,7 +44,7 @@ public class SecurityBackupFragment extends BaseSecurityBackupFragment {
 	
 	@Override
 	protected void afterInitViews(TextWatcher tw) {
-		mBackupButton.setOnClickListener( new OnClickListener() {
+		mActionButton.setOnClickListener( new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				doBackup();
@@ -53,6 +54,12 @@ public class SecurityBackupFragment extends BaseSecurityBackupFragment {
 		mPasswordConfirmView
 			= (VisiblePassword)mView.findViewById( R.id.backupPasswordConfirm );
 		mPasswordConfirmView.addTextChangedListener(tw);
+	}
+
+	@Override
+	protected void alignLabels() {
+		Utility.makeTextViewsSameWidth( mPasswordConfirmView.getLabel(),
+										mPasswordView.getLabel() );
 	}
 
 	private void doBackup() {

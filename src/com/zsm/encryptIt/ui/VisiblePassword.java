@@ -23,6 +23,7 @@ public class VisiblePassword extends RelativeLayout {
 	private ImageView button;
 	private EditText text;
 	private TextView label;
+	private float mLabelWeight = -1f;
 
 	public VisiblePassword(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
@@ -97,6 +98,9 @@ public class VisiblePassword extends RelativeLayout {
 	        case R.styleable.VisiblePassword_labelText:
 	        	label.setText( a.getString(attr) );
 	            break;
+	        case R.styleable.VisiblePassword_labelWeight:
+	        	mLabelWeight  = a.getFloat(attr, -1);
+	            break;
 	        case R.styleable.VisiblePassword_hintText:
 	        	text.setHint( a.getString(attr) );
 	            break;
@@ -117,6 +121,11 @@ public class VisiblePassword extends RelativeLayout {
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 	    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	    int width = getMeasuredWidth();
+	    if( mLabelWeight >= 0 ) {
+	    	int desiredWidth = getDesiredStringWidth();
+			setComponentWidth( label, (int)(mLabelWeight*desiredWidth) );
+	    }
+	    
 	    if( !isInEditMode() ) {
 	    	int height = Math.max(text.getMeasuredHeight(), button.getMeasuredHeight() );
 		    setMeasuredDimension(width, height);
@@ -126,6 +135,16 @@ public class VisiblePassword extends RelativeLayout {
 	    
 	}
 
+	private int getDesiredStringWidth( ) {
+		return getMeasuredWidth() - button.getMeasuredWidth();
+	}
+	
+	private void setComponentWidth( View v, int width ) {
+		LayoutParams layoutParams = (LayoutParams) label.getLayoutParams();
+		layoutParams.width = width;
+		v.setLayoutParams( layoutParams );
+	}
+	
 	public String getPassword() {
 		return text.getText().toString();
 	}
@@ -152,6 +171,10 @@ public class VisiblePassword extends RelativeLayout {
 	
 	public void setLabelWidth(int pixels) {
 		label.setWidth( pixels );
+	}
+	
+	public TextView getLabel() {
+		return label;
 	}
 
 }

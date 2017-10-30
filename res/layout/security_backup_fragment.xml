@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res/com.zsm.encryptIt"
+    android:id="@+id/layoutMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" xmlns:app="http://schemas.android.com/apk/res/com.zsm.encryptIt">
+    android:orientation="vertical"
+    android:padding="@dimen/defaultPadding" >
 
     <TextView
         android:id="@+id/textViewRestoreHint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:drawableLeft="@drawable/backup"
         android:text="@string/hintBackup"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <LinearLayout
+        android:id="@+id/layoutPath"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewRestoreHint" >
 
         <TextView
             android:layout_width="0dp"
@@ -55,15 +61,18 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/layoutName"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layoutPath" >
 
         <TextView
+            android:id="@+id/textViewNameLabel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".3"
-            android:text="@string/titleBackupName"
             android:labelFor="@+id/editTextFileName"
+            android:text="@string/titleBackupName"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
@@ -86,8 +95,9 @@
         android:id="@+id/backupPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:hintText="@string/hintBackupPassword"
-        app:labelText="@string/titleBackupPassword" >
+        android:layout_below="@id/layoutName"
+        custom:hintText="@string/hintBackupPassword"
+        custom:labelText="@string/titleBackupPassword" >
 
     </com.zsm.encryptIt.ui.VisiblePassword>
 
@@ -95,43 +105,27 @@
         android:id="@+id/backupPasswordConfirm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:hintText="@string/hintBackupPassword"
-        app:labelText="@string/titleBackupPasswordConfirm" >
+        android:layout_below="@id/backupPassword"
+        custom:hintText="@string/hintBackupPassword"
+        custom:labelText="@string/titleBackupPasswordConfirm" >
 
     </com.zsm.encryptIt.ui.VisiblePassword>
 
     <TextView
         android:id="@+id/textViewCheckResult"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/buttonAction"
+        android:layout_below="@id/backupPasswordConfirm"
         android:text=""
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/promptPasswordHint" />
 
-    <LinearLayout
+    <Button
+        android:id="@+id/buttonAction"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="@string/titleBackup" />
 
-        <Button
-            android:id="@+id/buttonCancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@android:string/cancel" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" >
-
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/buttonRestore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/titleBackup" />
-
-    </LinearLayout>
-
-</LinearLayout>
+</RelativeLayout>

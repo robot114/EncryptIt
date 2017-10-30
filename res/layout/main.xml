@@ -5,7 +5,7 @@
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
     android:background="@color/notepad_paper"
-    android:orientation="vertical" >
+    android:orientation="vertical" xmlns:app="http://schemas.android.com/apk/res/com.zsm.encryptIt">
 
     <RelativeLayout
         android:id="@+id/editorLayout"

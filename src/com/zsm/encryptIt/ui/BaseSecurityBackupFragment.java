@@ -13,6 +13,7 @@ import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -35,11 +36,12 @@ public abstract class BaseSecurityBackupFragment extends Fragment {
 							
 	protected View mView;
 	protected VisiblePassword mPasswordView;
-	private TextView mHintView;
-	protected Button mBackupButton;
-	private TextView mPathView;
+	protected Button mActionButton;
 	protected EditText mNameView;
 	protected Uri mPathUri;
+	private TextView mHintView;
+	private TextView mPathView;
+	
 	private Hashtable<String, String> mBackupFileNames;
 
 	abstract protected void afterInitViews( TextWatcher tw );
@@ -65,22 +67,37 @@ public abstract class BaseSecurityBackupFragment extends Fragment {
 			= (VisiblePassword)mView.findViewById( R.id.backupPassword );
 		mHintView
 			= (TextView)mView.findViewById( R.id.textViewCheckResult );
-		mBackupButton = (Button)mView.findViewById( R.id.buttonRestore );
+		mActionButton = (Button)mView.findViewById( R.id.buttonAction );
 		TextWatcher tw = new PasswordTransformationMethod(){
 			@Override
 			public void afterTextChanged(Editable s) {
-				mBackupButton.setEnabled( checkForAction() );
+				mActionButton.setEnabled( checkForAction() );
 			}
 		};
 		mPasswordView.addTextChangedListener( tw );
 		mPathView.addTextChangedListener(tw);
 		mNameView.addTextChangedListener(tw);
 		
-		mBackupButton.setEnabled( false );
+		mActionButton.setEnabled( false );
+		
+		final ViewTreeObserver.OnGlobalLayoutListener listener
+					= new ViewTreeObserver.OnGlobalLayoutListener() {
+			
+			@Override
+			public void onGlobalLayout() {
+				mView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+				
+				alignLabels();
+			}
+		};
+		
+		mView.getViewTreeObserver().addOnGlobalLayoutListener(listener);
 		
 		afterInitViews( tw );
 	}
 
+	protected abstract void alignLabels();
+	
 	private Intent getIntent( String action ) {
 		Intent intent = new Intent(action);
 //		intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -155,7 +172,7 @@ public abstract class BaseSecurityBackupFragment extends Fragment {
 			Preferences.getInstance().setSecurityBackupUri( mPathUri );
 			
 			updatePathView();
-			mBackupButton.setEnabled( checkForAction() );
+			mActionButton.setEnabled( checkForAction() );
 		}
 	}
 
