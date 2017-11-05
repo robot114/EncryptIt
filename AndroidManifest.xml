@@ -96,7 +96,7 @@
                 <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
             </intent-filter>
         </receiver>
-        <activity android:name=".ui.SecurityBackupActivity"></activity>
+        <activity android:name="com.zsm.encryptIt.ui.SecurityFragmentActivity"></activity>
     </application>
 
 </manifest>

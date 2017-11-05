@@ -1,26 +1,43 @@
 package com.zsm.encryptIt.telephony;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
+import javax.crypto.NoSuchPaddingException;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnShowListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zsm.android.ui.VisiblePassword;
 import com.zsm.encryptIt.R;
+import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.app.EncryptItApplication;
 import com.zsm.encryptIt.telephony.SecurityMessager.SmsResultReceiver;
 import com.zsm.encryptIt.ui.ProtectedActivity;
 import com.zsm.log.Log;
 
 public class SecurityMessageActivity extends ProtectedActivity {
+
+	private static final char NEW_LINE = '\n';
+	private static final String UNTITLED = "Untitled";
 
 	private abstract class InnerSmsResultReceiver implements SmsResultReceiver {
 		protected int mCurrentMessagePart;
@@ -31,7 +48,8 @@ public class SecurityMessageActivity extends ProtectedActivity {
 	}
 	
 	public static final String KEY_NUMBER = "KEY_NUMBER";
-	public static final String KEY_MESSAGE = "MESSAGE";
+	public static final String KEY_MESSAGE = "KEY_MESSAGE";
+	public static final String KEY_TITLE = "KEY_TITLE";
 	public static final String KEY_MESSAGE_TOTAL_NUMBER = "MESSAGE_TOTAL_NUMBER";
 	
 	public static final String ACTION_RECEIVE_SMS = "com.zsm.security.sms.RECEIVE";
@@ -39,10 +57,15 @@ public class SecurityMessageActivity extends ProtectedActivity {
 	
 	private static final int REQUEST_FOR_PHONE_NUMBER = 1001;
 
+	private CheckBox mTitleCheckBox;
+	private EditText mTitleView;
 	private EditText mMessageView;
 	private TextView mReciptientView;
-	private boolean mSendSms;
 	private VisiblePassword mPasswordView;
+	private ImageView mButtonAction;
+	
+	private boolean mSendSms;
+	private String mOriginalTitle;
 	private String mOriginalMessage;
 	private InnerSmsResultReceiver mSendReceiver;
 	private InnerSmsResultReceiver mDeliverReceiver;
@@ -77,22 +100,62 @@ public class SecurityMessageActivity extends ProtectedActivity {
 		
 		setContentView(R.layout.security_message);
 		
-		mMessageView = (EditText)findViewById( R.id.editTextMessage );
 		Intent data = getIntent();
+		String action = data.getAction();
+		mSendSms = ACTION_SEND_SMS.equals(action);
+		
+		mOriginalTitle = data.getStringExtra( KEY_TITLE );
+		mTitleView = (EditText)findViewById( R.id.editTextTitle );
+		mTitleView.setText( mOriginalTitle == null ? UNTITLED : mOriginalTitle );
+		
+		mTitleCheckBox = (CheckBox)findViewById( R.id.checkBoxTitle );
+		mTitleCheckBox.setOnCheckedChangeListener( new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+										 boolean isChecked) {
+				
+				enableTitleView(isChecked);
+				if( !mSendSms ) {
+					handleDecodeMessage();
+				}
+			}
+		} );
+		enableTitleView( mTitleCheckBox.isChecked() );
+		
+		mMessageView = (EditText)findViewById( R.id.editTextMessage );
 		mOriginalMessage = data.getStringExtra( KEY_MESSAGE );
 		mMessageView.setText(mOriginalMessage);
+		mMessageView.setEnabled( mSendSms );
 		
 		mReciptientView = (TextView)findViewById( R.id.textViewReciptient );
 		String number = data.getStringExtra( KEY_NUMBER );
 		mReciptientView.setText(number);
 		
-		String action = data.getAction();
-		mSendSms = ACTION_SEND_SMS.equals(action);
-		
-		mPasswordView = (VisiblePassword)findViewById( R.id.backupPassword );
+		mPasswordView = (VisiblePassword)findViewById( R.id.viewPassword );
 		mPasswordView.addTextChangedListener( new PasswordChangeWatcher() );
+		
+		initActionButton();
+		
+		if( !mSendSms ) {
+			handleDecodeMessage();
+		}
 	}
 
+	private void initActionButton() {
+		mButtonAction = (ImageView)findViewById( R.id.imageViewAction );
+		int imageId;
+		int imageHintId;
+		if( mSendSms ) {
+			imageId = R.drawable.message;
+			imageHintId = R.string.hintSendMessageImage;
+		} else {
+			imageId = R.drawable.save;
+			imageHintId = R.string.hintSaveMessageImage;
+		}
+		mButtonAction.setImageResource( imageId );
+		mButtonAction.setContentDescription( getString( imageHintId ) );
+	}
+	
 	@Override
 	protected boolean needPromptPassword() {
 		return true;
@@ -126,56 +189,84 @@ public class SecurityMessageActivity extends ProtectedActivity {
 		startActivityForResult( intent, REQUEST_FOR_PHONE_NUMBER );
 	}
 	
-	public void onSend( View v ) {
-		String message = mMessageView.getText().toString();
-		doMessage( message, getIntent() );
+	public void onAction( View v ) {
+		if( mSendSms ) {
+			onSend();
+		} else {
+			onSave();
+		}
 	}
 	
-	private void doMessage( final String message, Intent data ) {
-		if( message == null || message.length() == 0 ) {
-			Log.d( "No message to send" );
-			Toast.makeText(getApplicationContext(), R.string.promptNoMessageToSend,
+	public void onSend( ) {
+		String title = mTitleView.getText().toString();
+		String detail = mMessageView.getText().toString();
+		doMessage( title, detail, getIntent() );
+	}
+	
+	private void doMessage( String title, String detail, Intent data ) {
+		final String message = composeMessage(title, detail);
+		
+		if( message == null ) {
+			Log.d( "Nothing to send" );
+			Toast.makeText(getApplicationContext(), R.string.promptNothingToSend,
 						   Toast.LENGTH_LONG ).show();
-		} else {
-			final String number = mReciptientView.getText().toString();
-			if( number == null || number.length() == 0 ) {
-				Log.w( "Invalid phone number, nothing sent" );
-				return;
-			}
-			
-			TelephonyBase app = (TelephonyBase)getApplication();
-			app.setOutgoingSms(number);
-			char[] password = mPasswordView.getPassword().toCharArray();
-			mSendReceiver.resetPartCounter();
-			mDeliverReceiver.resetPartCounter();
-			if( password.length > 0 ) {
-				if( !SecurityMessager.getInstance()
-						.sendSms(number, message, password, mSendReceiver,
-								 mDeliverReceiver) ) {
-					
-					Toast.makeText(this, R.string.promptEncodeMessageFailed,
-								   Toast.LENGTH_LONG )
-						 .show();
-				} else {
-					finish();
-				}
-			} else {
-				new AlertDialog.Builder( this )
-					.setIcon( android.R.drawable.ic_dialog_alert )
-					.setMessage( R.string.promptNoPasswordForMessage )
-					.setPositiveButton( android.R.string.yes, new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							SecurityMessager.getInstance()
-								.sendSms(number, message, mSendReceiver,
-										 mDeliverReceiver);
-							finish();
-						}
-					})
-					.setNegativeButton( android.R.string.no, null )
-					.show();
-			}
+			return;
 		}
+		
+		final String number = mReciptientView.getText().toString();
+		if( emptyText(number) ) {
+			Log.w( "Invalid phone number, nothing sent" );
+			Toast.makeText(getApplicationContext(), R.string.promptNoPhoneNumber,
+					   Toast.LENGTH_LONG ).show();
+			return;
+		}
+		
+		TelephonyBase app = (TelephonyBase)getApplication();
+		app.setOutgoingSms(number);
+		char[] password = mPasswordView.getPassword().toCharArray();
+		mSendReceiver.resetPartCounter();
+		mDeliverReceiver.resetPartCounter();
+		if( password.length > 0 ) {
+			if( SecurityMessager.getInstance()
+					.sendSms(number, message, password, mSendReceiver,
+							 mDeliverReceiver) ) {
+				
+				finish();
+			} else {
+				Toast.makeText(this, R.string.promptEncodeMessageFailed,
+						   	   Toast.LENGTH_LONG )
+					 .show();
+			}
+		} else {
+			new AlertDialog.Builder( this )
+				.setIcon( android.R.drawable.ic_dialog_alert )
+				.setMessage( R.string.promptNoPasswordForMessage )
+				.setPositiveButton( android.R.string.yes, new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						SecurityMessager.getInstance()
+							.sendSms(number, message, mSendReceiver,
+									 mDeliverReceiver);
+						finish();
+					}
+				})
+				.setNegativeButton( android.R.string.no, null )
+				.show();
+		}
+	}
+
+	private String composeMessage(String title, String detail) {
+		String message = null;
+		if( !emptyText(title) && mTitleCheckBox.isChecked() ) {
+			message = title + ( emptyText(detail) ? "" : ( NEW_LINE + detail ) );
+		} else if( !emptyText(detail) ) {
+			message = detail;
+		}
+		return message;
+	}
+
+	private boolean emptyText(final String message) {
+		return message == null || message.length() == 0;
 	}
 
 	private void promptMessageStatus(int resId, int nth, Intent intent) {
@@ -186,34 +277,144 @@ public class SecurityMessageActivity extends ProtectedActivity {
 		Log.d( "Security message status", text );
 	}
 
-	public void onCancel( View v ) {
-		setResult( RESULT_CANCELED );
-		finish();
+	public void onSave( ) {
+		String title = mTitleView.getText().toString();
+		try {
+			decodeMessage();
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException
+				| InvalidKeySpecException | IOException e) {
+			
+			Toast.makeText( this, R.string.promptDecodeFailed, Toast.LENGTH_LONG )
+				 .show();
+			mPasswordView.requestFocus();
+			return;
+		}
+
+		if( emptyText( title ) ) {
+			doSave();
+		} else {
+			doSave(title);
+			finish();
+		}
+	}
+
+	private void doSave() {
+		final EditText editTitle = new EditText(this);
+		AlertDialog.Builder builder = new AlertDialog.Builder( this );
+		builder
+			.setTitle( R.string.app_name )
+			.setMessage( R.string.promptSaveMessageTitle )
+			.setView( editTitle )
+			.setPositiveButton( android.R.string.ok, null )
+			.setNegativeButton( android.R.string.cancel, null );
+		
+		final AlertDialog alertDialog = builder.create();
+		alertDialog.setOnShowListener( new OnShowListener() {
+			@Override
+			public void onShow(DialogInterface dialog) {
+				initTitleDlgButton(editTitle, alertDialog);
+			}
+		} );
+		
+		alertDialog.show();
+	}
+
+	private void initTitleDlgButton(final EditText editTitle,
+									final AlertDialog titleDialog) {
+		titleDialog
+			.getButton( DialogInterface.BUTTON_POSITIVE )
+			.setOnClickListener( new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					enterTitle(editTitle);
+				}
+			} );
+	}
+
+	private void enterTitle(final EditText editTitle) {
+		String newTitle = editTitle.getText().toString().trim();
+		if( emptyText( newTitle ) ) {
+			int[] location = new int[2];
+			editTitle.getLocationInWindow(location);
+			Toast t = Toast.makeText( SecurityMessageActivity.this,
+									  R.string.promptNoTitle,
+									  Toast.LENGTH_LONG );
+				 t.setGravity( Gravity.CENTER, location[0], location[1]/2);
+				 t.show();
+		} else {
+			doSave( newTitle );
+			finish();
+		}
+	}
+
+	private void doSave(String title) {
+		WhatToDoItem item = new WhatToDoItem( title );
+		item.setDetail( mMessageView.getText().toString() );
+		
+		((EncryptItApplication)getApplicationContext()).getUIListOperator()
+			.doAddToDataAndView( item );
 	}
 	
+	private void handleDecodeMessage() {
+		String text;
+		try {
+			text = decodeMessage();
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException
+				| InvalidKeySpecException | IOException e) {
+			
+			mMessageView.setText( mOriginalMessage );
+			return;
+		}
+		
+		if( mTitleCheckBox.isChecked() ) {
+			int index = text.indexOf( NEW_LINE );
+			if( index > 0 ) {
+				mTitleView.setText( text.substring( 0, index ) );
+				mMessageView.setText( text.substring( index + 1 ) );
+			} else {
+				mTitleView.setText( text );
+				mMessageView.setText( "" );
+			}
+		} else {
+			mTitleView.setText( "" );
+			mMessageView.setText( text );
+		}
+	}
+
+	private String decodeMessage()
+				throws NoSuchAlgorithmException, NoSuchPaddingException,
+					   InvalidKeySpecException, IOException {
+		
+		String text = mOriginalMessage;
+		String password = mPasswordView.getPassword();
+		if( password.length() > 0 ) {
+			mTitleCheckBox.setEnabled( false );
+			text = SecurityMessager.getInstance()
+				.decodeMessage(mOriginalMessage, password);
+		}
+		mTitleCheckBox.setEnabled( true );
+		return text;
+	}
+
+	private void enableTitleView(boolean isChecked) {
+		mTitleView.setEnabled( isChecked && mSendSms );
+	}
+
 	private final class PasswordChangeWatcher implements TextWatcher {
 		@Override
 		public void beforeTextChanged(CharSequence s, int start, int count,
 				int after) {
-			// TODO Auto-generated method stub
-			
 		}
 
 		@Override
 		public void onTextChanged(CharSequence s, int start, int before,
 				int count) {
-			// TODO Auto-generated method stub
-			
 		}
 
 		@Override
 		public void afterTextChanged(Editable s) {
 			if( !mSendSms ) {
-				String password = s.toString();
-				String text
-					= SecurityMessager.getInstance()
-						.decodeMessage(mOriginalMessage, password);
-				mMessageView.setText( text );
+				handleDecodeMessage();
 			}
 		}
 

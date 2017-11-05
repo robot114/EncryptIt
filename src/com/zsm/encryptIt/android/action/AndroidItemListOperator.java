@@ -193,7 +193,7 @@ public class AndroidItemListOperator
 	}
 
 	@Override
-	public void addItem(final WhatToDoItem newItem) {
+	public void addItemToView(final WhatToDoItem newItem) {
 		WhatToDoListViewItem newListViewItem
 			= new WhatToDoListViewItem( newItem );
 		newListViewItem.addObserver(selectionObserver);
@@ -237,7 +237,7 @@ public class AndroidItemListOperator
 	}
 
 	@Override
-	public boolean doAdd(WhatToDoItem item) {
+	public boolean doAddToDataAndView(WhatToDoItem item) {
 		boolean res = getApp().getItemListController().doAdd(item);
 		if( res ) {
 			refilter();
@@ -245,7 +245,7 @@ public class AndroidItemListOperator
 		return res;
 	}
 
-	public boolean doAdd(String string) {
+	public boolean doAddToDataAndView(String string) {
 		final boolean res = getApp().getItemListController().doAdd(string);
 		if( res ) {
 			filter( "" );

@@ -43,7 +43,7 @@ public class ImportTask extends ExportImportTask {
 	private ImportTask(Context context, ItemOperator operator, Uri sourceUri,
 					   long sourceSize) {
 
-		super(context, sourceUri.getLastPathSegment());
+		super(context, sourceUri);
 		
 		mContext = context;
 		mOperator = operator;
@@ -124,7 +124,7 @@ public class ImportTask extends ExportImportTask {
 					
 					WhatToDoItem item = WhatToDoItem.fromXmlElement(parser, indicator);
 					while( item != null ) {
-						operator.doAdd(item);
+						operator.doAddToDataAndView(item);
 						count++;
 						if( isCancelled() ) {
 							Log.d( "Import cancelled at item ", count );
@@ -169,7 +169,7 @@ public class ImportTask extends ExportImportTask {
 					= WhatToDoItem.fromReadableText( baos.getInputStream() );
 				
 				if( item != null ) {
-					operator.doAdd(item);
+					operator.doAddToDataAndView(item);
 					count++;
 					if( isCancelled() ) {
 						Log.d( "Import cancelled at item ", count );

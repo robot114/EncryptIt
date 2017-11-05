@@ -12,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:drawableLeft="@drawable/backup"
         android:text="@string/hintRestore"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -23,39 +22,27 @@
         android:layout_below="@id/textViewRestoreHint" >
 
         <TextView
+            android:id="@+id/textViewPathLabel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="top"
             android:layout_weight=".3"
             android:labelFor="@+id/textViewPath"
             android:text="@string/titleBackupPath"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/textViewPath"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight=".7" >
+            android:layout_gravity="top"
+            android:layout_weight="1"
+            android:hint="@string/hintSelectPath"
+            android:lines="3"
+            android:maxLines="2"
+            android:minLines="2"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <TextView
-                android:id="@+id/textViewPath"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:lines="3"
-                android:maxLines="3"
-                android:minLines="3"
-                android:text=""
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <Button
-                android:id="@+id/buttonBackupPath"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="0"
-                android:text=">>" />
-        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -108,11 +95,14 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/promptPasswordHint" />
 
-    <Button
+    <ImageView
         android:id="@+id/buttonAction"
+        style="@style/styleMainButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:contentDescription="@string/hintRestore"
+        android:src="@drawable/restore"
         android:text="@string/titleRestore" />
 
 </RelativeLayout>

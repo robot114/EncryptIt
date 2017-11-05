@@ -51,7 +51,7 @@
     <string name="prefAdvancedLogChannels">Log channels</string>
     <string name="prefAdvancedLogChannelsDesc">Channels to which the logs will be sent. The Android channel will always opened, even it is not selected here. The change will take affect after the app restart.</string>
     <string name="call">Security Call</string>
-    <string name="promptNoMessageToSend">No message to send, nothing to do</string>
+    <string name="promptNothingToSend">Nothing to send, nothing to do</string>
     <string name="activityTitleDialerCall">Security Calling</string>
     <string name="activityTitleDialer">Security Dialer</string>
     <string name="activityTitleDialerMessage">Security Messager</string>
@@ -59,12 +59,20 @@
     <string name="promptSendMessageOK">Send the %1$d/%2$d message OK</string>
     <string name="promptDeliverMessage">The %1$d/%2$d message is received</string>
     <string name="promptNoPhoneNumber">No phone number entered.</string>
+    <string name="promptNoTitle">Title must not be empty!</string>
+    <string name="promptDecodeFailed">Decode the message failed. Cannot save it!</string>
     <string name="promptNoItemSelected">No item selected!</string>
     <string name="hintSecurityMessagePassword">The password to encode the message. Tell the recipient the password by other way.</string>
-    <string name="hintSendMessage">Send the message. Encode it when the password is not empty.</string>
+    <string name="hintSendTitle">Title of the message. Encode it when the password is not empty.</string>
+    <string name="hintSendMessage">Body of the message. Encode it when the password is not empty.</string>
+    <string name="hintSendMessageImage">Send the message</string>
+    <string name="hintSaveMessageImage">Save the message</string>
+    <string name="promptSaveMessageTitle">Enter the title of the task:</string>
     <string name="hintCancel">Cancel</string>
     <string name="hintPhoneNumber">Enter the phone number</string>
     <string name="promptEncodeMessageFailed">Encode the message failed. It will not be sent out.</string>
     <string name="promptNoPasswordForMessage">No password to protect this message. Do you want to send it in plain text?</string>
     <string name="hintReciption">Click for phone number</string>
+    <string name="titleSend">Send</string>
+    <string name="labelIncludeTitle">Title included in the message</string>
 </resources>

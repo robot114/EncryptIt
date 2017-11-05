@@ -34,6 +34,7 @@ import com.zsm.log.Log;
 
 public class DetailActivity extends ProtectedActivity {
 	
+	private static final String NEW_LINE = "\n";
 	static final String KEY_DEATAIL_TEXT = "DEATAIL_TEXT";
 	static final String KEY_TRIMED_TASK = "TRIMED_TASK";
 	static final String KEY_DETAIL_OK = "DETAIL_OK";
@@ -234,12 +235,16 @@ public class DetailActivity extends ProtectedActivity {
 		intent.setAction( SecurityMessageActivity.ACTION_SEND_SMS );
 
 		updateTaskAndDetail();
-		String message
-			= ( newDetail == null || newDetail.length() == 0 ) ? newTask : newDetail;
+		intent.putExtra( SecurityMessageActivity.KEY_TITLE, newTask );
+		String message = emptyDetail() ? "" : NEW_LINE + newDetail;
 		intent.putExtra( SecurityMessageActivity.KEY_MESSAGE, message );
 		
 		startActivity( intent );
 		return true;
+	}
+
+	private boolean emptyDetail() {
+		return newDetail == null || newDetail.length() == 0;
 	}
 	
 	private Builder getPomptDialogBuilder(int messageId, final Intent resultData ) {

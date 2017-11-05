@@ -16,9 +16,16 @@
     <string name="promptParsingXml">Parsing line %1$d of the xml file&#8230;</string>
     <string name="prefTitleBackup">Backup</string>
     <string name="prefSummaryBackup">Backup and restore the items</string>
+    <string name="prefSummaryEnableExportOn">Export selected items is ENABLED</string>
+    <string name="prefSummaryEnableExportOff">Export selected items is DISABLED</string>
+    <string name="prefTitleEnableExport">Enable the exportation</string>
     <string name="prefSummaryBackXmlOn">Export items in XML format</string>
     <string name="prefSummaryBackXmlOff">Export items in plain TEXT format</string>
     <string name="prefTitleXml">Export the item in XML format</string>
+    <string name="prefTitleBackupType">Backup File Type</string>
+    <string name="prefTitleBackupTypeArchive">To one archived file</string>
+    <string name="prefTitleBackupTypeMultiFiles">To multiple files</string>
+    <string name="prefTitleExport">Export</string>
     <string name="promptBackup">Backuping to %1$s &#8230;</string>
     <string name="promptBackupOk">Backup to the follows successfully: \r\n    %1$s</string>
     <string name="promptBackupFailed">Backup %1$s failed!</string>
@@ -27,15 +34,18 @@
     <string name="hintBackupPassword">Password to protect the backuped</string>
     <string name="titleBackupPassword">Password for Backuped: </string>
     <string name="titleBackupPasswordConfirm">Confirm Password: </string>
-    <string name="hintBackupName">File name, without the extension, to store the backups. The application will add the extension</string>
     <string name="hintBackupLoginPassword">Password to login the restored</string>
     <string name="titleBackupLoginPassword">Password to Login: </string>
     <string name="titleBackupName">File name: </string>
+    <string name="hintBackupName">File name, without the extension, to store the backups. The application will add the extension</string>
     <string name="hintBackupPath">Path in which to store the backups</string>
+    <string name="titleBackupFile">File: </string>
+    <string name="hintBackupFile">File to store the backups</string>
     <string name="titleBackupPath">Path: </string>
     <string name="titleBackupChoosePath">Choose</string>
     <string name="titleBackup">Backup</string>
     <string name="promptBackupPathEmpty">No backup path is chosen!</string>
+    <string name="promptBackupFileEmpty">No backup file is chosen!</string>
     <string name="promptBackupNameEmpty">No backup file name is chosen!</string>
     <string name="promptBackupExist">The followings exist: %1$s.</string>
     <string name="overwrite">Overwrite</string>
@@ -58,6 +68,7 @@
     <string name="titleRestoreExitApp">Exit the Application</string>
     <string name="promptRestoreUndoOK">Succeed to undo the restore!</string>
     <string name="promptRestoreUndoFailed">Failed to undo the restore!</string>
+    <string name="hintSelectPath">Click to select the path of backups</string>
     
     <color name="backupLoginBackground">#555</color>
 </resources>

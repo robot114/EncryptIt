@@ -21,13 +21,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+import android.provider.DocumentsContract;
 
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.WhatToDoItem;
 import com.zsm.encryptIt.ui.WhatToDoListViewItem;
 import com.zsm.log.Log;
+import com.zsm.util.file.android.DocumentFileUtilities;
 
 public class ExportTask extends ExportImportTask {
 
@@ -52,7 +55,7 @@ public class ExportTask extends ExportImportTask {
 	private ExportTask(Context context,
 			List<WhatToDoListViewItem> list, Uri targetUri) {
 
-		super( context, targetUri.getLastPathSegment() );
+		super( context, targetUri );
 		
 		mList = list;
 		mTargetUri = targetUri;
@@ -71,16 +74,30 @@ public class ExportTask extends ExportImportTask {
 	@Override
 	protected RESULT doInBackground(Void... params) {
 		
-		try ( OutputStream out
-				= mContext.getContentResolver().openOutputStream(mTargetUri); ) {
+		ContentResolver cr = mContext.getContentResolver();
+		
+		boolean asXml = asXml( mFileName );
+		
+		Uri docUri;
+		if( DocumentFileUtilities.documentExists(mContext, mTargetUri) ) {
+			docUri = mTargetUri;
+		} else {
+			Uri pathUri
+				= DocumentFileUtilities.getPathUri(mContext, mTargetUri, false);
+			String mimeType = asXml ? MIME_TYPE_XML : MIME_TYPE_TEXT;
+			docUri
+				= DocumentsContract.createDocument(cr, pathUri, mimeType, mFileName);
+		}
+		
+		try ( OutputStream out = cr.openOutputStream(docUri) ) {
 			
-			if( asXml( mTargetUri.getLastPathSegment() ) ) {
+			if( asXml ) {
 				return exportToXml( mList, out );
 			} else {
 				return exportToText( mList, out );
 			}
 		} catch (IOException | ParserConfigurationException | TransformerException e) {
-			Log.w( e, "Export failed!" );
+			Log.w( e, "Export failed", docUri );
 			return RESULT.FAILED;
 		}
 	}

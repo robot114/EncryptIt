@@ -5,6 +5,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 
+/**
+ * Pair of the {@link Target} and the {@link Backupable} source for backup.
+ * 
+ * @author zsm
+ *
+ */
 public class BackupOperator implements Target {
 
 	protected final Backupable mSource;
@@ -20,10 +26,10 @@ public class BackupOperator implements Target {
 	}
 	
 	@Override
-	public OutputStream openOutputStream()
+	public OutputStream openOutputStream( String mode )
 					throws GeneralSecurityException, IOException {
 		
-		return mTarget.openOutputStream();
+		return mTarget.openOutputStream( mode );
 	}
 
 	@Override

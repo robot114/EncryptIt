@@ -6,7 +6,8 @@ import java.security.GeneralSecurityException;
 
 public interface Target {
 	
-	OutputStream openOutputStream() throws GeneralSecurityException, IOException;
+	OutputStream openOutputStream( String mode )
+			throws GeneralSecurityException, IOException;
 	
 	void outputHeader( OutputStream out ) throws IOException;
 

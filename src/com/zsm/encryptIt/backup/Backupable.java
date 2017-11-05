@@ -10,6 +10,12 @@ public interface Backupable {
 	
 	OutputStream openRestoreTargetOutputStream() throws IOException;
 
+	/**
+	 * 
+	 * @return display name of the backupable entry. MUST be unique for each
+	 * 			entry. This value will be used to identify this entry in
+	 * 			the archived target file 
+	 */
 	String displayName();
 	
 	long size();

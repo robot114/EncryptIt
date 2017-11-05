@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
@@ -11,6 +12,7 @@ import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.ui.preferences.Preferences;
 import com.zsm.util.file.FileExtensionFilter;
 import com.zsm.util.file.FilenameUtils;
+import com.zsm.util.file.android.DocumentFileUtilities;
 
 
 public abstract class ExportImportTask extends AsyncTask<Void, Integer, RESULT> {
@@ -18,6 +20,9 @@ public abstract class ExportImportTask extends AsyncTask<Void, Integer, RESULT> 
 	protected static final String EXTENSION_TEXT = "txt";
 	protected static final String EXTENSION_XML = "xml";
 	protected static final String EXTENSION_DIRECT = "edb";
+	
+	protected static final String MIME_TYPE_XML = "application/xml";
+	protected static final String MIME_TYPE_TEXT = "text/plain";
 	
 	protected Context mContext;
 	protected ProgressDialog mProgressDlg;
@@ -30,9 +35,9 @@ public abstract class ExportImportTask extends AsyncTask<Void, Integer, RESULT> 
 		= new FileExtensionFilter[]{
 			new FileExtensionFilter( EXTENSION_TEXT + "|" + EXTENSION_XML, "" ) };
 
-	protected ExportImportTask(Context context, String fileName ) {
+	protected ExportImportTask(Context context, Uri uri ) {
 		mContext = context;
-		mFileName = fileName;
+		mFileName = DocumentFileUtilities.getName( uri );
 	}
 
 	protected void showResult(int messageId, RESULT result) {

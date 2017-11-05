@@ -5,6 +5,8 @@ import java.util.List;
 import android.app.ListFragment;
 import android.database.DataSetObserver;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +57,17 @@ public class ToDoListFragment extends ListFragment implements ListFragmentAdapte
 
 	@Override
 	public void notifyDataSetChanged() {
-		adapter.notifyDataSetChanged();
+		if( Looper.myLooper() != Looper.getMainLooper() ) {
+			new Handler( Looper.getMainLooper() ).post( new Runnable() {
+				@Override
+				public void run() {
+					adapter.notifyDataSetChanged();
+				}
+			} );
+		} else {
+			adapter.notifyDataSetChanged();
+		}
+
 	}
 
 }

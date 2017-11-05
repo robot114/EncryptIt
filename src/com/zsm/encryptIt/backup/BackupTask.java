@@ -2,8 +2,8 @@ package com.zsm.encryptIt.backup;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.GeneralSecurityException;
+import java.util.Hashtable;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -16,17 +16,18 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.zsm.encryptIt.R;
+import com.zsm.encryptIt.app.EncryptItApplication;
+import com.zsm.encryptIt.backup.BackupableConst.BACKUPABLES_KEY;
 import com.zsm.log.Log;
 
-public class BackupTask extends AsyncTask<BackupOperator, Object, RESULT> {
+public class BackupTask extends AsyncTask<BackupParameter, Object, RESULT> {
 	
 	private static final int BUFFER_SIZE = 4096;
 	private Activity mActivity;
 	private ProgressDialog mProgressDlg;
 	
-	private BackupOperator[] mTasks;
 	private long mFinishedSize;
-	private BackupOperator mCurrentTask;
+	private BACKUPABLES_KEY mCurrentBackupable;
 	private byte[] mBuffer;
 
 	public BackupTask(Activity activity ) {
@@ -47,41 +48,59 @@ public class BackupTask extends AsyncTask<BackupOperator, Object, RESULT> {
 	}
 
 	@Override
-	protected RESULT doInBackground(BackupOperator... tasks) {
-		Log.d( "Backup tasks: ", (Object[])tasks );
-		mProgressDlg.setMax((int) getBackupSize( tasks ));
+	protected RESULT doInBackground(BackupParameter... parameters) {
+		BackupParameter parameter = parameters[0];
+		Log.d( "Backup tasks: ", parameter );
+		mProgressDlg.setMax((int) getBackupSize( ));
 		
-		mTasks = tasks;
-		
-		for( BackupOperator t : mTasks ) {
-			mCurrentTask = t;
+		boolean first = true;
+		Hashtable<BACKUPABLES_KEY, Backupable> backupables = getBackupables();
+
+		BACKUPABLES_KEY[] keySet = BACKUPABLES_KEY.values();
+		for( int i = 0; i < keySet.length; i++ ) {
+			BACKUPABLES_KEY key = keySet[i];
+			mCurrentBackupable = key;
 			try {
-				RESULT r = backupOne(t);
+				RESULT r
+					= backupOne(backupables, key, parameter, first,
+								i == keySet.length-1 );
 				if( r != RESULT.OK ) {
 					return r;
 				}
-				Log.d( "Backup successfully: ", t );
+				Log.d( "Backup successfully: ", mCurrentBackupable );
 			} catch ( GeneralSecurityException | IOException e) {
-				Log.e( e, "Backup failed: ", t );
+				Log.e( e, "Backup failed: ", mCurrentBackupable );
 				return RESULT.FAILED;
 			}
+			first = false;
 		}
 		
-		mCurrentTask = null;
+		mCurrentBackupable = null;
 		return RESULT.OK;
 	}
 
-	private RESULT backupOne(BackupOperator t)
+	private Hashtable<BACKUPABLES_KEY, Backupable> getBackupables() {
+		return BackupableConst.getBackupables(
+				(EncryptItApplication) mActivity.getApplicationContext() );
+	}
+
+	private RESULT backupOne(Hashtable<BACKUPABLES_KEY, Backupable> backupables,
+							 BACKUPABLES_KEY key, BackupParameter parameter,
+							 boolean first, boolean last)
 			throws IOException, GeneralSecurityException {
 		
+		Backupable source = backupables.get(key);
 		String message
-			= mActivity.getString( R.string.promptBackup, t.displayName() );
+			= mActivity.getString( R.string.promptBackup, source.displayName() );
 		publishProgress( message, 0 );
 		
-		try( OutputStream out = t.openOutputStream();
-			 InputStream in = t.openInputStream() ) {
+		BackupOutputStream out = null;
+		try( InputStream in = source.openBackupSrcInputStream() ) {
 			
-			t.outputHeader(out);
+			out = parameter.mTargetFiles.openOutputStream(mActivity, key,
+						parameter.mTargetUri, parameter.mPrefix,
+						parameter.mPassword, first);
+			
 			int count = 0;
 			while( ( count = in.read( mBuffer ) ) > 0 ) {
 				if( isCancelled() ) {
@@ -90,6 +109,18 @@ public class BackupTask extends AsyncTask<BackupOperator, Object, RESULT> {
 				out.write(mBuffer, 0, count);
 				publishProgress( message, count );
 			}
+			
+			BackupOutputStream.CLOSE_TYPE ct
+				= last ? BackupOutputStream.CLOSE_TYPE.NORMAL_ALL 
+					: BackupOutputStream.CLOSE_TYPE.NORMAL_ONE;
+			out.close( ct );
+			out = null;
+		} catch ( Exception e ) {
+			if( out != null ) {
+				out.close( BackupOutputStream.CLOSE_TYPE.EXCEPTION );
+				out = null;
+			}
+			throw e;
 		}
 		
 		return RESULT.OK;
@@ -153,19 +184,15 @@ public class BackupTask extends AsyncTask<BackupOperator, Object, RESULT> {
 	}
 
 	private String getResultMessage(RESULT result) {
+		Hashtable<BACKUPABLES_KEY, Backupable> backupables = getBackupables();
 		switch( result ) {
 			case OK:
-				StringBuilder builder = new StringBuilder();
-				builder.append( mTasks[0].displayName() );
-				for( int i = 1; i < mTasks.length; i++ ) {
-					builder.append( "\r\n " );
-					builder.append( mTasks[i].displayName() );
-				}
 				return mActivity.getString( R.string.promptBackupOk,
-										    builder.toString() );
+										    BackupableConst.toString(backupables,
+										    						 "\r\n ") );
 			case FAILED:
 				return mActivity.getString(R.string.promptBackupFailed,
-							mCurrentTask.displayName() );
+							backupables.get(mCurrentBackupable).displayName() );
 			case CANCELLED:
 				return mActivity.getString( R.string.promptBackupCancelled);
 			default:
@@ -173,10 +200,12 @@ public class BackupTask extends AsyncTask<BackupOperator, Object, RESULT> {
 		}
 	}
 
-	private long getBackupSize(BackupOperator[] tasks) {
+	private long getBackupSize() {
 		long size = 0;
-		for( BackupOperator t :  tasks ) {
-			size += t.size();
+		Hashtable<BACKUPABLES_KEY, Backupable> backupables = getBackupables();
+		
+		for( BACKUPABLES_KEY key : BACKUPABLES_KEY.values() ) {
+			size += backupables.get(key).size();
 		}
 		return size;
 	}

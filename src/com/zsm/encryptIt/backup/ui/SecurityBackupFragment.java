@@ -1,57 +1,34 @@
-package com.zsm.encryptIt.ui;
+package com.zsm.encryptIt.backup.ui;
 
 import java.util.Hashtable;
-import java.util.Vector;
 
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.DocumentsContract;
+import android.content.Intent;
 import android.support.v4.provider.DocumentFile;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 
 import com.zsm.android.ui.Utility;
 import com.zsm.android.ui.VisiblePassword;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.app.EncryptItApplication;
-import com.zsm.encryptIt.backup.BackupOperator;
+import com.zsm.encryptIt.backup.BackupTargetFiles;
+import com.zsm.encryptIt.backup.BackupTargetFilesConsts;
+import com.zsm.encryptIt.backup.BackupTargetFilesConsts.BACKUP_TARGET_KEY;
 import com.zsm.encryptIt.backup.BackupTask;
-import com.zsm.encryptIt.backup.PasswordBackupOperator;
 import com.zsm.security.PasswordPolicy;
 
 public class SecurityBackupFragment extends BaseSecurityBackupFragment {
 
 	private VisiblePassword mPasswordConfirmView;
 	
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-							 Bundle savedInstanceState) {
-		
-		if( mView == null ) {
-			mView = inflater.inflate( R.layout.security_backup_fragment,
-									  container, false );
-			
-			initViews();
-		}
-		
-		return mView;
+	public SecurityBackupFragment() {
+		super(R.layout.security_backup_fragment, OPERATION.BACKUP);
 	}
-	
+
 	@Override
 	protected void afterInitViews(TextWatcher tw) {
-		mActionButton.setOnClickListener( new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				doBackup();
-			}
-		} );
-		
 		mPasswordConfirmView
 			= (VisiblePassword)mView.findViewById( R.id.backupPasswordConfirm );
 		mPasswordConfirmView.addTextChangedListener(tw);
@@ -63,18 +40,28 @@ public class SecurityBackupFragment extends BaseSecurityBackupFragment {
 										mPasswordView.getLabel() );
 	}
 
-	private void doBackup() {
-		final Vector<DocumentFile> files = checkBackupFileExist();
-		if( files.size() > 0 ) {
-			doWithExistTarget(files);
+	@Override
+	protected void doAction(View view) {
+		BackupTargetFiles btf = BackupTargetFilesConsts.getBackupTargetFilesInstance();
+		Hashtable<BACKUP_TARGET_KEY, DocumentFile> existings
+						= new Hashtable<BACKUP_TARGET_KEY, DocumentFile>();
+		Hashtable<BACKUP_TARGET_KEY, String> missed
+						= new Hashtable<BACKUP_TARGET_KEY, String>();
+		btf.checkExistingTargetFile(getActivity(), mPathUri,
+									getPrefixFromView(),
+									existings, missed);
+		if( existings.size() > 0 ) {
+			doWithExistTarget(existings);
 		} else {
 			executeBackup();
 		}
 	}
 
-	private void doWithExistTarget(final Vector<DocumentFile> files) {
+	private void doWithExistTarget(
+					final Hashtable<BACKUP_TARGET_KEY, DocumentFile> existings) {
+		
 		StringBuilder strBuilder = new StringBuilder();
-		for( DocumentFile df : files ) {
+		for( DocumentFile df : existings.values() ) {
 			strBuilder.append( df.getName() );
 			strBuilder.append( "\r\n" );
 		}
@@ -90,7 +77,7 @@ public class SecurityBackupFragment extends BaseSecurityBackupFragment {
 				new DialogInterface.OnClickListener(){
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						for( DocumentFile f : files ) {
+						for( DocumentFile f : existings.values() ) {
 							f.delete();
 						}
 						executeBackup();
@@ -101,29 +88,9 @@ public class SecurityBackupFragment extends BaseSecurityBackupFragment {
 	}
 
 	private void executeBackup() {
-		final ContentResolver contentResolver = getApp().getContentResolver();
-		final char[] password = mPasswordView.getPassword().toCharArray();
-		
-		Uri directoryUri
-			= DocumentsContract.buildDocumentUriUsingTree(mPathUri,
-					DocumentsContract.getTreeDocumentId(mPathUri));
-
-		Hashtable<String, String> backupNames = getBackupFileNames();
-		BackupOperator param[] = new BackupOperator[backupNames.size()];
-		int i = 0;
-		for( String ext : backupNames.keySet() ) {
-			Uri uri
-				= DocumentsContract.createDocument(contentResolver,
-							directoryUri, MIME_TYPE, backupNames.get(ext));
-			
-			param[i++]
-				= new PasswordBackupOperator( contentResolver,
-											  getBackupables().get(ext),
-											  uri, password);
-		}
-		new BackupTask( getActivity() ).execute( param );
+		new BackupTask( getActivity() ).execute( newBackupParameter() );
 	}
-	
+
 	@Override
 	protected int checkPasswordReslut() {
 		String pwdStr = mPasswordView.getPassword();
@@ -139,6 +106,11 @@ public class SecurityBackupFragment extends BaseSecurityBackupFragment {
 			return R.string.promptPasswordNotEqual;
 		}
 		return 0;
+	}
+
+	@Override
+	protected String getOpenSingleDocumentAction() {
+		return Intent.ACTION_CREATE_DOCUMENT;
 	}
 
 }

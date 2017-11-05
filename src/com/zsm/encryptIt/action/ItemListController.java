@@ -65,7 +65,7 @@ public class ItemListController {
 			try {
 				WhatToDoItem item = adapter.read( cursor );
 				item.setContext( cursor.currentId() );
-				list.addItem( item );
+				list.addItemToView( item );
 			} catch (ClassNotFoundException | IOException
 					 | BadPersistenceFormatException e) {
 				
@@ -115,7 +115,7 @@ public class ItemListController {
 			Log.e(e, "Add new task failed!" );
 			return false;
 		}
-		list.addItem( item );
+		list.addItemToView( item );
 		return true;
 	}
 

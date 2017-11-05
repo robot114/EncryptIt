@@ -18,7 +18,7 @@ public interface ItemList {
 
 	boolean removeItem(WhatToDoItem item);
 
-	void addItem(WhatToDoItem item);
+	void addItemToView(WhatToDoItem item);
 
 	void refilter();
 

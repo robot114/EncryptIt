@@ -1,76 +1,61 @@
-package com.zsm.encryptIt.ui;
+package com.zsm.encryptIt.backup.ui;
 
 import java.security.Key;
-import java.util.Vector;
+import java.util.Arrays;
+import java.util.Hashtable;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.provider.DocumentFile;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.action.KeyAction;
 import com.zsm.encryptIt.android.action.PasswordPromptParameter;
-import com.zsm.encryptIt.backup.PasswordRestoreOperator;
+import com.zsm.encryptIt.backup.BackupTargetFilesConsts;
+import com.zsm.encryptIt.backup.BackupTargetFilesConsts.BACKUP_TARGET_KEY;
+import com.zsm.encryptIt.backup.BackupableConst;
 import com.zsm.encryptIt.backup.RESULT;
-import com.zsm.encryptIt.backup.RestoreOperator;
 import com.zsm.encryptIt.backup.RestoreTask;
+import com.zsm.encryptIt.ui.ActivityOperator;
 import com.zsm.log.Log;
 import com.zsm.security.PasswordHandler;
 
 public class SecurityRestoreFragment extends BaseSecurityBackupFragment
 				implements ActivityOperator {
 
-	private static final int REQUEST_CODE_RELOGIN = REQUEST_CODE_SUBCLASS + 1;
-	private RestoreOperator mRestoreParameters[];
+	private static final int REQUEST_CODE_RELOGIN = REQUEST_CODE_FOR_SUBCLASS + 1;
 	
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-							 Bundle savedInstanceState) {
-		
-		if( mView == null ) {
-			mView = inflater.inflate( R.layout.security_restore_fragment,
-									  container, false );
-			
-			initViews();
-		}
-		
-		return mView;
+	public SecurityRestoreFragment() {
+		super(R.layout.security_restore_fragment, OPERATION.RESTORE);
 	}
-	
+
 	@Override
 	protected void afterInitViews(TextWatcher tw) {
-		mActionButton.setOnClickListener( new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				AlertDialog.Builder builder
-					= new AlertDialog.Builder(getActivity());
-				builder
-					.setTitle( R.string.app_name )
-					.setIcon( android.R.drawable.ic_dialog_alert )
-					.setMessage( R.string.promptRestoreOverwrite )
-					.setPositiveButton( R.string.overwrite,
-							new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							doRestore();
-						}
-					})
-					.setNegativeButton( android.R.string.cancel, null )
-					.show();
-			}
-		} );
+	}
+
+	@Override
+	public void doAction( View v ) {
+		AlertDialog.Builder builder
+			= new AlertDialog.Builder(getActivity());
+		builder
+			.setTitle( R.string.app_name )
+			.setIcon( android.R.drawable.ic_dialog_alert )
+			.setMessage( R.string.promptRestoreOverwrite )
+			.setPositiveButton( R.string.overwrite,
+					new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					doRestore();
+				}
+			})
+			.setNegativeButton( android.R.string.cancel, null )
+			.show();
 	}
 	
 	@Override
@@ -78,19 +63,30 @@ public class SecurityRestoreFragment extends BaseSecurityBackupFragment
 	}
 
 	private void doRestore() {
-		final Vector<String> missedFiles = getMissedBackupFilesInBackupDir();
-		if( missedFiles.size() > 0 ) {
-			Log.d( "Backup file missed: ", missedFiles );
-			doWithMissSource(missedFiles);
+		String fileNamePrefix = getPrefixFromView();
+		final char[] password = mPasswordView.getPassword().toCharArray();
+		Hashtable<BACKUP_TARGET_KEY, DocumentFile> valids
+			= new Hashtable<BACKUP_TARGET_KEY, DocumentFile>();
+		Hashtable<BACKUP_TARGET_KEY, String> invalids
+			= new Hashtable<BACKUP_TARGET_KEY, String>();
+		
+		BackupTargetFilesConsts.getBackupTargetFilesInstance()
+			.checkTargetFileValid(getApp(), mPathUri, fileNamePrefix,
+									 password, valids, invalids);
+		
+		if( invalids.size() > 0 ) {
+			Log.d( "Backup file invalid: ",
+				   Arrays.toString( invalids.values().toArray() ) );
+			doWithInvalids(invalids);
 		} else {
-			executeRestore();
+			executeRestore( valids );
 		}
 	}
 
-	private void doWithMissSource(Vector<String> missedFiles) {
+	private void doWithInvalids(Hashtable<BACKUP_TARGET_KEY, String> missed) {
 		StringBuilder builder = new StringBuilder( );
 		
-		for( String fileName : missedFiles ) {
+		for( String fileName : missed.values() ) {
 			builder.append( fileName ).append( "\r\n" );
 		}
 		Activity context = getActivity();
@@ -107,25 +103,10 @@ public class SecurityRestoreFragment extends BaseSecurityBackupFragment
 			.show();
 	}
 
-	private void executeRestore() {
-		final ContentResolver contentResolver = getApp().getContentResolver();
-		final char[] password = mPasswordView.getPassword().toCharArray();
+	private void executeRestore(Hashtable<BACKUP_TARGET_KEY,DocumentFile> valids) {
+		Log.d( "Restored from the following backup files: ",
+				Arrays.toString( valids.values().toArray() ) );
 		
-		final Vector<DocumentFile> backupFiles = checkBackupFileExist();
-		Log.d( "Restored from the following backup files: ", backupFiles );
-		int size = backupFiles.size();
-		mRestoreParameters = new RestoreOperator[size];
-		for( int i = 0; i < size; i++ ) {
-			DocumentFile bf = backupFiles.get(i);
-			final Uri uri = bf.getUri();
-			final String name = uri.getLastPathSegment();
-			final int lastIndex = name.lastIndexOf( "." );
-			final String ext = name.substring(lastIndex);
-			mRestoreParameters[i]
-				= new PasswordRestoreOperator( contentResolver,
-											   getBackupables().get(ext),
-											   uri, password);
-		}
 		new RestoreTask( getActivity(), new RestoreTask.ResultCallback(){
 			@Override
 			public void onFinished(RESULT res) {
@@ -138,7 +119,7 @@ public class SecurityRestoreFragment extends BaseSecurityBackupFragment
 						break;
 				}
 			}
-		} ).execute( mRestoreParameters );
+		} ).execute( newBackupParameter() );
 	}
 
 	protected void onRestoreSucceed() {
@@ -147,8 +128,7 @@ public class SecurityRestoreFragment extends BaseSecurityBackupFragment
 			KeyAction.getInstance().reinitialize();
 		} catch (Exception e) {
 			Log.e( e, "Reinitialize the key actor failed!" );
-			doReinitializeFailed( R.string.promptInitKeyFailed,
-								  mRestoreParameters );
+			doReinitializeFailed( R.string.promptInitKeyFailed );
 			return;
 		}
 		getApp().promptPassword( this, REQUEST_CODE_RELOGIN );
@@ -178,8 +158,7 @@ public class SecurityRestoreFragment extends BaseSecurityBackupFragment
 				break;
 			case PasswordPromptParameter.LOGIN_FAILED:
 			default:
-				doReinitializeFailed( R.string.promptReloginFailed,
-									  mRestoreParameters );
+				doReinitializeFailed( R.string.promptReloginFailed );
 				break;
 		}
 	}
@@ -189,22 +168,20 @@ public class SecurityRestoreFragment extends BaseSecurityBackupFragment
 			getApp().getItemListController().getItemStorageAdapter().reopen();
 		} catch (Exception e) {
 			Log.e( e, "Reopen the storage provider failed!" );
-			doReinitializeFailed( R.string.promptReopenDBFailed,
-		  			  			  mRestoreParameters );
+			doReinitializeFailed( R.string.promptReopenDBFailed );
 			return;
 		}
 		Key key = (Key) data.getSerializableExtra( PasswordHandler.KEY_KEY );
 		boolean res
 			= getApp().getUIListOperator().initList(key, new Handler( ) );
 		if( !res ) {
-			doReinitializeFailed( R.string.promptReloginFailed,
-					  			  mRestoreParameters );
+			doReinitializeFailed( R.string.promptReloginFailed );
 		} else {
 			getActivity().finish();
 		}
 	}
 
-	private void doReinitializeFailed(int promptId, final RestoreOperator[] param) {
+	private void doReinitializeFailed(int promptId) {
 		new AlertDialog.Builder( getActivity() )
 			.setIcon( android.R.drawable.ic_dialog_alert )
 			.setMessage( promptId )
@@ -213,7 +190,7 @@ public class SecurityRestoreFragment extends BaseSecurityBackupFragment
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					int resId
-						= undoRestore( param ) 
+						= BackupableConst.undoRestore( getApp() ) 
 							? R.string.promptRestoreUndoOK
 							: R.string.promptRestoreFailed;
 					
@@ -233,26 +210,13 @@ public class SecurityRestoreFragment extends BaseSecurityBackupFragment
 			
 	}
 
-	protected boolean undoRestore(RestoreOperator[] param) {
-		boolean undo = true;
-		for( RestoreOperator t : param ) {
-			try {
-				if( t.restoreFromRename() ) {
-					t.reopenTarget();
-				} else {
-					undo = false;
-				}
-			} catch (Exception e) {
-				Log.w(e, "Restore from the renamed locally failed: ", t);
-				undo = false;
-			}
-		}
-		
-		return undo;
-	}
-
 	@Override
 	public void finishAffinity() {
 		getActivity().finishAffinity();
+	}
+
+	@Override
+	protected String getOpenSingleDocumentAction() {
+		return Intent.ACTION_OPEN_DOCUMENT;
 	}
 }

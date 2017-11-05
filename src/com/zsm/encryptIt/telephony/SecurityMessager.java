@@ -192,26 +192,23 @@ public class SecurityMessager {
 	 * @param originalMessage
 	 * @param password
 	 * @return
+	 * @throws InvalidKeySpecException 
+	 * @throws NoSuchPaddingException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws IOException 
 	 */
-	public String decodeMessage(String originalMessage, String password) {
+	public String decodeMessage(String originalMessage, String password)
+			throws NoSuchAlgorithmException, NoSuchPaddingException,
+				   InvalidKeySpecException, IOException {
 		
-		String text = originalMessage;
-		InOutDecorator io;
-		try {
-			io = SystemParameter
-				.getPasswordBasedInOutDecorator( password.toCharArray() );
-			byte[] encodeData = originalMessage.getBytes("US-ASCII");
-			byte[] ob = fromReadable(encodeData);
-			byte[] plainData = io.decode( ob );
-			text = new String( plainData, CHARSET );
-		} catch (NoSuchAlgorithmException | NoSuchPaddingException
-				| InvalidKeySpecException | IOException 
-				| IllegalArgumentException e) {
-			
-			Log.d( "Decode the message failed, the reason is", e );
-		}
+		InOutDecorator io
+			= SystemParameter.getPasswordBasedInOutDecorator( 
+					password.toCharArray() );
 		
-		return text;
+		byte[] encodeData = originalMessage.getBytes("US-ASCII");
+		byte[] ob = fromReadable(encodeData);
+		byte[] plainData = io.decode( ob );
+		return new String( plainData, CHARSET );
 	}
 	
 	// Convert one byte value from [-128, 127] to two bytes (PREFIX, [' ', '~'])

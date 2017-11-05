@@ -1,6 +1,5 @@
 package com.zsm.encryptIt.ui;
 
-import java.io.File;
 import java.security.Key;
 
 import android.app.Activity;
@@ -16,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.OpenableColumns;
+import android.support.v4.provider.DocumentFile;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -30,9 +30,9 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.zsm.android.ui.ClearableEditor;
-import com.zsm.android.ui.fileselector.FileOperation;
-import com.zsm.android.ui.fileselector.FileSelector;
-import com.zsm.android.ui.fileselector.OnHandleFileListener;
+import com.zsm.android.ui.documentSelector.DocumentHandler;
+import com.zsm.android.ui.documentSelector.DocumentOperation;
+import com.zsm.android.ui.documentSelector.DocumentSelector;
 import com.zsm.driver.android.log.LogActivity;
 import com.zsm.encryptIt.R;
 import com.zsm.encryptIt.action.ItemListController;
@@ -43,6 +43,8 @@ import com.zsm.encryptIt.app.EncryptItApplication;
 import com.zsm.encryptIt.backup.ExportImportTask;
 import com.zsm.encryptIt.backup.ExportTask;
 import com.zsm.encryptIt.backup.ImportTask;
+import com.zsm.encryptIt.backup.ui.SecurityBackupFragment;
+import com.zsm.encryptIt.backup.ui.SecurityRestoreFragment;
 import com.zsm.encryptIt.telephony.SecurityDialerActivity;
 import com.zsm.encryptIt.ui.preferences.Preferences;
 import com.zsm.encryptIt.ui.preferences.PreferencesActivity;
@@ -59,9 +61,7 @@ public class MainActivity extends ProtectedActivity
 	protected static final int SHOW_FOR_DELETE_SELECTED = 5;
 	
 	private static final int REQUEST_CODE_EXPORT_PWD = 100;
-	private static final int REQUEST_CODE_EXPORT = 101;
 	private static final int REQUEST_CODE_IMPORT_PWD = 110;
-	private static final int REQUEST_CODE_IMPORT = 111;
 	
 	public static final int ENCRYPT_IT_ID = 0;
 
@@ -217,7 +217,6 @@ public class MainActivity extends ProtectedActivity
 		if( !pm.hasSystemFeature( PackageManager.FEATURE_TELEPHONY ) ) {
 			menu.removeItem( R.id.menuCall );
 		}
-		
 		return true;
 	}
 
@@ -232,6 +231,23 @@ public class MainActivity extends ProtectedActivity
 									: R.string.menuSelectAll);
 	}
 	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		boolean exportEnable = Preferences.getInstance().getExportEnable();
+		
+		MenuItem itemExport = menu.findItem( R.id.menuExport );
+		if( itemExport != null ) {
+			itemExport.setVisible( exportEnable );
+		}
+		
+		MenuItem itemImport = menu.findItem( R.id.menuImport );
+		if( itemImport != null ) {
+			itemImport.setVisible( exportEnable );
+		}
+		
+		return super.onPrepareOptionsMenu(menu);
+	}
+
 	private void deleteSelected() {
 		Intent intent = new Intent( this, MultiDetailActivity.class );
 		startActivityForResult( intent, SHOW_FOR_DELETE_SELECTED );
@@ -318,17 +334,17 @@ public class MainActivity extends ProtectedActivity
 	}
 	
 	public boolean onBackupSecurity(MenuItem item) {
-		Intent intent = new Intent( this, SecurityBackupActivity.class );
-		intent.putExtra( SecurityBackupActivity.DATA_LAYOUT,
-						 R.layout.security_backup_activity );
+		Intent intent = new Intent( this, SecurityFragmentActivity.class );
+		intent.putExtra( SecurityFragmentActivity.DATA_FRAGMENT_CLASS,
+						 SecurityBackupFragment.class.getName() );
 		startActivity(intent);
 		return true;
 	}
 	
 	public boolean onRestoreSecurity(MenuItem item) {
-		Intent intent = new Intent( this, SecurityBackupActivity.class );
-		intent.putExtra( SecurityBackupActivity.DATA_LAYOUT,
-				 		 R.layout.security_restore_activity );
+		Intent intent = new Intent( this, SecurityFragmentActivity.class );
+		intent.putExtra( SecurityFragmentActivity.DATA_FRAGMENT_CLASS,
+				 		 SecurityRestoreFragment.class.getName() );
 		startActivity(intent);
 		return true;
 	}
@@ -358,53 +374,27 @@ public class MainActivity extends ProtectedActivity
 		
 		return true;
 	}
-	
-	private void exportByFileSelector() {
-		final OnHandleFileListener onHandleFileListener
-				= new OnHandleFileListener(){
-			
+	private void exportBySAF() {
+		DocumentHandler handler = new DocumentHandler() {
 			@Override
-			public void handleFile( FileOperation operation,
-									String filePath ) {
+			public void handleDocument(DocumentOperation o,
+									   DocumentFile document,
+									   String fileName) {
 				
-				Preferences.getInstance().setLastBackupPath(filePath);
-				ExportTask.doExport( MainActivity.this,
-								     operator.getSelectedDataList(),
-								     Uri.fromFile(new File(filePath) ) );
-				
-				Log.d( "Export to file successfully: ", filePath );
+				Uri uri = document.getUri();
+				ExportTask.doExport(
+					MainActivity.this, operator.getSelectedDataList(), uri );
+				Preferences.getInstance().setLastExportPath(uri );
 			}
 		};
 		
-		new FileSelector( this, FileOperation.SAVE,
-						  Preferences.getInstance().getLastBackupPath(),
-						  onHandleFileListener,
-						  ExportImportTask.getExportFileFilter(),
-						  true, true )
-				.show();
-	}
-
-	private void exportBySAF() {
-		Intent intent = new Intent( Intent.ACTION_CREATE_DOCUMENT );
-		intent.addCategory(Intent.CATEGORY_OPENABLE);
-		intent.setType( ExportImportTask.getExportMimeType() );
-		startActivityForResult(intent, REQUEST_CODE_EXPORT);
-	}
-
-	private void doExportBySAF( int resultCode, Intent data ) {
-		if( resultCode != RESULT_OK ) {
-			Log.d( "Export cancelled!" );
-			return;
-		}
+		Uri pathUri = Preferences.getInstance().getLastExportPath();
+		DocumentSelector dialog
+			= new DocumentSelector( this, DocumentOperation.SAVE,
+									pathUri,
+									handler, ExportImportTask.getExportFileFilter() );
 		
-		if( data == null || data.getData() == null) {
-			Log.w( "No uri as export\'s target", data );
-			return;
-		}
-		
-		Uri uri = data.getData();
-		ExportTask.doExport(
-			MainActivity.this, operator.getSelectedDataList(), uri );
+		dialog.show();
 	}
 	
 	public boolean onImport(MenuItem item) {
@@ -412,63 +402,34 @@ public class MainActivity extends ProtectedActivity
 		return true;
 	}
 	
-	private void importByFileSelector() {
-		final OnHandleFileListener onHandleFileListener
-				= new OnHandleFileListener(){
-			
+	private void importBySAF() {
+		DocumentHandler handler = new DocumentHandler() {
 			@Override
-			public void handleFile( FileOperation operation,
-									String filePath ) {
+			public void handleDocument(DocumentOperation o,
+									   DocumentFile document,
+									   String fileName ) {
 				
-				Preferences.getInstance().setLastBackupPath(filePath);
-				File file = new File(filePath);
-				ImportTask.doImport( MainActivity.this,
-								     operator,
-								     Uri.fromFile(file ), file.length() );
+				if( document == null) {
+					Log.w( "No target document" );
+					return;
+				}
 				
-				Log.d( "Import from file successfully: ", filePath );
+				Uri uri = document.getUri();
+				ImportTask.doImport( MainActivity.this, operator, uri,
+									 getFileSize(uri) );
+				Preferences.getInstance().setLastExportPath(uri );
 			}
 		};
 		
-		new FileSelector( this, FileOperation.LOAD,
-						  Preferences.getInstance().getLastBackupPath(),
-						  onHandleFileListener,
-						  ExportImportTask.getExportFileFilter(),
-						  true, true )
-			.show();
-	}
-
-	private void importBySAF() {
-		Intent intent = getImportIntent( Intent.ACTION_OPEN_DOCUMENT );
-		startActivityForResult(intent, REQUEST_CODE_IMPORT);
-	}
-
-	private Intent getImportIntent( String action ) {
-		Intent intent = new Intent(action);
-		intent.addCategory(Intent.CATEGORY_OPENABLE);
-		intent.setType("*/*");
-		String[] mimetypes = {"text/xml", "text/plain"};
-		intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-		return intent;
-	}
-
-	private void doImportBySAF( int resultCode, Intent data ) {
-		if( resultCode != RESULT_OK ) {
-			Log.d( "Export cancelled!" );
-			return;
-		}
+		Uri pathUri = Preferences.getInstance().getLastExportPath();
+		DocumentSelector dialog
+			= new DocumentSelector( this, DocumentOperation.LOAD,
+									pathUri,
+									handler, ExportImportTask.getExportFileFilter() );
 		
-		if( data == null || data.getData() == null) {
-			Log.w( "No uri as import\'s source", data );
-			return;
-		}
-		
-		Uri uri = data.getData();
-		ImportTask.doImport(
-			MainActivity.this, operator, uri,
-			getFileSize(uri) );
+		dialog.show();
 	}
-	
+
 	private long getFileSize(Uri uri) {
 
 	    Cursor cursor
@@ -491,7 +452,7 @@ public class MainActivity extends ProtectedActivity
 	}
 
 	private void doAdd() {
-		if( operator.doAdd(clearableEditor.getText().toString()) ) {
+		if( operator.doAddToDataAndView(clearableEditor.getText().toString()) ) {
 			clearableEditor.clearText();
 		}
 	}
@@ -526,24 +487,10 @@ public class MainActivity extends ProtectedActivity
 				doDeleteSelected( resultCode, data );
 				break;
 			case REQUEST_CODE_EXPORT_PWD:
-				if( EncryptItApplication.isSafSystem() ) {
-					exportBySAF();
-				} else {
-					exportByFileSelector();
-				}
-				break;
-			case REQUEST_CODE_EXPORT:
-				doExportBySAF( resultCode, data );
+				exportBySAF();
 				break;
 			case REQUEST_CODE_IMPORT_PWD:
-				if( EncryptItApplication.isSafSystem() ) {
-					importBySAF();
-				} else {
-					importByFileSelector();
-				}
-				break;
-			case REQUEST_CODE_IMPORT:
-				doImportBySAF( resultCode, data );
+				importBySAF();
 				break;
 		}
 	}

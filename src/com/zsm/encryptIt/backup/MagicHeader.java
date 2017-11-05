@@ -11,7 +11,7 @@ abstract class MagicHeader {
 
 	final static byte[] MAGIC_CODE = "Backuped by EncryptIt. Ver 1.0.0".getBytes();
 	
-	public boolean checkHeader( InputStream in ) {
+	public static boolean checkHeader( InputStream in ) {
 		
 		final byte[] mMagicBuffer = new byte[MAGIC_CODE.length];
 		try {
@@ -30,8 +30,12 @@ abstract class MagicHeader {
 		return res;
 	}
 	
-	public void outputHeader( OutputStream out ) throws IOException {
+	public static void outputHeader( OutputStream out ) throws IOException {
 		out.write(MAGIC_CODE);
+	}
+
+	public static long length() {
+		return MAGIC_CODE.length;
 	}
 
 }

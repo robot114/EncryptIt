@@ -10,26 +10,62 @@
 		android:defaultValue="5"/>
     <PreferenceScreen 
         android:title="@string/prefLookAndFeel"
-		android:summary="@string/prefLookAndFeelDesc">
+		android:summary="@string/prefLookAndFeelDesc"
+		android:icon="@drawable/look_feel">
         <CheckBoxPreference
             android:title="@string/prefMainListExpandable"
             android:key="MAIN_LIST_EXPANDABLE"
-            android:summary="@string/prefMainListExpandableDesc"/>
+            android:summary="@string/prefMainListExpandableDesc"
+            android:icon="@drawable/list_expandable"/>
     </PreferenceScreen>
     
     <PreferenceScreen
-        android:icon="@drawable/backup"
+        android:icon="@drawable/backup_black"
         android:summary="@string/prefSummaryBackup"
         android:title="@string/prefTitleBackup">
-        <CheckBoxPreference
-            android:summaryOn="@string/prefSummaryBackXmlOn"
-            android:summaryOff="@string/prefSummaryBackXmlOff"
-            android:key="KEY_EXPORT_XML" android:icon="@drawable/xml" android:title="@string/prefTitleXml"/>
+        <PreferenceCategory
+            android:orderingFromXml="true"
+            android:title="@string/prefTitleExport">
+            <CheckBoxPreference
+                android:summaryOn="@string/prefSummaryEnableExportOn"
+                android:summaryOff="@string/prefSummaryEnableExportOff"
+                android:icon="@drawable/export"
+                android:key="KEY_EXPORT_ENABLE"
+                android:title="@string/prefTitleEnableExport" android:defaultValue="false" android:persistent="false"/>
+            <CheckBoxPreference
+                android:summaryOn="@string/prefSummaryBackXmlOn"
+                android:summaryOff="@string/prefSummaryBackXmlOff"
+                android:key="KEY_EXPORT_XML"
+                android:icon="@drawable/xml"
+                android:title="@string/prefTitleXml"
+                android:dependency="KEY_EXPORT_ENABLE"
+                android:persistent="true"/>
+        </PreferenceCategory>
+        
+        <PreferenceCategory
+            android:orderingFromXml="true"
+            android:title="@string/prefTitleBackupType"
+            android:key="KEY_BACKUP_TYPE">
+            <CheckBoxPreference
+                android:icon="@drawable/archive"
+                android:key="KEY_BACKUP_ARCHIVE"
+                android:title="@string/prefTitleBackupTypeArchive"
+                android:persistent="false"
+                android:defaultValue="false"/>
+            <CheckBoxPreference
+                android:icon="@drawable/multi_files"
+                android:key="KEY_BACKUP_MULTI_FILES"
+                android:title="@string/prefTitleBackupTypeMultiFiles"
+                android:persistent="false"
+                android:defaultValue="false"/>
+        </PreferenceCategory>
+        
     </PreferenceScreen>
     <Preference
         android:title="ChangePassword"
         android:key="CHANGE_PASSWORD"
-        android:icon="@drawable/key" android:persistent="false"/>
+        android:icon="@drawable/key"
+        android:persistent="false"/>
     <com.zsm.encryptIt.ui.preferences.AboutDialog
         android:title="@string/prefAbout"
         android:summary="@string/prefAboutDesc"

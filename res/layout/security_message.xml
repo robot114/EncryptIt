@@ -8,15 +8,34 @@
     android:padding="@dimen/defaultPadding" >
 
     <EditText
+        android:id="@+id/editTextTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/hintSendTitle" />
+
+    <CheckBox
+        android:id="@+id/checkBoxTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:padding="@dimen/defaultPadding"
+        android:text="@string/labelIncludeTitle" />
+
+    <EditText
         android:id="@+id/editTextMessage"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:ems="10"
-        android:hint="@string/hintSendMessage" >
+        android:hint="@string/hintSendMessage" />
 
-        <requestFocus />
-    </EditText>
+    <com.zsm.android.ui.VisiblePassword
+        android:id="@+id/viewPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/hintSecurityMessagePassword"
+        custom:hintText="@string/hintSecurityMessagePassword"
+        custom:labelText="@string/passwordLabel" >
+    </com.zsm.android.ui.VisiblePassword>
 
     <TextView
         android:id="@+id/textViewReciptient"
@@ -26,42 +45,16 @@
         android:hint="@string/hintReciption"
         android:labelFor="@+id/textViewReciptient"
         android:onClick="onNumber"
+        android:padding="@dimen/defaultPadding"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <com.zsm.android.ui.VisiblePassword
-        android:id="@+id/backupPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:contentDescription="@string/hintSecurityMessagePassword"
-        custom:hintText="@string/hintSecurityMessagePassword"
-        custom:labelText="@string/passwordLabel" >
-
-    </com.zsm.android.ui.VisiblePassword>
-
-    <LinearLayout
+    <ImageView
+        android:id="@+id/imageViewAction"
+        style="@style/styleMainButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0" >
-
-        <ImageView
-            android:id="@+id/imageViewCancel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:contentDescription="@string/hintCancel"
-            android:onClick="onCancel"
-            android:src="@drawable/reject" />
-
-        <ImageView
-            android:id="@+id/imageViewOK"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:contentDescription="@string/hintSendMessage"
-            android:onClick="onSend"
-            android:src="@drawable/accept" />
-
-    </LinearLayout>
+        android:contentDescription="@string/hintSendMessage"
+        android:onClick="onAction"
+        android:src="@drawable/message" />
 
 </LinearLayout>
