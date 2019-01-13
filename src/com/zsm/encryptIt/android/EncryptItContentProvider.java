@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.RowId;
+import java.util.List;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -13,6 +14,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 
@@ -21,6 +23,7 @@ import com.zsm.encryptIt.R;
 import com.zsm.log.Log;
 import com.zsm.persistence.BadPersistenceFormatException;
 import com.zsm.persistence.Persistence;
+import com.zsm.recordstore.AbstractMetaDataCursor;
 import com.zsm.recordstore.AbstractRawCursor;
 import com.zsm.recordstore.LongRowId;
 
@@ -42,11 +45,18 @@ public class EncryptItContentProvider extends ContentProvider {
 				= ContentResolver.CURSOR_DIR_BASE_TYPE+ITEM_TYPE;
 	private static final String ITEM_TYPE_SINGLE 
 				= ContentResolver.CURSOR_ITEM_BASE_TYPE+ITEM_TYPE;
+	
+	private static final String META_DATA = "metadata";
+	public static final String PARAMETER_KEY = "key";
+
 	private static final String TYPE_BACKUP 
 		= ContentResolver.CURSOR_ITEM_BASE_TYPE+"/backup";
 
 	private static final int CODE_ALL = 1;
 	private static final int CODE_SINGLE = 2;
+	
+	private static final int CODE_META_DATA = 20;
+	
 	private static final int CODE_BACKUP = 10;
 	private static final int CODE_BACKUP_TO_LOCAL = 11;
 	private static final int CODE_RESTORE_FROM_LOCAL = 12;
@@ -59,6 +69,7 @@ public class EncryptItContentProvider extends ContentProvider {
 
 	private static UriMatcher uriMatcher;
 	private static Uri contentUri;
+	private static Uri metaDataUri;
 	private static Uri backupUri;
 	private static Uri backupToLocalUri;
 	private static Uri restoreFromLocalUri;
@@ -75,6 +86,9 @@ public class EncryptItContentProvider extends ContentProvider {
 			uriMatcher = new UriMatcher( UriMatcher.NO_MATCH );
 			uriMatcher.addURI( getUri(), ITEMS, CODE_ALL );
 			uriMatcher.addURI( getUri(), ITEMS+"/#", CODE_SINGLE );
+			
+			uriMatcher.addURI( getUri(), META_DATA, CODE_META_DATA );
+			
 			uriMatcher.addURI( getUri(), PATH_TO_LOCAL, CODE_BACKUP_TO_LOCAL );
 			uriMatcher.addURI( getUri(), PATH_FROM_LOCAL, CODE_RESTORE_FROM_LOCAL );
 			uriMatcher.addURI( getUri(), PATH_BACKUP, CODE_BACKUP );
@@ -82,6 +96,7 @@ public class EncryptItContentProvider extends ContentProvider {
 			uriMatcher.addURI( getUri(), PATH_REOPEN_DATABASE, CODE_REOPEN_DATABASE );
 			
 			contentUri = Uri.parse( "content://" + getUri() + "/" + ITEMS );
+			metaDataUri = Uri.parse( "content://" + getUri() + "/" + META_DATA );
 			backupUri = Uri.parse( "content://" + getUri() + "/" + PATH_BACKUP );
 			backupToLocalUri = Uri.parse( "content://" + getUri() + "/" + PATH_TO_LOCAL );
 			restoreFromLocalUri = Uri.parse( "content://" + getUri() + "/" + PATH_FROM_LOCAL );
@@ -112,13 +127,18 @@ public class EncryptItContentProvider extends ContentProvider {
 			}
 		}
 		
-        RowId id = null;
         int matchCode = uriMatcher.match(uri);
+        
         if( matchCode == CODE_BACKUP ) {
         	return queryFile(matchCode, uri, projection, selection,
         					 selectionArgs, sortOrder);
         }
         
+        if( matchCode == CODE_META_DATA ) {
+        	return queryMetaData(uri);
+        }
+        
+        RowId id = null;
 		if(matchCode == CODE_SINGLE){
             id = getIdFromUri(uri);
         }
@@ -129,6 +149,20 @@ public class EncryptItContentProvider extends ContentProvider {
         
 		Log.d( "query storage ok.", "uri", uri, "cursor", rsc, "id", id );
         return c;
+	}
+
+	private Cursor queryMetaData(Uri uri) {
+		String key = getKeyFromUri( uri );
+		if( key == null ) {
+			Log.w( "No parameter 'key': ", uri );
+			return null;
+		}
+		
+		AbstractMetaDataCursor rmc = persistence.queryMetaData(key);
+		Cursor c = new AndroidWrappedMetaCursor( rmc );
+		c.setNotificationUri(getContext().getContentResolver(), uri);
+		Log.d( "query meta data ok.", "uri", uri, "cursor", rmc, "key", key );
+		return c;
 	}
 
 	private boolean initPersistence()
@@ -264,6 +298,12 @@ public class EncryptItContentProvider extends ContentProvider {
 		}
 	}
 
+	@Override
+	public Bundle call(String method, String arg, Bundle extras) {
+		// TODO Auto-generated method stub
+		return super.call(method, arg, extras);
+	}
+
 	private int closeDatabase() {
 		persistence.close();
 		initialized = false;
@@ -322,12 +362,26 @@ public class EncryptItContentProvider extends ContentProvider {
 		return new LongRowId( Long.parseLong( uri.getLastPathSegment() ) );
 	}
 
+	private String getKeyFromUri(Uri uri) {
+		List<String> l = uri.getQueryParameters(PARAMETER_KEY);
+		if( l.size() < 1 ) {
+			Log.d( "No the 'key' parameter for uri: ", uri );
+			return null;
+		}
+		
+		return l.get(0);
+	}
+
 	private void notifyResolverChange(Uri uri) {
 		getContext().getContentResolver().notifyChange(uri, null);
 	}
 
 	public static Uri getContentUri() {
 		return contentUri;
+	}
+	
+	public static Uri getMetaDataUri() {
+		return metaDataUri;
 	}
 
 	public static Uri getBackupUri() {

@@ -9,7 +9,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 
 import com.zsm.encryptIt.R;
-import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.WhatToDoItemV2;
 import com.zsm.recordstore.LongRowId;
 
 class WhatToDoItemExpanableAdapter extends BaseExpandableListAdapter {
@@ -42,7 +42,7 @@ class WhatToDoItemExpanableAdapter extends BaseExpandableListAdapter {
 		return 1;
 	}
 
-	private WhatToDoItem getData(int groupPosition) {
+	private WhatToDoItemV2 getData(int groupPosition) {
 		return list.get(groupPosition).getData();
 	}
 
@@ -58,7 +58,7 @@ class WhatToDoItemExpanableAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public long getGroupId(int groupPosition) {
-		WhatToDoItem data = getData(groupPosition);
+		WhatToDoItemV2 data = getData(groupPosition);
 		Object c = data.getContext();
 		return ((LongRowId)c).getLongId();
 	}

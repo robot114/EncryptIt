@@ -15,8 +15,6 @@ import com.zsm.util.file.FileUtilities;
 
 public class SQLiteDriver implements Driver {
 
-	private static final int VERSION = 1;
-	
 	private Context context;
 
 	public SQLiteDriver( Context context ) {
@@ -66,8 +64,7 @@ public class SQLiteDriver implements Driver {
 											  boolean readOnly ) {
 		
 		SQLiteOpenHelper helper
-			= new SQLiteRawOpenHelper( context, name, null, VERSION,
-									   createIfNecessary );
+			= new SQLiteRawOpenHelper( context, name, null, createIfNecessary );
 		
 		RawRecordStore rs = null;
 		if(readOnly) {

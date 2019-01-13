@@ -2,18 +2,18 @@ package com.zsm.encryptIt.ui;
 
 import java.util.Observable;
 
-import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.WhatToDoItemV2;
 
 public class WhatToDoListViewItem extends Observable {
 	
-	private WhatToDoItem data;
+	private WhatToDoItemV2 data;
 	private boolean selected;
 	
-	public WhatToDoListViewItem( WhatToDoItem data ) {
+	public WhatToDoListViewItem( WhatToDoItemV2 data ) {
 		this.data = data;
 	}
 	
-	public WhatToDoItem getData() {
+	public WhatToDoItemV2 getData() {
 		return data;
 	}
 	

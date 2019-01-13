@@ -1,6 +1,6 @@
 package com.zsm.encryptIt.action;
 
-import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.WhatToDoItemV2;
 
 /**
  * Interface of the list for the ItemListActor to communicate with the UI.
@@ -12,13 +12,13 @@ import com.zsm.encryptIt.WhatToDoItem;
  */
 public interface ItemList {
 
-	WhatToDoItem getItem(int position);
+	WhatToDoItemV2 getItem(int position);
 
 	void clear();
 
-	boolean removeItem(WhatToDoItem item);
+	boolean removeItem(WhatToDoItemV2 item);
 
-	void addItemToView(WhatToDoItem item);
+	void addItemToView(WhatToDoItemV2 item);
 
 	void refilter();
 

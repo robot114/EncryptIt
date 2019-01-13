@@ -23,7 +23,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 
-import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.WhatToDoItemV2;
 import com.zsm.encryptIt.action.ItemList;
 import com.zsm.encryptIt.action.ItemListController;
 import com.zsm.encryptIt.action.ItemOperator;
@@ -193,7 +193,7 @@ public class AndroidItemListOperator
 	}
 
 	@Override
-	public void addItemToView(final WhatToDoItem newItem) {
+	public void addItemToView(final WhatToDoItemV2 newItem) {
 		WhatToDoListViewItem newListViewItem
 			= new WhatToDoListViewItem( newItem );
 		newListViewItem.addObserver(selectionObserver);
@@ -202,7 +202,7 @@ public class AndroidItemListOperator
 	}
 
 	@Override
-	public WhatToDoItem getItem(int position) {
+	public WhatToDoItemV2 getItem(int position) {
 		return list.get(position).getData();
 	}
 
@@ -212,7 +212,7 @@ public class AndroidItemListOperator
 	}
 
 	@Override
-	public boolean removeItem(final WhatToDoItem item) {
+	public boolean removeItem(final WhatToDoItemV2 item) {
 		return list.remove( new WhatToDoListViewItem( item ) );
 	}
 
@@ -237,7 +237,7 @@ public class AndroidItemListOperator
 	}
 
 	@Override
-	public boolean doAddToDataAndView(WhatToDoItem item) {
+	public boolean doAddToDataAndView(WhatToDoItemV2 item) {
 		boolean res = getApp().getItemListController().doAdd(item);
 		if( res ) {
 			refilter();

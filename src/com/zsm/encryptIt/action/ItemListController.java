@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.sql.RowId;
 import java.util.Date;
 
-import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.WhatToDoItemV2;
 import com.zsm.log.Log;
 import com.zsm.persistence.BadPersistenceFormatException;
 import com.zsm.recordstore.AbstractRawCursor;
@@ -63,12 +63,13 @@ public class ItemListController {
 		
 		while( hasItem ) {
 			try {
-				WhatToDoItem item = adapter.read( cursor );
+				WhatToDoItemV2 item = adapter.read( cursor );
 				item.setContext( cursor.currentId() );
 				list.addItemToView( item );
-			} catch (ClassNotFoundException | IOException
-					 | BadPersistenceFormatException e) {
-				
+			} catch (ClassNotFoundException | BadPersistenceFormatException e) {
+				Log.e( e, "Failed to read the item, it will be removed!" );
+				adapter.remove( cursor.currentId() );
+			} catch (IOException e) {
 				Log.e( e, "Failed to read the item!" );
 			}
 			hasItem = cursor.moveToNext();
@@ -90,7 +91,7 @@ public class ItemListController {
 	 */
 	public boolean doAdd(String task) {
 		if( !task.trim().equals( "" ) ) {
-			WhatToDoItem item = new WhatToDoItem( task );
+			WhatToDoItemV2 item = new WhatToDoItemV2( task );
 			doAdd( item );
 			return true;
 		}
@@ -105,7 +106,7 @@ public class ItemListController {
 	 * @param item new WhatToDoItem item
 	 * @return true, added successfully; false, not added
 	 */
-	public boolean doAdd(WhatToDoItem item) {
+	public boolean doAdd(WhatToDoItemV2 item) {
 		try {
 			RowId id = adapter.add(item);
 			item.setContext(id);
@@ -137,7 +138,7 @@ public class ItemListController {
 			return false;
 		}
 		
-		WhatToDoItem item = list.getItem( position );
+		WhatToDoItemV2 item = list.getItem( position );
 		String oldTask = item.getTask();
 		String oldDetail = item.getDetail();
 		Date oldModify = item.getModifiedTime();
@@ -167,7 +168,7 @@ public class ItemListController {
 		return true;
 	}
 
-	private boolean sameTask(WhatToDoItem item, String task, String detail) {
+	private boolean sameTask(WhatToDoItemV2 item, String task, String detail) {
 		return item.getTask().equals( task ) 
 				&& ( item.getDetail() == detail
 				|| ( detail != null && detail.equals( item.getDetail() ) ) ) ;
@@ -188,7 +189,7 @@ public class ItemListController {
 			Log.e( "Do not know which item to be delete" );
 			return false;
 		}
-		WhatToDoItem item = list.getItem( position );
+		WhatToDoItemV2 item = list.getItem( position );
 		
 		return doDelete(item);
 	}
@@ -201,7 +202,7 @@ public class ItemListController {
 	 * @param item the item to be deleted.
 	 * @return true, delete successfully, false, no such item or delete failed.
 	 */
-	public boolean doDelete(WhatToDoItem item) {
+	public boolean doDelete(WhatToDoItemV2 item) {
 		try {
 			adapter.remove( (RowId)item.getContext() );
 		} catch (Exception e) {

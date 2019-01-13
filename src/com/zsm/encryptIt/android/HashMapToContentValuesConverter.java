@@ -1,8 +1,11 @@
-package com.zsm.util;
+package com.zsm.encryptIt.android;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
+
+import com.zsm.util.ByteArray;
+import com.zsm.util.Converter;
 
 import android.content.ContentValues;
 
@@ -15,8 +18,6 @@ public class HashMapToContentValuesConverter implements Converter {
 		@SuppressWarnings("unchecked")
 		HashMap<String, Object> data = (HashMap<String, Object>)source;
 		Set<String> keys = data.keySet();
-		String[] columns = new String[keys.size()];
-		columns = keys.toArray(columns);
 		for( String key : keys ) {
 			Object o = data.get(key);
 			if( o == null ) {

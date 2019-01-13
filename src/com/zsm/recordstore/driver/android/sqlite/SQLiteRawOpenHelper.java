@@ -13,11 +13,15 @@ import com.zsm.recordstore.RecordStoreException;
 
 public class SQLiteRawOpenHelper extends SQLiteOpenHelper {
 	
+	private static final int VERSION_1 = 1;
+	private static final int VERSION_2 = 2;
+	private static final int CURRENT_VERSION = VERSION_2;
+	
 	public SQLiteRawOpenHelper(Context context, String name,
-							   CursorFactory factory, int version,
+							   CursorFactory factory,
 							   boolean createIfNecessary ) {
 		
-		super(context, name, factory, version);
+		super(context, name, factory, CURRENT_VERSION);
 		
 		if( !createIfNecessary && !doesDatabaseExist( context, name ) ) {
 			throw new RecordStoreException( "DataBase " + name + " not exist!" );
@@ -31,17 +35,41 @@ public class SQLiteRawOpenHelper extends SQLiteOpenHelper {
 	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		db.execSQL( RawRecordStore.CREATE_SQL );
+		db.execSQL( RawRecordStore.CREATE_RAW_TABLE_SQL );
+		createMetaTable(db);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		if( oldVersion == VERSION_1 && newVersion > VERSION_1 ) {
+			// MetaTable is created since version 2
+			createMetaTable(db);
+		}
+		if( newVersion <= VERSION_2 ) {
+			Log.d( "Upgraded", "oldVersion", oldVersion, "newVersion", newVersion );
+			// No more need to be done for version 2
+			return;
+		}
 		Log.w( "Upgrade from version " + oldVersion + " to " + newVersion
 			   + ". All datas are destroyed!" );
 		
-		db.execSQL( "DROP TABLE IF EXIST " + RawRecordStore.TABLE_NAME );
+		deleteAllTables(db);
 		
 		onCreate( db );
+	}
+
+	private void deleteAllTables(SQLiteDatabase db) {
+		db.execSQL( "DROP TABLE IF EXISTS " + RawRecordStore.RAW_DATA_TABLE_NAME );
+		deleteMetaTable(db);
+	}
+
+	private void deleteMetaTable(SQLiteDatabase db) {
+		db.execSQL( "DROP TABLE IF EXISTS " + RawRecordStore.META_DATA_TABLE_NAME );
+	}
+
+	private void createMetaTable( SQLiteDatabase db ) {
+		db.execSQL( RawRecordStore.CREATE_META_TABLE_SQL );
+		Log.d( "Meta data table created." );
 	}
 
 	@Override

@@ -28,7 +28,7 @@ import android.widget.Toast;
 
 import com.zsm.android.ui.VisiblePassword;
 import com.zsm.encryptIt.R;
-import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.WhatToDoItemV2;
 import com.zsm.encryptIt.app.EncryptItApplication;
 import com.zsm.encryptIt.telephony.SecurityMessager.SmsResultReceiver;
 import com.zsm.encryptIt.ui.ProtectedActivity;
@@ -348,7 +348,7 @@ public class SecurityMessageActivity extends ProtectedActivity {
 	}
 
 	private void doSave(String title) {
-		WhatToDoItem item = new WhatToDoItem( title );
+		WhatToDoItemV2 item = new WhatToDoItemV2( title );
 		item.setDetail( mMessageView.getText().toString() );
 		
 		((EncryptItApplication)getApplicationContext()).getUIListOperator()

@@ -7,7 +7,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.zsm.encryptIt.R;
-import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.WhatToDoItemV2;
 
 class ToDoListSubItemView extends LinearLayout {
 
@@ -32,7 +32,7 @@ class ToDoListSubItemView extends LinearLayout {
 	}
 	
 	public void setDisplayValue( WhatToDoListViewItem item ) {
-		WhatToDoItem data = item.getData();
+		WhatToDoItemV2 data = item.getData();
 		if( hasDetail( item ) ) {
 			detailView.setVisibility( View.VISIBLE );
 			separator.setVisibility(View.VISIBLE);

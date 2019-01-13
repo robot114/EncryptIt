@@ -2,6 +2,7 @@ package com.zsm.recordstore;
 
 import java.io.Closeable;
 import java.sql.RowId;
+import java.util.HashMap;
 import java.util.Vector;
 
 import com.zsm.util.Converter;
@@ -15,13 +16,30 @@ public abstract class RecordStore implements Closeable {
 	
 	private Vector<AbstractCursor> cursorSet = new Vector<AbstractCursor>();
 	private boolean readOnly;
-	final private Converter converter;
+	final private HashMap<String, Converter> converters;
 
-	public RecordStore(boolean readOnly, Converter converter) {
+	/**
+	 * Constructor
+	 * @param readOnly if the RecordStore is read only
+	 * @param converters HashMap to store the converters. The key is the table name
+	 */
+	public RecordStore(boolean readOnly, HashMap<String, Converter> converters) {
 		this.readOnly = readOnly;
-		this.converter = converter;
+		this.converters = converters;
 	}
 
+	public RecordStore(boolean readOnly) {
+		this.readOnly = readOnly;
+		this.converters = new HashMap<String, Converter>();
+	}
+
+	/**
+	 * Get the version of the RecordStore
+	 * 
+	 * @return the version of the RecordStore
+	 */
+	abstract public int getVersion();
+	
 	/**
 	 * Is this record store read only. For the read only record store, rows 
 	 * <b>CANNOT</b> be deleted or modified.
@@ -230,8 +248,12 @@ public abstract class RecordStore implements Closeable {
 		}
 	}
 	
-	protected Converter getConverter() {
-		return converter;
+	protected Converter getConverter( String tableName ) {
+		return converters.get(tableName);
+	}
+	
+	protected void addConverter( String tableName, Converter c ) {
+		converters.put(tableName, c);
 	}
 
 }

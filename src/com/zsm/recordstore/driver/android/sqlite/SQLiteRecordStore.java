@@ -2,9 +2,6 @@ package com.zsm.recordstore.driver.android.sqlite;
 
 import java.sql.RowId;
 
-import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
-
 import com.zsm.log.Log;
 import com.zsm.recordstore.InvalidOperationException;
 import com.zsm.recordstore.LongRowId;
@@ -12,25 +9,19 @@ import com.zsm.recordstore.RecordStore;
 import com.zsm.recordstore.RecordStoreCursor;
 import com.zsm.recordstore.RecordStoreException;
 import com.zsm.recordstore.RecordStoreNotOpenException;
-import com.zsm.util.Converter;
+
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 
 public class SQLiteRecordStore extends RecordStore {
 
 	private SQLiteDatabase database;
 	private int operation;
 
-	private static final Converter DEFAULT_CONVERTER
-		= new Converter() {
-			@Override
-			public ContentValues convert(Object s) {
-				return (ContentValues)s;
-			}
-	};
-	
 	SQLiteRecordStore( SQLiteDatabase db, boolean readOnly ) {
 		// Explicitly requested for a read only database or the concrete database
 		// being read only, all these make the record store is read only.
-		super( readOnly || db.isReadOnly(), DEFAULT_CONVERTER ); 
+		super( readOnly || db.isReadOnly() );
 		database = db;
 	}
 	
@@ -39,6 +30,11 @@ public class SQLiteRecordStore extends RecordStore {
 		return database;
 	}
 
+	@Override
+	public int getVersion() {
+		return database.getVersion();
+	}
+	
 	@Override
 	public void close() throws RecordStoreException {
 		commit();
@@ -96,7 +92,7 @@ public class SQLiteRecordStore extends RecordStore {
 		
 		checkReadOnly();
 		
-		ContentValues values = (ContentValues) getConverter().convert( data );
+		ContentValues values = (ContentValues) getConverter( table ).convert( data );
 		checkAndBeginTransaction( RecordStore.OPERATION_ADD );
 		long id = database.insert(table, null, values);
 		Log.d( "New values added.", "id", id, "values", values );
@@ -109,7 +105,7 @@ public class SQLiteRecordStore extends RecordStore {
 			throws RecordStoreNotOpenException, InvalidOperationException {
 		
 		return database.update(tables,
-							   (ContentValues)getConverter().convert(data),
+							   (ContentValues)getConverter( tables ).convert(data),
 							   selection,
 							   selectionArgs );
 	}
@@ -136,4 +132,5 @@ public class SQLiteRecordStore extends RecordStore {
 			operation = 0;
 		}
 	}
+
 }

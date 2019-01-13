@@ -4,18 +4,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import com.zsm.encryptIt.R;
+import com.zsm.encryptIt.WhatToDoItemV2;
+import com.zsm.encryptIt.action.ItemOperator;
+import com.zsm.log.Log;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.Uri;
-
-import com.zsm.encryptIt.R;
-import com.zsm.encryptIt.WhatToDoItem;
-import com.zsm.encryptIt.action.ItemOperator;
-import com.zsm.log.Log;
 
 public class ImportTask extends ExportImportTask {
 
@@ -75,23 +81,23 @@ public class ImportTask extends ExportImportTask {
 			} else {
 				return importFromText( mOperator, in );
 			}
-		} catch (IOException | ParseException | XmlPullParserException e) {
+		} catch (IOException | ParseException
+				 | ParserConfigurationException | SAXException e) {
+			
 			Log.w( e, "Import failed!" );
 			return RESULT.FAILED;
 		}
 	}
 
 	private RESULT importFromXml(ItemOperator operator, InputStream in)
-				throws XmlPullParserException, ParseException, IOException {
+				throws  ParseException, IOException,
+						ParserConfigurationException, SAXException {
 		
-		XmlPullParserFactory factory = null;
-		XmlPullParser parser = null;
-		
-		factory = XmlPullParserFactory.newInstance();
-		factory.setNamespaceAware(true);
-		parser = factory.newPullParser();
-		parser.setInput(in, null);
-		
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(in);
+        doc.getDocumentElement().normalize();
+        
 		ProcessIndicator indicator = new ProcessIndicator() {
 			@Override
 			public void update(int process) {
@@ -99,52 +105,27 @@ public class ImportTask extends ExportImportTask {
 			}
 		};
 		
-		int type;
-		String elementName;
-		boolean firtElement = true;
-		int count = 0;
-		while( ( type = parser.getEventType()) != XmlPullParser.END_DOCUMENT ) {
-			if( type == XmlPullParser.START_TAG ) {
-				elementName = parser.getName();
-				if( elementName.equals( ELEMENT_NAME_ROOT ) ) {
-					if( !firtElement ) {
-						throw new XmlPullParserException( 
-							ELEMENT_NAME_ROOT
-							+ " should be the first element. Line : "
-							+ parser.getLineNumber());
-					}
-					
-					firtElement = false;
-				} else if( elementName.equals( WhatToDoItem.ELEMENT_NAME_ITEM )) {
-					if( firtElement ) {
-						throw new XmlPullParserException( 
-								"The first element is not " + ELEMENT_NAME_ROOT
-								+ ". Line : " + parser.getLineNumber());
-					}
-					
-					WhatToDoItem item = WhatToDoItem.fromXmlElement(parser, indicator);
-					while( item != null ) {
-						operator.doAddToDataAndView(item);
-						count++;
-						if( isCancelled() ) {
-							Log.d( "Import cancelled at item ", count );
-							return RESULT.CANCELLED;
-						}
-						item = WhatToDoItem.fromXmlElement(parser, indicator);
-					}
-					
-					break;
-				} else {
-					throw new XmlPullParserException( 
-							"Invalid element name " + elementName
-							+ ". Line: " + parser.getLineNumber() );
-				}
+        NodeList nList = doc.getElementsByTagName(WhatToDoItemV2.ELEMENT_NAME_ITEM);
+        
+        for( int i = 0; i < nList.getLength(); i++ ) {
+        	Node node = nList.item(i);
+        	
+			WhatToDoItemV2 item = WhatToDoItemV2.fromXmlElement((Element) node);
+			if( item == null ) {
+				Log.w( "Read item from xml failed!" );
+				return RESULT.FAILED;
 			}
 			
-			parser.next();
+			if( isCancelled() ) {
+				Log.d( "Import cancelled at item ", i );
+				return RESULT.CANCELLED;
+			}
+			operator.doAddToDataAndView(item);
+			
+			indicator.update( i );
 		}
 		
-		Log.d( "Import successfully.", "uri", mSourceUri, "number", count );
+		Log.d( "Import successfully.", "uri", mSourceUri, "number", nList.getLength() );
 		return RESULT.OK;
 	}
 
@@ -165,8 +146,8 @@ public class ImportTask extends ExportImportTask {
 					baos.write(ch);
 				}
 				
-				WhatToDoItem item
-					= WhatToDoItem.fromReadableText( baos.getInputStream() );
+				WhatToDoItemV2 item
+					= WhatToDoItemV2.fromReadableText( baos.getInputStream() );
 				
 				if( item != null ) {
 					operator.doAddToDataAndView(item);

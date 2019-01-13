@@ -75,4 +75,5 @@
     <string name="hintReciption">Click for phone number</string>
     <string name="titleSend">Send</string>
     <string name="labelIncludeTitle">Title included in the message</string>
+    <string name="titleAttachments">Attachments</string>
 </resources>

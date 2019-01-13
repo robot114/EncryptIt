@@ -124,7 +124,7 @@ public class Preferences {
 	}
 
 	public String getBackupFilesType() {
-		return preferences.getString( KEY_BACKUP_TYPE, null );
+		return preferences.getString( KEY_BACKUP_TYPE, Preferences.KEY_BACKUP_ARCHIVE );
 	}
 
 	public void setBackupFileType( String type ) {

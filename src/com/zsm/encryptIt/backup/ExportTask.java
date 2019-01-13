@@ -27,7 +27,7 @@ import android.net.Uri;
 import android.provider.DocumentsContract;
 
 import com.zsm.encryptIt.R;
-import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.WhatToDoItemV2;
 import com.zsm.encryptIt.ui.WhatToDoListViewItem;
 import com.zsm.log.Log;
 import com.zsm.util.file.android.DocumentFileUtilities;
@@ -123,7 +123,7 @@ public class ExportTask extends ExportImportTask {
 				return RESULT.CANCELLED;
 			}
 			
-			WhatToDoItem data = viewItem.getData();
+			WhatToDoItemV2 data = viewItem.getData();
 			rootElement.appendChild( data.toXmlElement(document) );
 		}
 		
@@ -161,7 +161,7 @@ public class ExportTask extends ExportImportTask {
 					return RESULT.CANCELLED;
 				}
 				
-				WhatToDoItem data = viewItem.getData();
+				WhatToDoItemV2 data = viewItem.getData();
 				data.toReadableText(writer);
 				writer.append(ExportImportTask.PAGE_BREAK);
 			}

@@ -15,12 +15,16 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 
+import com.zsm.encryptIt.ItemCompator;
 import com.zsm.encryptIt.SystemParameter;
 import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.WhatToDoItemV2;
 import com.zsm.encryptIt.action.ItemStorageAdapter;
+import com.zsm.io.SerializedObjectInputStream;
 import com.zsm.log.Log;
 import com.zsm.persistence.BadPersistenceFormatException;
 import com.zsm.persistence.InOutDecorator;
+import com.zsm.recordstore.AbstractMetaDataCursor;
 import com.zsm.recordstore.AbstractRawCursor;
 import com.zsm.recordstore.LongRowId;
 import com.zsm.util.file.FileUtilities;
@@ -48,26 +52,37 @@ public class ProviderStorageAdapter implements ItemStorageAdapter {
 	}
 
 	@Override
-	public WhatToDoItem read(AbstractRawCursor cursor)
+	public byte[] getMetaData(String key) {
+		AbstractMetaDataCursor c
+			= (AbstractMetaDataCursor) contentSolver.query(
+					EncryptItContentProvider.getMetaDataUri(),
+					null, EncryptItContentProvider.PARAMETER_KEY + "=?",
+					new String[] { key }, null);
+
+		if( c == null ) {
+			return null;
+		}
+		
+		return c.getData();
+	}
+
+	@Override
+	public WhatToDoItemV2 read(AbstractRawCursor cursor)
 			throws ClassNotFoundException, IOException, BadPersistenceFormatException {
 		
 		byte[] data = cursor.getData();	// Encoded data
-		InputStream in = new ByteArrayInputStream( data );
-		ObjectInputStream serIn = null;
-		WhatToDoItem item = null;
-		try {
-			serIn = new ObjectInputStream(decorator.wrapInputStream(in));	// decode
-			item = (WhatToDoItem)serIn.readObject();
+		Object obj = null;
+		try( InputStream in = new ByteArrayInputStream( data );
+				ObjectInputStream serIn
+					= new ObjectInputStream(decorator.wrapInputStream(in));	// decode
+				) {
+			
+			obj = serIn.readObject();
 		} catch ( OptionalDataException | ClassCastException e ) {
 			Log.e( e, "Bad persistence data format. ", "id", cursor.currentId() );
 			throw new BadPersistenceFormatException( e );
-		} finally {
-			if( serIn != null ) {
-				serIn.close();
-			}
-			in.close();
 		}
-
+		WhatToDoItemV2 item = ItemCompator.toLastVersionItem(obj);
 		item.setContext( cursor.currentId() );
 		return item;
 	}
@@ -79,7 +94,7 @@ public class ProviderStorageAdapter implements ItemStorageAdapter {
 	}
 
 	@Override
-	public RowId add(WhatToDoItem item) throws IOException {
+	public RowId add(WhatToDoItemV2 item) throws IOException {
 		Log.d( "The following is the data to be added: ", item );
 		RowId id = null;
 		ContentValues values = putItemIntoContent( item );
@@ -91,14 +106,14 @@ public class ProviderStorageAdapter implements ItemStorageAdapter {
 	}
 
 	@Override
-	public void update(RowId rowId, WhatToDoItem item) throws IOException {
+	public void update(RowId rowId, WhatToDoItemV2 item) throws IOException {
 		Log.d( "The following is the data to be updated: ", item );
 		ContentValues values = putItemIntoContent( item );
 		Uri uriWithId = Uri.withAppendedPath(CONTENT_URI, rowId.toString());
 		contentSolver.update(uriWithId, values, null, null);
 	}
 	
-	private ContentValues putItemIntoContent( WhatToDoItem item ) throws IOException {
+	private ContentValues putItemIntoContent( WhatToDoItemV2 item ) throws IOException {
 		ByteArrayOutputStream aos = new ByteArrayOutputStream();
 		ObjectOutputStream serOut = null;
 		ContentValues values = null;

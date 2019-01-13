@@ -21,7 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.zsm.encryptIt.R;
-import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.WhatToDoItemV2;
 import com.zsm.log.Log;
 
 public class ToDoListItemView extends LinearLayout {
@@ -206,7 +206,7 @@ public class ToDoListItemView extends LinearLayout {
 
 	public void setDisplayValue( WhatToDoListViewItem item, int position ) {
 		initViewWidth();
-		WhatToDoItem data = item.getData();
+		WhatToDoItemV2 data = item.getData();
 		
 		String time = DATE_FORMAT.format(data.getModifiedTime());
 		

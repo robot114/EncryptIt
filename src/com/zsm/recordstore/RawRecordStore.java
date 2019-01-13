@@ -3,11 +3,13 @@ package com.zsm.recordstore;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.sql.RowId;
+import java.util.HashMap;
 
 import android.support.annotation.NonNull;
 
 import com.zsm.log.Log;
 import com.zsm.util.Converter;
+import com.zsm.util.NumberUtil;
 
 /**
  * This abstract class represents a raw records set in which all the records match the
@@ -23,24 +25,40 @@ import com.zsm.util.Converter;
  */
 public abstract class RawRecordStore implements Closeable {
 
-	public final static String TABLE_NAME = "raw_data";
+	public final static String META_DATA_TABLE_NAME = "meta_data";
+	public final static String RAW_DATA_TABLE_NAME = "raw_data";
 	
 	public static final String COLUMN_ID = "_id";
 	public static final String COLUMN_DATA = "data";
 	public static final String COLUMN_CREATE = "created";
 	public static final String COLUMN_MODIFY = "modified";
-	static final String COLUMNS_ALL
+	public static final String COLUMN_KEY = "key";
+	
+	static final String RAW_COLUMNS_ALL
 			= COLUMN_ID + ", " + COLUMN_DATA + ", " + COLUMN_CREATE
 				+ ", " + COLUMN_MODIFY;
-	protected static final String[] COLUMNS
+	protected static final String[] RAW_COLUMNS
 		= { COLUMN_ID, COLUMN_DATA, COLUMN_CREATE, COLUMN_MODIFY };
 
-	public final static String CREATE_SQL
-		= "create table " + TABLE_NAME + " ("
+	public final static String CREATE_RAW_TABLE_SQL
+		= "create table " + RAW_DATA_TABLE_NAME + " ("
 		  + COLUMN_ID + " integer primary key autoincrement, "
 		  + COLUMN_CREATE + " datetime, "
 		  + COLUMN_MODIFY + " datetime, "
 		  + COLUMN_DATA + " VARBINARY)";
+	
+	static final String META_COLUMNS_ALL = COLUMN_KEY + ", " + COLUMN_DATA;
+	static final String[] META_COLUMNS = { COLUMN_KEY, COLUMN_DATA };
+	
+	public final static String CREATE_META_TABLE_SQL
+					= "create table if not exists " + META_DATA_TABLE_NAME + " ("
+					  + COLUMN_KEY + " text primary key, "
+					  + COLUMN_DATA + " VARBINARY)";
+	
+	private final static String KEY_DATA_VERSION = "DataVersion";
+	private final static int DEFAULT_DATA_VERSION = 1;
+	
+	private static final String SELECTION_KEY = COLUMN_KEY + " = ?";
 	
 	final private RecordStore recordStore;
 
@@ -59,6 +77,7 @@ public abstract class RawRecordStore implements Closeable {
 	public RawRecordStore( @NonNull RecordStore rs, boolean closeTogether ) {
 		recordStore = rs;
 		this.closeTogether = closeTogether;
+		initConvertor();
 	}
 	
 	/**
@@ -73,13 +92,18 @@ public abstract class RawRecordStore implements Closeable {
 	 * @return the generated record store
 	 */
 	public RawRecordStore( @NonNull RecordStore rs ) {
-		recordStore = rs;
-		this.closeTogether = true;
+		this( rs, true );
 	}
 	
 	protected RawRecordStore(Object db, boolean readOnly) {
 		recordStore = generateRecordStore( db, readOnly );
 		closeTogether = true;
+		initConvertor();
+	}
+	
+	private void initConvertor() {
+		recordStore.addConverter(RAW_DATA_TABLE_NAME, getConverter(RAW_DATA_TABLE_NAME));
+		recordStore.addConverter(META_DATA_TABLE_NAME, getConverter(META_DATA_TABLE_NAME));
 	}
 
 	/**
@@ -115,6 +139,85 @@ public abstract class RawRecordStore implements Closeable {
 		return recordStore.isOpen();
 	}
 	
+	public int getDataVersion() {
+		return getIntMetaData( KEY_DATA_VERSION, DEFAULT_DATA_VERSION );
+	}
+
+	public void upgradeDataVersion( int newVersion ) {
+		int version = getDataVersion();
+		if( version > newVersion ) {
+			throw new RecordStoreException( "New data version (" + newVersion
+								+ ") less than the current version ("
+								+ version + ")!" );
+		}
+		putMetaData(KEY_DATA_VERSION, newVersion);
+	}
+	
+	public AbstractMetaDataCursor queryMetaData( String key ) {
+		
+		RecordStoreCursor cursor
+			= recordStore.newCursor( META_DATA_TABLE_NAME, META_COLUMNS,
+								 	 SELECTION_KEY, new String[]{ key },
+								 	 null,/*group by*/ null/* having */,
+								 	 COLUMN_DATA + " DESC", null );
+		
+		if( cursor != null && cursor.getCount() < 1 ) {
+			cursor.close();
+			cursor = null;
+		}
+		
+		if( cursor != null ) {
+			return new RawRecordStoreMetaCursor( this, cursor, true );
+		}
+		return null;
+	}
+
+	public byte[] getMetaData( String key ) {
+		AbstractMetaDataCursor cursor = queryMetaData( key );
+		if( cursor == null ) {
+			return null;
+		}
+		
+		byte[] data = cursor.getData();
+		cursor.close();
+		
+		return data;
+	}
+	
+	public int getIntMetaData( String key, int defaultValue ) {
+		AbstractMetaDataCursor cursor = queryMetaData( key );
+		if( cursor == null ) {
+			return defaultValue;
+		}
+		
+		byte[] data = cursor.getData();
+		cursor.close();
+		if( data == null || data.length < 1 ) {
+			return defaultValue;
+		}
+		
+		return NumberUtil.byteArrayToInt(data);
+	}
+	
+	public void putMetaData( String key, int value ) {
+		byte[] bytes = NumberUtil.intToByteArray(value);
+		putMetaData(key, bytes);
+	}
+
+	public void putMetaData(String key, byte[] bytes) {
+		AbstractMetaDataCursor cursor = queryMetaData( key );
+		
+		HashMap<String, byte[]> data = new HashMap<String, byte[]>();
+		data.put(key, bytes );
+		if( cursor == null ) {
+			recordStore.add(META_DATA_TABLE_NAME, data);
+		} else {
+			cursor.close();
+			recordStore.update( META_DATA_TABLE_NAME, SELECTION_KEY,
+							   	new String[] { key }, bytes );
+		}
+	}
+	
 	/**
 	 * Remove the record with the specified id. If the record does not exist,
 	 * nothing will happen.
@@ -131,7 +234,7 @@ public abstract class RawRecordStore implements Closeable {
 		
 		checkAndBeginTranscation( RecordStore.OPERATION_DELETE );
 		String where = COLUMN_ID + "=" + id;
-		int num = recordStore.remove(RawRecordStore.TABLE_NAME, where, null );
+		int num = recordStore.remove(RawRecordStore.RAW_DATA_TABLE_NAME, where, null );
 		recordStore.commit();
 		Log.d( "Record with specified id removed.", "id", id,
 			   "removed record num", num );
@@ -170,7 +273,7 @@ public abstract class RawRecordStore implements Closeable {
 			throws RecordStoreNotOpenException, InvalidOperationException {
 		
 		checkAndBeginTranscation( RecordStore.OPERATION_ADD );
-		RowId id = recordStore.add(TABLE_NAME, getConverter().convert(data) );
+		RowId id = recordStore.add(RAW_DATA_TABLE_NAME, data );
 		recordStore.commit();
 		
 		return cursorForId(id);
@@ -213,8 +316,8 @@ public abstract class RawRecordStore implements Closeable {
 		
 		checkAndBeginTranscation( RecordStore.OPERATION_UPDATE );
 		String where = COLUMN_ID + "=" + id;
-		int num = recordStore.update(RawRecordStore.TABLE_NAME, where, null,
-									 getConverter().convert(data) );
+		int num = recordStore.update(RawRecordStore.RAW_DATA_TABLE_NAME, where, null,
+									 getConverter(RAW_DATA_TABLE_NAME).convert(data) );
 		recordStore.commit();
 		Log.d( "Record with specified id removed.", "id", id,
 			   "removed record num", num );
@@ -392,7 +495,7 @@ public abstract class RawRecordStore implements Closeable {
 		return new RecordStoreSafeOutputStream( this, id );
 	}
 
-	protected abstract Converter getConverter();
+	protected abstract Converter getConverter( String tableName );
 	
 	/**
 	 * Get a cursor of a record with the id.
@@ -457,6 +560,10 @@ public abstract class RawRecordStore implements Closeable {
 	}
 
 	void closeCursor(RawRecordStoreCursor cursor) {
+		recordStore.closeCursor(cursor.getInnerCursor());
+	}
+
+	void closeCursor(RawRecordStoreMetaCursor cursor) {
 		recordStore.closeCursor(cursor.getInnerCursor());
 	}
 

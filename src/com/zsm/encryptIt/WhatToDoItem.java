@@ -17,84 +17,110 @@ import java.util.Date;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import com.zsm.log.Log;
+import com.zsm.util.ByteArray;
 
 import android.annotation.SuppressLint;
 
-import com.zsm.encryptIt.backup.ProcessIndicator;
-import com.zsm.util.ByteArray;
-
 public class WhatToDoItem implements ByteArray, Serializable {
 
-	private static final String ELEMENT_NAME_OUT_OF_ELEMENT = "_OUT_OF_ELEMENT";
+	public static final long serialVersionUID = 293178926451020105L;
+	
+	protected static final String ELEMENT_NAME_OUT_OF_ELEMENT = "_OUT_OF_ELEMENT";
 	public static final String ELEMENT_NAME_ITEM = "item";
-	private static final String ELEMENT_NAME_DETAIL = "detail";
-	private static final String ELEMENT_NAME_MODIFY_TIME = "modify_time";
-	private static final String ELEMENT_NAME_CREATE_TIME = "create_time";
-	private static final String ELEMENT_NAME_TASK = "task";
+	protected static final String ELEMENT_NAME_DETAIL = "detail";
+	protected static final String ELEMENT_NAME_MODIFY_TIME = "modify_time";
+	protected static final String ELEMENT_NAME_CREATE_TIME = "create_time";
+	protected static final String ELEMENT_NAME_TASK = "task";
 
 	@SuppressLint("SimpleDateFormat")
-	private static final SimpleDateFormat DATE_FORMAT
+	protected static final SimpleDateFormat DATE_FORMAT
 				= new SimpleDateFormat( "MMM dd yyyy HH:mm:ss zzz" );
 
-	private static final long serialVersionUID = 293178926451020105L;
+	protected String mTask;
+	protected String mDetail = "";
+	protected Date mCreatedTime;
+	protected Date mModifiedTime;
 	
-	private String task;
-	private String detail = "";
-	private Date createdTime;
-	private Date modifiedTime;
-	
-	private transient Object context;
+	protected transient Object context;
 	
 	public WhatToDoItem( String task ) {
 		this( task, new Date( System.currentTimeMillis() ) );
 	}
 	
 	public WhatToDoItem(String task, Date created) {
-		this.task = task;
-		this.detail = "";
-		this.createdTime = created;
-		modifiedTime = (Date)created.clone();
+		this.mTask = task;
+		this.mDetail = "";
+		this.mCreatedTime = created;
+		mModifiedTime = (Date)created.clone();
 	}
 	
 	public WhatToDoItem(byte[] a, int offset) {
 		fromByteArray(a, offset);
 	}
 	
-	private WhatToDoItem() {
+	protected WhatToDoItem() {
+	}
+	
+	/**
+	 * Check the validation of of the item
+	 * 
+	 * @return true, if the datas of the item are valid
+	 */
+	public boolean isValid() {
+		if( mTask == null || mTask.trim().length() == 0 ) {
+			Log.d( "Invalid item as no task" );
+			return false;
+		}
+		
+		if( mDetail == null || mCreatedTime == null || mModifiedTime == null ) {
+			Log.d( "Invalid item with null data:", "mDetail", mDetail,
+					"mCreateTime", mCreatedTime, "mModifiedTime", mModifiedTime );
+			return false;
+		}
+		
+		if( mCreatedTime.after(mModifiedTime) ) {
+			Log.d( "Invalid item, reason create time after modified time", 
+					"mCreateTime", mCreatedTime, "mModifiedTime", mModifiedTime );
+			return false;
+		}
+		
+		return true;
 	}
 
 	public String getTask() {
-		return task;
+		return mTask;
 	}
 	
 	public String getDetail() {
-		return detail;
+		return mDetail;
 	}
 
 	public Date getCreatedTime() {
-		return createdTime;
+		return mCreatedTime;
 	}
 
 	public Date getModifiedTime() {
-		return modifiedTime;
+		return mModifiedTime;
 	}
 
 	public void setTask(String task) {
-		this.task = task;
+		this.mTask = task;
 	}
 	
 	public void setDetail(String detail) {
-		this.detail = detail;
+		this.mDetail = detail;
 	}
 
 	public void changeModifiedTimeToCurrent() {
-		modifiedTime = new Date( System.currentTimeMillis() );
+		mModifiedTime = new Date( System.currentTimeMillis() );
 	}
 	
 	public void setModifiedTime(Date modify) {
-		modifiedTime = modify;
+		mModifiedTime = modify;
 	}
 	
 	public Object getContext() {
@@ -106,14 +132,16 @@ public class WhatToDoItem implements ByteArray, Serializable {
 
 	@Override
 	public String toString() {
-		String createdStr = DATE_FORMAT.format(createdTime);
-		return "(" + createdStr + ") " + task;
+		String createdStr
+			= mCreatedTime == null ? "NullCreateTime" : DATE_FORMAT.format(mCreatedTime);
+		
+		return "(" + createdStr + ") " + mTask;
 	}
 	
 	@Override
 	public byte[] toByteArray() {
 		ByteArrayOutputStream aos
-			= new ByteArrayOutputStream( (task.length()+Long.SIZE)*2+64);
+			= new ByteArrayOutputStream( (mTask.length()+Long.SIZE)*2+64);
 		
 		writeTo(aos);
 		
@@ -132,10 +160,7 @@ public class WhatToDoItem implements ByteArray, Serializable {
 		
 		int size = 0;
 		try {
-			os.writeUTF( task == null ? "" : task );
-			os.writeUTF( detail == null ? "" : detail );
-			os.writeLong( createdTime.getTime() );
-			os.writeLong( modifiedTime.getTime() );
+			writeToDataOutputStream(os);
 			size = os.size();
 			os.close();
 		} catch (IOException e) {
@@ -143,6 +168,13 @@ public class WhatToDoItem implements ByteArray, Serializable {
 			e.printStackTrace();
 		}
 		return size;
+	}
+
+	protected void writeToDataOutputStream(DataOutputStream os) throws IOException {
+		os.writeUTF( mTask == null ? "" : mTask );
+		os.writeUTF( mDetail == null ? "" : mDetail );
+		os.writeLong( mCreatedTime.getTime() );
+		os.writeLong( mModifiedTime.getTime() );
 	}
 
 	/**
@@ -181,11 +213,11 @@ public class WhatToDoItem implements ByteArray, Serializable {
 		try {
 			int available = in.available();
 			String task = dis.readUTF();
-			item.task = ( task == null ? "" : task );
+			item.mTask = ( task == null ? "" : task );
 			String detail = dis.readUTF();
-			item.detail= ( detail == null ? "" : detail );
-			item.createdTime = new Date( dis.readLong() );
-			item.modifiedTime = new Date( dis.readLong() );
+			item.mDetail= ( detail == null ? "" : detail );
+			item.mCreatedTime = new Date( dis.readLong() );
+			item.mModifiedTime = new Date( dis.readLong() );
 			sizeRead = available - in.available();
 			dis.close();
 		} catch (IOException e) {
@@ -221,19 +253,19 @@ public class WhatToDoItem implements ByteArray, Serializable {
 		if( ctString == null ) {
 			throw new ParseException( "No created time", 0 );
 		}
-		item.createdTime = DATE_FORMAT.parse( ctString );
+		item.mCreatedTime = DATE_FORMAT.parse( ctString );
 		
 		String mtString = reader.readLine();
 		if( mtString == null ) {
 			throw new ParseException( "No modify time", 0 );
 		}
-		item.modifiedTime = DATE_FORMAT.parse( mtString );
+		item.mModifiedTime = DATE_FORMAT.parse( mtString );
 		
 		StringBuffer buff = new StringBuffer();
 		for( int ch = reader.read(); ch > 0; ch = reader.read() ) {
 			buff.append((char)ch);
 		}
-		item.detail = buff.toString();
+		item.mDetail = buff.toString();
 		
 		return item;
 	}
@@ -254,60 +286,53 @@ public class WhatToDoItem implements ByteArray, Serializable {
 		return element;
 	}
 	
-	public static WhatToDoItem fromXmlElement( XmlPullParser xpp,
-											   ProcessIndicator indicator )
-					throws XmlPullParserException, ParseException, IOException {
-		
-		int type = xpp.getEventType();
-		if( type == XmlPullParser.END_DOCUMENT ) {
-			return null;
-		}
-		
+	public static WhatToDoItem fromXmlElement(Element element)
+						throws SAXException, ParseException {
+
 		WhatToDoItem item = new WhatToDoItem();
-		String elementName = xpp.getName();
-		do {
-			xpp.next();
-			type = xpp.getEventType();
-			indicator.update( xpp.getLineNumber() );
-			
-			if( type == XmlPullParser.START_TAG ) {
-				elementName = xpp.getName();
-			} else if( type == XmlPullParser.END_TAG ) {
-				elementName = ELEMENT_NAME_OUT_OF_ELEMENT;
-			} else if( type == XmlPullParser.TEXT ) {
-				String text = xpp.getText();
-				switch( elementName ) {
-					case ELEMENT_NAME_ITEM:
-						break;		// Skip the text of the item element
-					case ELEMENT_NAME_TASK:
-						item.task = text;
-						break;
-					case ELEMENT_NAME_CREATE_TIME:
-						item.createdTime = DATE_FORMAT.parse( text );
-						break;
-					case ELEMENT_NAME_MODIFY_TIME:
-						item.modifiedTime = DATE_FORMAT.parse( text );
-						break;
-					case ELEMENT_NAME_DETAIL:
-						item.detail = text;
-						break;
-					case ELEMENT_NAME_OUT_OF_ELEMENT:
-						// Out of the range of the element, do nothing
-						break;
-					default:
-						throw new XmlPullParserException( 
-								"Parse error at line: " + xpp.getLineNumber() );
-				}
-			} else {
-				
-			}
-		} while( ( type != XmlPullParser.START_TAG 
-				   || !elementName.equals( ELEMENT_NAME_ITEM ) )
-				 && type != XmlPullParser.END_DOCUMENT );
-		
+		fillItemFromXml(element, item);
+
 		return item;
 	}
-	
+
+	protected static void fillItemFromXml(Element element, WhatToDoItem item)
+							throws SAXException, ParseException {
+		
+		item.mTask = getElementText(ELEMENT_NAME_TASK, element);
+		if (item.mTask == null) {
+			throw new SAXException("Task is null!");
+		}
+		item.mDetail = getElementText(ELEMENT_NAME_DETAIL, element);
+
+		String createTime = getElementText(ELEMENT_NAME_CREATE_TIME, element);
+		if (createTime == null) {
+			item.mCreatedTime = new Date(System.currentTimeMillis());
+		} else {
+			item.mCreatedTime = DATE_FORMAT.parse(createTime);
+		}
+
+		String lastModify = getElementText(ELEMENT_NAME_MODIFY_TIME, element);
+		if (lastModify == null) {
+			item.mModifiedTime = item.mCreatedTime;
+		} else {
+			item.mModifiedTime = DATE_FORMAT.parse(lastModify);
+		}
+	}
+
+	protected static String getElementText(String name, Element element) throws SAXException {
+
+		String text = null;
+		NodeList nodes = element.getElementsByTagName(name);
+		if (nodes != null) {
+			if (nodes.getLength() == 1) {
+				text = nodes.item(0).getTextContent();
+			} else {
+				throw new SAXException("Invalid content number for " + element);
+			}
+		}
+		return text;
+	}
+
 	@Override
 	public int size() {
 		return 0;
@@ -323,21 +348,25 @@ public class WhatToDoItem implements ByteArray, Serializable {
 		}
 		WhatToDoItem item = (WhatToDoItem)o;
 		
-		if( !task.equals(item.task) ) {
+		if( !mTask.equals(item.mTask) ) {
 			return false;
 		}
 		
-		if( !( detail == null ? item.detail == null : detail.equals(item.detail) ) ) {
+		if( !( mDetail == null ? item.mDetail == null : mDetail.equals(item.mDetail) ) ) {
 			return false;
 		}
 		
 		// Do not care modify time, because it will change
-		return createdTime.equals( item.createdTime );
+		return mCreatedTime.equals( item.mCreatedTime );
 	}
 
 	@Override
 	public int hashCode() {
-		return task.hashCode() * 37 * 37 + detail.hashCode() * 37 + createdTime.hashCode();
+		return mTask.hashCode() * 37 * 37 + mDetail.hashCode() * 37 + mCreatedTime.hashCode();
+	}
+
+	public long getSerialVersionUID() {
+		return serialVersionUID;
 	}
 
 }

@@ -18,12 +18,13 @@ import java.security.InvalidParameterException;
 import java.sql.RowId;
 import java.util.Arrays;
 
-import android.os.ParcelFileDescriptor;
-
 import com.zsm.log.Log;
+import com.zsm.recordstore.AbstractMetaDataCursor;
 import com.zsm.recordstore.AbstractRawCursor;
 import com.zsm.recordstore.RawRecordStore;
 import com.zsm.recordstore.RecordStoreManager;
+
+import android.os.ParcelFileDescriptor;
 
 public class Persistence implements Closeable {
 
@@ -40,7 +41,7 @@ public class Persistence implements Closeable {
 	private boolean opened;
 
 	private InOutDecorator inOutDecorator;
-	
+
 	/**
 	 * Construct a persistence instance.
 	 * 
@@ -194,7 +195,26 @@ public class Persistence implements Closeable {
 	public AbstractRawCursor query( ) {
 		return query( null );
 	}
+	
+	/**
+	 * Get the integer meta data
+	 * 
+	 * @param key KEY of the meta data
+	 * @param defaultValue default value of the data, if failed to get get it
+	 * 			from the record store
+	 */
+	public int getIntMetaData( String key, int defaultValue ) {
+		return recordStore.getIntMetaData(key, defaultValue);
+	}
 
+	public AbstractMetaDataCursor queryMetaData( String key ) {
+		return recordStore.queryMetaData(key);
+	}
+	
+	public byte[] getMetaData( String key ) {
+		return recordStore.getMetaData(key);
+	}
+	
 	/**
 	 * Close the persistence
 	 * 
@@ -302,21 +322,16 @@ public class Persistence implements Closeable {
 			throws BadPersistenceFormatException, ClassNotFoundException, IOException {
 		
 		checkOpened();
-		InputStream in = getInputStream(cursor);
-		ObjectInputStream serIn = null;
 		Object obj = null;
 		
-		try {
-			serIn = new ObjectInputStream(in);
+		try(
+			InputStream in = getInputStream(cursor);
+			ObjectInputStream serIn = new ObjectInputStream(in);
+		) {
 			obj = serIn.readObject();
 		} catch( OptionalDataException | StreamCorruptedException e ) {
 			Log.e( e, "Bad item format in persistence." );
 			throw new BadPersistenceFormatException( e );
-		} finally {
-			if( serIn != null ) {
-				serIn.close();
-			}
-			in.close();
 		}
 		
 		return obj;

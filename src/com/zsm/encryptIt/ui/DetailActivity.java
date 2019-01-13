@@ -26,7 +26,7 @@ import android.widget.TextView.BufferType;
 import android.widget.Toast;
 
 import com.zsm.encryptIt.R;
-import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.WhatToDoItemV2;
 import com.zsm.encryptIt.app.EncryptItApplication;
 import com.zsm.encryptIt.telephony.SecurityDialerActivity;
 import com.zsm.encryptIt.telephony.SecurityMessageActivity;
@@ -46,7 +46,7 @@ public class DetailActivity extends ProtectedActivity {
 	private static final DateFormat TIME_FORMAT
 		= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 	
-	private WhatToDoItem whatToDoItem;
+	private WhatToDoItemV2 whatToDoItem;
 	private int position;
 
 	private String originalTask;
@@ -82,7 +82,7 @@ public class DetailActivity extends ProtectedActivity {
 		TextView modified = (TextView)findViewById( R.id.detailModifyTime );
 		
 		byte[] a = intent.getByteArrayExtra(KEY_ROW_ITEM);
-		whatToDoItem = WhatToDoItem.fromByteArray(a, 0);
+		whatToDoItem = WhatToDoItemV2.fromByteArray(a, 0);
 		position = intent.getIntExtra(KEY_ROW_POSITION, -1);
 		
 		originalTask = whatToDoItem.getTask();

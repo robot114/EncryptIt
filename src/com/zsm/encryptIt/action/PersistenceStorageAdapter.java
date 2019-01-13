@@ -8,7 +8,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.RowId;
 
+import com.zsm.encryptIt.ItemCompator;
 import com.zsm.encryptIt.WhatToDoItem;
+import com.zsm.encryptIt.WhatToDoItemV2;
 import com.zsm.log.Log;
 import com.zsm.persistence.BadPersistenceFormatException;
 import com.zsm.persistence.Persistence;
@@ -33,11 +35,18 @@ public class PersistenceStorageAdapter implements ItemStorageAdapter {
 	}
 
 	@Override
-	public WhatToDoItem read(AbstractRawCursor cursor)
+	public byte[] getMetaData(String key) {
+		return persistence.getMetaData(key);
+	}
+
+	@Override
+	public WhatToDoItemV2 read(AbstractRawCursor cursor)
 			throws ClassNotFoundException, IOException,
 					BadPersistenceFormatException {
 		
-		return (WhatToDoItem) persistence.read(cursor);
+		Object obj = persistence.read(cursor);
+		
+		return ItemCompator.toLastVersionItem(obj);
 	}
 
 	@Override
@@ -50,12 +59,12 @@ public class PersistenceStorageAdapter implements ItemStorageAdapter {
 	}
 
 	@Override
-	public RowId add(WhatToDoItem item) throws IOException {
+	public RowId add(WhatToDoItemV2 item) throws IOException {
 		return persistence.add(item);
 	}
 
 	@Override
-	public void update(RowId rowId, WhatToDoItem item) throws IOException {
+	public void update(RowId rowId, WhatToDoItemV2 item) throws IOException {
 		persistence.update(rowId, item);
 	}
 

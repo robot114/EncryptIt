@@ -11,7 +11,7 @@ public abstract class AbstractRawCursor extends AbstractCursor {
 
 	@Override
 	public String[] getColumnNames() {
-		return RawRecordStore.COLUMNS;
+		return RawRecordStore.RAW_COLUMNS;
 	}
 
 	/**

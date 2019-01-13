@@ -1,16 +1,13 @@
 package com.zsm.recordstore;
 
 import java.sql.RowId;
-import java.util.Date;
 
-public class RawRecordStoreCursor extends AbstractRawCursor {
+public class RawRecordStoreMetaCursor extends AbstractMetaDataCursor {
 
 	final private RawRecordStore recordStore;
 	final private RecordStoreCursor innerCursor;
-	final protected int idColumnIndex;
+	final protected int keyColumnIndex;
 	final protected int dataColumnIndex;
-	final protected int createColumnIndex;
-	final protected int modifyColumnIndex;
 	final protected boolean closeInnerTogether;
 
 	/**
@@ -22,16 +19,14 @@ public class RawRecordStoreCursor extends AbstractRawCursor {
 	 * @param closeInnerTogether whether close the record store cursor when close
 	 * 							 this one
 	 */
-	protected RawRecordStoreCursor( RawRecordStore rs, RecordStoreCursor cursor,
-								 	boolean closeInnerTogether ) {
+	protected RawRecordStoreMetaCursor( RawRecordStore rs, RecordStoreCursor cursor,
+								 		boolean closeInnerTogether ) {
 		super();
 		recordStore = rs;
 		innerCursor = cursor;
 		
-		idColumnIndex = cursor.getColumnIndex( RawRecordStore.COLUMN_ID );
+		keyColumnIndex = cursor.getColumnIndex( RawRecordStore.COLUMN_KEY );
 		dataColumnIndex = cursor.getColumnIndex( RawRecordStore.COLUMN_DATA );
-		createColumnIndex = cursor.getColumnIndex( RawRecordStore.COLUMN_CREATE );
-		modifyColumnIndex = cursor.getColumnIndex( RawRecordStore.COLUMN_MODIFY );
 		this.closeInnerTogether = closeInnerTogether;
 	}
 	
@@ -60,22 +55,21 @@ public class RawRecordStoreCursor extends AbstractRawCursor {
 	 * 					implementation-defined
 	 * @param cursorMover cursor mover to move the cursor
 	 */
-	RawRecordStoreCursor( RawRecordStore rs, String selection,
-			   			  String[] selectionArgs, String groupBy,
-			   			  String having, String orderBy, Object parameter ) {
+	RawRecordStoreMetaCursor( RawRecordStore rs, String selection,
+			   			  	  String[] selectionArgs, String groupBy,
+			   			  	  String having, String orderBy, Object parameter ) {
 		super();
 		recordStore = rs;
 		innerCursor
 			= recordStore.getRecordStore().newCursor(
-								RawRecordStore.RAW_DATA_TABLE_NAME, RawRecordStore.RAW_COLUMNS,
+								RawRecordStore.META_DATA_TABLE_NAME,
+								RawRecordStore.META_COLUMNS,
 								selection, selectionArgs, groupBy, having,
 								orderBy, parameter );
 ;
 		
-		idColumnIndex = innerCursor.getColumnIndex( RawRecordStore.COLUMN_ID );
+		keyColumnIndex = innerCursor.getColumnIndex( RawRecordStore.COLUMN_KEY );
 		dataColumnIndex = innerCursor.getColumnIndex( RawRecordStore.COLUMN_DATA );
-		createColumnIndex = innerCursor.getColumnIndex( RawRecordStore.COLUMN_CREATE );
-		modifyColumnIndex = innerCursor.getColumnIndex( RawRecordStore.COLUMN_MODIFY );
 		closeInnerTogether = true;
 	}
 	
@@ -133,8 +127,8 @@ public class RawRecordStoreCursor extends AbstractRawCursor {
 	}
 
 	@Override
-	public RowId currentId() {
-		return new LongRowId( innerCursor.getInt(idColumnIndex) );
+	public String getKey() {
+		return innerCursor.getString(keyColumnIndex);
 	}
 
 	@Override
@@ -142,15 +136,6 @@ public class RawRecordStoreCursor extends AbstractRawCursor {
 		return innerCursor.getBlob(dataColumnIndex);
 	}
 
-	@Override
-	public Date getCreated() {
-		return new Date( innerCursor.getLong(createColumnIndex) );
-	}
-
-	@Override
-	public Date getLastModified() {
-		return new Date( innerCursor.getLong(modifyColumnIndex) );
-	}
 	@Override
 	public boolean moveToFirst() throws RecordStoreNotOpenException {
 		return innerCursor.moveToFirst();
